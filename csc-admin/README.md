@@ -1,4 +1,4 @@
-# Christian Service Church: admin page
+﻿# Christian Service Church: admin page
 
 Files
 - admin.html: the admin dashboard (updates, sermons, gallery, testimonies, events, prayer requests)

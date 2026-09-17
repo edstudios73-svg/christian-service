@@ -1,4 +1,4 @@
-# Christian Service Church — Website SEO & GEO Handover
+﻿# Christian Service Church — Website SEO & GEO Handover
 
 Prepared 19 September 2026. Read this once before you put the site live.
 
@@ -67,7 +67,7 @@ The footer links to Facebook, Instagram and YouTube are currently pointing to th
 of those sites, because the old site had `href="#"` (a dead link). Put your real page
 addresses in `js/app.js`, and also add them to the `sameAs` list in `apply_seo.py`
 (or directly in the JSON-LD of each page). The WhatsApp link already works:
-it opens a chat with +233 24 402 2995.
+it opens a chat with 0551172156.
 
 ### f) Mobile Money details
 
@@ -250,3 +250,4 @@ a claimed Google listing with real reviews, correct service times everywhere, re
 real services, and real testimonies from real members.
 
 Everything else is support.
+

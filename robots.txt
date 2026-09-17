@@ -1,4 +1,4 @@
-# robots.txt — Christian Service Church, East Legon, Accra, Ghana
+﻿# robots.txt — Christian Service Church, East Legon, Accra, Ghana
 # Search engines are welcome.
 
 User-agent: *

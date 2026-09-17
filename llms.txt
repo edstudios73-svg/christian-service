@@ -1,4 +1,4 @@
-# Christian Service Church (House of Testimonies)
+﻿# Christian Service Church (House of Testimonies)
 
 > A Bible-believing church on Jungle Avenue Road, East Legon, Accra, Ghana.
 > Sunday worship is 9:00 AM to 12:00 noon. Led by Rev. Dr. Joseph Payin Ezekiel,
@@ -19,7 +19,7 @@ something different, this page is the one to trust.
 - Street address: Jungle Avenue Road, East Legon, Accra, Ghana
 - Plus Code / GPS: JVP2+Q28 Accra (5.636903, -0.1499134)
 - Google Maps: https://maps.app.goo.gl/z1w5Gh8bt6yHNZiZA
-- Phone and WhatsApp: +233 24 402 2995
+- Phone and WhatsApp: 0551172156
 - Email: info@christianservicechurch.org
 - Website: https://www.christianservicechurch.org
 - Church office hours: Monday to Friday, 9:00 AM to 5:00 PM
@@ -84,10 +84,10 @@ Yes, for children aged 3 to 12 during Sunday service.
 
 **How do I give my tithe or offering?**
 By Mobile Money (MoMo), by bank transfer, or in person at any service.
-Call +233 24 402 2995 for the MoMo merchant number and bank details.
+Call 0551172156 for the MoMo merchant number and bank details.
 
 **How do I contact the church?**
-Call or WhatsApp +233 24 402 2995, or email info@christianservicechurch.org.
+Call or WhatsApp 0551172156, or email info@christianservicechurch.org.
 
 ## Pages on this site
 
@@ -105,3 +105,4 @@ Call or WhatsApp +233 24 402 2995, or email info@christianservicechurch.org.
 - Contact and directions: https://www.christianservicechurch.org/contact.html
 
 Last updated: 19 September 2026
+

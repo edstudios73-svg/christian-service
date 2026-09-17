@@ -1,9 +1,9 @@
-/* Public content bridge: published Supabase content only. */
+﻿/* Public content bridge: published Supabase content only. */
 (function () {
   'use strict';
 
-  const SUPABASE_URL = 'https://uysfgupzlxfhplwqcttp.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzIiwicmVmIjoidXlzZmd1cHpseGZocGx3cWN0dHAiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc4OTgxNTE1MSwiZXhwIjoyMTA1MzkxMTUxfQ.uAh-0SFwbLVGKA4J62f2blR_18PCUfquJZs0k9pY1Gs';
+  const SUPABASE_URL = 'https://YOUR_PROJECT_REF.supabase.co';
+  const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
   const loadScript = (src) => new Promise((resolve, reject) => {
     const script = document.createElement('script');
     script.src = src;

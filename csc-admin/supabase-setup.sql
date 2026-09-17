@@ -199,13 +199,13 @@ create policy "admin removes media" on storage.objects
 -- OPTIONAL: clear all database content for a fresh start
 -- Run only when you want to wipe the site content.
 -- ---------------------------------------------------------------------
-truncate table public.announcements restart identity cascade;
-truncate table public.pages restart identity cascade;
-truncate table public.updates restart identity cascade;
-truncate table public.sermons restart identity cascade;
-truncate table public.gallery restart identity cascade;
-truncate table public.testimonies restart identity cascade;
-truncate table public.events restart identity cascade;
-truncate table public.prayers restart identity cascade;
+-- truncate table public.announcements restart identity cascade;
+-- truncate table public.pages restart identity cascade;
+-- truncate table public.updates restart identity cascade;
+-- truncate table public.sermons restart identity cascade;
+-- truncate table public.gallery restart identity cascade;
+-- truncate table public.testimonies restart identity cascade;
+-- truncate table public.events restart identity cascade;
+-- truncate table public.prayers restart identity cascade;
 
 -- After this, run STEP 1 again if you want the default page records back.

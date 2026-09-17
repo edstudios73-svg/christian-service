@@ -211,7 +211,6 @@ create policy "admin removes media" on storage.objects
 -- ---------------------------------------------------------------------
 -- truncate table public.announcements restart identity cascade;
 -- truncate table public.pages restart identity cascade;
--- truncate table public.updates restart identity cascade;
 -- truncate table public.sermons restart identity cascade;
 -- truncate table public.gallery restart identity cascade;
 -- truncate table public.testimonies restart identity cascade;

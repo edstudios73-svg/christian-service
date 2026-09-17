@@ -549,6 +549,8 @@ main { position: relative; z-index: 1; }
   transform: scale(1.04);
   animation: hero-pan 20s ease-in-out infinite alternate;
 }
+.hero[data-page-key], .page-header[data-page-key] { visibility: hidden; }
+.hero[data-page-key].page-settings-ready, .page-header[data-page-key].page-settings-ready { visibility: visible; }
 .hero__overlay {
   position: absolute;
   inset: 0;

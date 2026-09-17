@@ -21,6 +21,7 @@
     return Number.isNaN(date.getTime()) ? esc(value) : date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
   };
   const imageStyle = (image) => image ? ` style="background-image: linear-gradient(135deg, rgba(10,26,63,.35), rgba(27,58,139,.5)), url('${esc(image)}')"` : '';
+  const revealPageSettings = () => document.querySelector('[data-page-key]')?.classList.add('page-settings-ready');
 
   async function fetchPublished(sb, table, order = 'created_at') {
     const { data, error } = await sb.from(table).select('*').eq('published', true).order(order, { ascending: false });
@@ -157,7 +158,10 @@
     const header = document.querySelector('[data-page-key]');
     if (!header) return;
     const { data, error } = await sb.from('pages').select('*').eq('slug', header.dataset.pageKey).eq('published', true).maybeSingle();
-    if (error || !data) return;
+    if (error || !data) {
+      revealPageSettings();
+      return;
+    }
     const bg = header.querySelector('.page-header__bg, .hero__bg') || header;
     const title = header.querySelector('.page-header__title, .hero__title, h1');
     const subtitle = header.querySelector('.page-header__sub, .hero__tagline, h1 + p');
@@ -181,6 +185,7 @@
     } else if (copy) {
       copy.remove();
     }
+    revealPageSettings();
   }
 
   async function init() {
@@ -211,6 +216,7 @@
         .subscribe();
     } catch (error) {
       console.warn('Published church content is unavailable.', error);
+      revealPageSettings();
     }
   }
 

@@ -24,3 +24,15 @@ Notes
 - Run each SQL step only once. A "policy already exists" message on a re-run is harmless.
 - The reset statements at the bottom are commented out. Uncomment them only when intentionally clearing all content.
 - Use Setup and backup inside the admin to download a JSON backup of everything.
+
+Deploy on Vercel
+1. Push the project to GitHub, then open vercel.com and choose Add New Project.
+2. Import the repository `edstudios73-svg/christian-service`.
+3. Set the Root Directory to `christian-service-church` because the static site is inside that folder.
+4. Leave Framework Preset as Other. Leave Build Command empty and Output Directory as `.`.
+5. Click Deploy. Vercel will serve `index.html` and the other HTML pages as a static site.
+6. In Supabase, open Authentication > URL Configuration. Set the Site URL to your Vercel URL, for example `https://your-project.vercel.app`.
+7. Add the Vercel URL and any custom domain URL to Additional Redirect URLs, then save.
+8. Test the public site and open `/csc-admin/admin.html`. Sign in with the confirmed `edstudios77@gmail.com` Auth user.
+
+The browser uses the Supabase URL and anon key already stored in `admin.html` and `js/supabase-public.js`. Do not add a Supabase service-role key to Vercel or any browser file. If you later move the credentials to Vercel environment variables, use only a public anon key in client-side code.

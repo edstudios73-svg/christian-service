@@ -126,7 +126,8 @@
       document.querySelectorAll('.nav__announcement-count').forEach((badge) => {
         const total = Number(count || 0);
         badge.textContent = total > 99 ? '99+' : String(total);
-        badge.hidden = total === 0;
+        badge.hidden = false;
+        badge.parentElement?.setAttribute('aria-label', `Announcements (${total})`);
       });
       if (document.querySelector('[data-supabase-events]')) renderEvents(await fetchPublished(sb, 'events', 'date'));
       if (document.querySelector('[data-supabase-sermons]')) renderSermons(await fetchPublished(sb, 'sermons', 'date'));

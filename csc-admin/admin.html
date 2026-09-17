@@ -460,7 +460,7 @@ const Store = {
   async init() {
     if (!(typeof SUPABASE_URL !== 'undefined' && SUPABASE_URL && typeof SUPABASE_ANON_KEY !== 'undefined' && SUPABASE_ANON_KEY)) return;
     await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2');
-    this.sb = window.supabase.createClient(SUPABASE_URL, 'sb_publishable_5T68Teyy88wmJUlckVRneA_Yfh0OKZV');
+    this.sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     this.mode = 'supabase';
   },
   async list(col) {

@@ -119,7 +119,7 @@
     if (!hasMount) return;
     try {
       await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2');
-      const sb = window.supabase.createClient(SUPABASE_URL, 'sb_publishable_5T68Teyy88wmJUlckVRneA_Yfh0OKZV');
+      const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
       await applyPageSettings(sb);
       if (document.querySelector('[data-supabase-announcements]')) renderAnnouncements(await fetchPublished(sb, 'announcements', 'date'));
       const { count } = await sb.from('announcements').select('id', { count: 'exact', head: true }).eq('published', true);

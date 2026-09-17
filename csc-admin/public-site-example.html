@@ -1,0 +1,62 @@
+<!--
+  Example: show published sermons and send prayer requests from your PUBLIC pages.
+  Copy the parts you need into your sermons page and prayer page.
+  Replace YOUR_SUPABASE_URL and YOUR_ANON_KEY with the same values you put in admin.html.
+  Other sections work the same way: change 'sermons' to updates, gallery, testimonies or events.
+  Column names use underscores, for example s.video_url.
+-->
+
+<!-- ===== Sermons list ===== -->
+<div id="sermons">Loading sermons…</div>
+
+<!-- ===== Prayer request form ===== -->
+<form id="prayerForm">
+  <input name="name" placeholder="Your name" required>
+  <input name="contact" placeholder="Phone or email (optional)">
+  <textarea name="request" placeholder="Your prayer request" required></textarea>
+  <button type="submit">Send prayer request</button>
+  <p id="prayerMsg"></p>
+</form>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const sb = supabase.createClient('YOUR_SUPABASE_URL', 'YOUR_ANON_KEY');
+
+  // Sermons
+  const box = document.getElementById('sermons');
+  sb.from('sermons').select('*').eq('published', true)
+    .order('date', { ascending: false })
+    .then(({ data, error }) => {
+      if (error) { box.textContent = 'Could not load sermons right now.'; return; }
+      box.textContent = data.length ? '' : 'No sermons yet.';
+      data.forEach(s => {
+        const card = document.createElement('article');
+        const h = document.createElement('h3');
+        h.textContent = s.title;
+        const p = document.createElement('p');
+        p.textContent = [s.preacher, s.date].filter(Boolean).join(', ');
+        card.append(h, p);
+        if (s.image) { const img = document.createElement('img'); img.src = s.image; img.alt = ''; img.style.maxWidth = '100%'; card.append(img); }
+        if (/^https?:\/\//.test(s.video_url || '')) {
+          const a = document.createElement('a');
+          a.href = s.video_url; a.textContent = 'Watch'; a.target = '_blank'; a.rel = 'noopener';
+          card.append(a);
+        }
+        box.append(card);
+      });
+    });
+
+  // Prayer requests
+  document.getElementById('prayerForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const f = e.target, msg = document.getElementById('prayerMsg');
+    const { error } = await sb.from('prayers').insert({
+      name: f.name.value.trim(),
+      contact: f.contact.value.trim(),
+      body: f.request.value.trim(),
+      date: new Date().toISOString().slice(0, 10)
+    });
+    msg.textContent = error ? 'Could not send. Please try again.' : 'Thank you. We are praying with you.';
+    if (!error) f.reset();
+  });
+</script>

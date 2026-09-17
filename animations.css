@@ -1,0 +1,194 @@
+/* ==========================================================================
+   CHRISTIAN SERVICE CHURCH — Animations
+   CSS keyframes + reveal classes. JS toggles .is-visible via IntersectionObserver.
+   ========================================================================== */
+
+/* ---------- Keyframes ---------- */
+@keyframes ripple-anim {
+  to { transform: scale(4); opacity: 0; }
+}
+
+@keyframes float-particle {
+  0%   { transform: translateY(0) translateX(0); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 0.6; }
+  100% { transform: translateY(-120px) translateX(20px); opacity: 0; }
+}
+
+@keyframes float-glow {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(20px, -20px) scale(1.1); }
+}
+
+@keyframes scroll-dot {
+  0%   { transform: translate(-50%, 0); opacity: 1; }
+  100% { transform: translate(-50%, 16px); opacity: 0; }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes float-icon {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulse-ring {
+  0%   { transform: scale(0.8); opacity: 0.6; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes count-bounce {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+@keyframes hero-pan {
+  0%   { transform: scale(1.04) translate3d(0, 0, 0); }
+  100% { transform: scale(1.12) translate3d(-2%, 2%, 0); }
+}
+
+@keyframes hero-glow-pulse {
+  0%, 100% { opacity: 0.24; transform: scale(0.95); }
+  50%      { opacity: 0.42; transform: scale(1.08); }
+}
+
+/* ---------- Hero entrance ---------- */
+.hero__welcome { animation: fade-up 0.8s var(--ease) 0.2s both; }
+.hero__title   { animation: fade-up 0.9s var(--ease) 0.35s both; }
+.hero__tagline { animation: fade-up 0.9s var(--ease) 0.5s both; }
+.hero__desc    { animation: fade-up 0.9s var(--ease) 0.65s both; }
+.hero__buttons { animation: fade-up 0.9s var(--ease) 0.8s both; }
+
+/* ---------- Page header entrance ---------- */
+.page-header .breadcrumb    { animation: fade-up 0.7s var(--ease) 0.15s both; }
+.page-header__title         { animation: fade-up 0.8s var(--ease) 0.3s both; }
+.page-header__sub           { animation: fade-up 0.8s var(--ease) 0.45s both; }
+
+/* ---------- Scroll reveal ---------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
+  will-change: opacity, transform;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.94);
+  transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+}
+.reveal-scale.is-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-30px);
+  transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
+}
+.reveal-left.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(30px);
+  transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
+}
+.reveal-right.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Stagger delays */
+.reveal[data-delay="1"]  { transition-delay: 0.08s; }
+.reveal[data-delay="2"]  { transition-delay: 0.16s; }
+.reveal[data-delay="3"]  { transition-delay: 0.24s; }
+.reveal[data-delay="4"]  { transition-delay: 0.32s; }
+.reveal[data-delay="5"]  { transition-delay: 0.40s; }
+.reveal[data-delay="6"]  { transition-delay: 0.48s; }
+.reveal-scale[data-delay="1"] { transition-delay: 0.08s; }
+.reveal-scale[data-delay="2"] { transition-delay: 0.16s; }
+.reveal-scale[data-delay="3"] { transition-delay: 0.24s; }
+.reveal-scale[data-delay="4"] { transition-delay: 0.32s; }
+
+/* ---------- Floating icon ---------- */
+.float-icon { animation: float-icon 3s ease-in-out infinite; }
+.float-icon-delay { animation-delay: 1s; }
+
+/* ---------- Loading spinner ---------- */
+.spinner {
+  width: 20px; height: 20px;
+  border: 2.5px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* ---------- Shimmer skeleton ---------- */
+.skeleton {
+  background: linear-gradient(90deg, var(--c-bg-alt) 25%, var(--c-bg-soft) 50%, var(--c-bg-alt) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--r-md);
+}
+
+/* ---------- Active nav link underline ---------- */
+.nav__logo::after {
+  content: '';
+  display: block;
+  height: 2px;
+  width: 0;
+  background: var(--c-accent);
+  transition: width 0.3s var(--ease);
+}
+
+/* ---------- Card hover glow ---------- */
+@media (hover: hover) {
+  .feature-card:hover, .ministry-card:hover, .sermon-card:hover {
+    transform: translateY(-6px);
+  }
+}
+
+/* ---------- Button hover lift ---------- */
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: scale(0.96) translateY(0); }

@@ -1,0 +1,35 @@
+# robots.txt — Christian Service Church, East Legon, Accra, Ghana
+# Search engines are welcome.
+
+User-agent: *
+Allow: /
+
+# AI assistants and answer engines are welcome to read and cite this site.
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+Sitemap: https://www.christianservicechurch.org/sitemap.xml

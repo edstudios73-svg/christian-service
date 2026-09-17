@@ -1,0 +1,199 @@
+/* ==========================================================================
+   SEO / GEO additions — service times, location, FAQ, rich footer
+   Uses the existing design tokens from style.css
+   ========================================================================== */
+
+/* ---------- Quick info bar (shows the key facts high on the page) ---------- */
+.info-bar {
+  display: grid;
+  gap: var(--sp-3);
+  margin-top: var(--sp-5);
+}
+.info-bar__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  background: var(--c-white);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  padding: var(--sp-4);
+  box-shadow: var(--sh-sm);
+}
+.info-bar__icon {
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-sm);
+  background: var(--c-primary-50);
+  color: var(--c-primary);
+}
+.info-bar__label {
+  font-size: var(--fs-xxs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--c-text-light);
+  font-weight: 700;
+}
+.info-bar__value {
+  font-size: var(--fs-base);
+  color: var(--c-text);
+  font-weight: 600;
+  line-height: 1.45;
+}
+.info-bar__value a { color: var(--c-primary); text-decoration: underline; }
+
+/* ---------- Location block ---------- */
+.location-card {
+  background: var(--c-white);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--sh-md);
+}
+.location-card__map {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border: 0;
+  display: block;
+  background: var(--c-bg-soft);
+}
+.location-card__body { padding: var(--sp-5); }
+.location-card__body h3 { font-family: var(--font-display); }
+.location-card__list {
+  list-style: none;
+  margin: var(--sp-4) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--sp-3);
+}
+.location-card__list li {
+  display: flex;
+  gap: var(--sp-3);
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+  line-height: 1.55;
+}
+.location-card__list strong { color: var(--c-text); }
+
+/* ---------- FAQ (helps Google and AI answer questions about the church) ---------- */
+.faq { display: grid; gap: var(--sp-3); }
+.faq-item {
+  background: var(--c-white);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  box-shadow: var(--sh-sm);
+}
+.faq-item__q {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  text-align: left;
+  background: none;
+  border: 0;
+  padding: var(--sp-4);
+  font-family: var(--font-body);
+  font-size: var(--fs-base);
+  font-weight: 700;
+  color: var(--c-text);
+  cursor: pointer;
+  line-height: 1.45;
+}
+.faq-item__q span.plus {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-full);
+  background: var(--c-primary-50);
+  color: var(--c-primary);
+  font-weight: 700;
+  transition: transform 0.25s var(--ease);
+}
+.faq-item.is-open .faq-item__q span.plus { transform: rotate(45deg); }
+.faq-item__a {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s var(--ease);
+}
+.faq-item__a > div {
+  padding: 0 var(--sp-4) var(--sp-4);
+  font-size: var(--fs-sm);
+  color: var(--c-text-muted);
+  line-height: 1.65;
+}
+.faq-item__a a { color: var(--c-primary); text-decoration: underline; }
+
+/* ---------- Service times table (clear for people and for search engines) ---------- */
+.times-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--c-white);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  box-shadow: var(--sh-sm);
+  font-size: var(--fs-sm);
+}
+.times-table th,
+.times-table td {
+  padding: var(--sp-3) var(--sp-4);
+  text-align: left;
+  border-bottom: 1px solid var(--c-line);
+  vertical-align: top;
+}
+.times-table th {
+  background: var(--c-primary-50);
+  color: var(--c-primary-dark);
+  font-size: var(--fs-xxs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.times-table tr:last-child td { border-bottom: 0; }
+.times-table td.day { font-weight: 700; color: var(--c-text); white-space: nowrap; }
+.times-table td.time { font-weight: 700; color: var(--c-primary); white-space: nowrap; }
+.times-table tr.is-main td { background: var(--c-accent-50); }
+
+/* ---------- Rich footer ---------- */
+.footer__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+.footer__brand img { width: 44px; height: 44px; object-fit: contain; }
+.footer__brand-text { font-family: var(--font-display); font-size: var(--fs-md); line-height: 1.2; }
+.footer__brand-text small {
+  display: block;
+  font-family: var(--font-body);
+  font-size: var(--fs-xxs);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+.footer__about { font-size: var(--fs-sm); line-height: 1.65; opacity: 0.85; margin-bottom: var(--sp-5); }
+.footer__block { margin-bottom: var(--sp-5); }
+.footer__list { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--sp-2); }
+.footer__list li { font-size: var(--fs-sm); opacity: 0.88; line-height: 1.5; }
+.footer__list a { text-decoration: none; }
+.footer__list a:hover { text-decoration: underline; }
+.footer__links-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-2) var(--sp-4); }
+.footer__times { display: grid; gap: var(--sp-2); font-size: var(--fs-sm); opacity: 0.88; }
+.footer__times div { display: flex; justify-content: space-between; gap: var(--sp-3); }
+.footer__times span:last-child { font-weight: 700; white-space: nowrap; }
+
+/* Visually hidden text (still read by screen readers and search engines) */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

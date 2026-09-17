@@ -136,6 +136,46 @@
     return menu;
   }
 
+  function initInstallPrompt() {
+    let installEvent = null;
+    const installed = () => window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    const prompt = document.createElement('aside');
+    prompt.className = 'install-prompt';
+    prompt.setAttribute('aria-label', 'Install Christian Service Church app');
+    prompt.innerHTML = `
+      <div class="install-prompt__icon"><img src="assets/CHURCH LOGO.png" alt=""></div>
+      <div class="install-prompt__copy"><strong>Install our web app</strong><span>Keep Christian Service Church one tap away.</span></div>
+      <button class="install-prompt__close" type="button" aria-label="Dismiss install prompt">&times;</button>
+      <button class="btn btn-gold btn-sm install-prompt__install" type="button">Install</button>`;
+    const close = () => {
+      prompt.classList.remove('is-visible');
+      try { sessionStorage.setItem('csc-install-dismissed', '1'); } catch (_) {}
+    };
+    prompt.querySelector('.install-prompt__close').addEventListener('click', close);
+    prompt.querySelector('.install-prompt__install').addEventListener('click', async () => {
+      if (!installEvent) return close();
+      installEvent.prompt();
+      const choice = await installEvent.userChoice;
+      installEvent = null;
+      if (choice.outcome === 'accepted') close();
+    });
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault();
+      installEvent = event;
+      let dismissed = false;
+      try { dismissed = sessionStorage.getItem('csc-install-dismissed') === '1'; } catch (_) {}
+      if (!installed() && !dismissed) {
+        document.body.appendChild(prompt);
+        requestAnimationFrame(() => prompt.classList.add('is-visible'));
+      }
+    });
+    window.addEventListener('appinstalled', () => { installEvent = null; close(); });
+  }
+
+  function registerApp() {
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js').catch(() => {});
+  }
+
   function init() {
     const header = document.querySelector('[data-nav-mount]') || document.body;
     const current = getCurrentPage();
@@ -202,6 +242,8 @@
       nav.classList.remove('nav--transparent');
       nav.classList.add('nav--solid');
     }
+    initInstallPrompt();
+    registerApp();
   }
 
   if (document.readyState === 'loading') {

@@ -158,18 +158,28 @@
     if (!header) return;
     const { data, error } = await sb.from('pages').select('*').eq('slug', header.dataset.pageKey).eq('published', true).maybeSingle();
     if (error || !data) return;
-    const bg = header.querySelector('.page-header__bg, .hero__bg');
+    const bg = header.querySelector('.page-header__bg, .hero__bg') || header;
     const title = header.querySelector('.page-header__title, .hero__title, h1');
     const subtitle = header.querySelector('.page-header__sub, .hero__tagline, h1 + p');
-    if (bg && data.hero_image) bg.style.backgroundImage = `linear-gradient(135deg, rgba(10,26,63,.5), rgba(27,58,139,.45)), url('${data.hero_image.replace(/'/g, '%27')}')`;
-    if (title && data.title) title.textContent = data.title;
-    if (subtitle && data.subtitle) subtitle.textContent = data.subtitle;
-    if (data.body && !header.nextElementSibling?.matches('.page-managed-copy')) {
-      const copy = document.createElement('section');
-      copy.className = 'section page-managed-copy';
-      copy.innerHTML = '<div class="container"><p class="lead"></p></div>';
+    if (bg) {
+      bg.style.backgroundImage = data.hero_image
+        ? `linear-gradient(135deg, rgba(10,26,63,.5), rgba(27,58,139,.45)), url('${data.hero_image.replace(/'/g, '%27')}')`
+        : '';
+      if (data.hero_image) bg.classList.add('page-settings-image');
+    }
+    if (title) title.textContent = data.title || '';
+    if (subtitle) subtitle.textContent = data.subtitle || '';
+    let copy = header.nextElementSibling?.matches('.page-managed-copy') ? header.nextElementSibling : null;
+    if (data.body) {
+      if (!copy) {
+        copy = document.createElement('section');
+        copy.className = 'section page-managed-copy';
+        copy.innerHTML = '<div class="container"><p class="lead"></p></div>';
+        header.insertAdjacentElement('afterend', copy);
+      }
       copy.querySelector('p').textContent = data.body;
-      header.insertAdjacentElement('afterend', copy);
+    } else if (copy) {
+      copy.remove();
     }
   }
 

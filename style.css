@@ -669,6 +669,10 @@ main { position: relative; z-index: 1; }
   position: absolute; inset: 0;
   background-size: cover; background-position: center;
 }
+.page-header.page-settings-image {
+  background-size: cover;
+  background-position: center;
+}
 .page-header__overlay {
   position: absolute; inset: 0;
   background: var(--grad-hero);

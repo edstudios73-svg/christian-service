@@ -7,6 +7,7 @@
   const loadScript = (src) => new Promise((resolve, reject) => {
     const script = document.createElement('script');
     script.src = src;
+    script.async = true;
     script.onload = resolve;
     script.onerror = reject;
     document.head.appendChild(script);
@@ -62,7 +63,7 @@
     if (!mount) return;
     mount.innerHTML = items.length ? items.map((item) => `
       <article class="gallery-item" data-lightbox="${esc(item.image)}" data-caption="${esc(item.caption || '')}">
-        <img src="${esc(item.image)}" alt="${esc(item.caption || 'Church gallery photo')}" loading="lazy">
+        <img src="${esc(item.image)}" alt="${esc(item.caption || 'Christian Service Church gallery photo')}" loading="lazy" decoding="async">
         <div class="gallery-item__overlay">${esc(item.caption || '')}</div>
       </article>`).join('') : '<div class="gallery-empty">No published photos yet.</div>';
     mount.classList.add('is-ready');
@@ -86,7 +87,7 @@
     if (!mount) return;
     mount.innerHTML = items.length ? items.map((item) => `
       <article class="feature-card reveal">
-        ${item.image ? `<img src="${esc(item.image)}" alt="" loading="lazy" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:var(--r-md);margin-bottom:var(--sp-4)">` : ''}
+        ${item.image ? `<img src="${esc(item.image)}" alt="${esc(item.title || 'Church announcement')}" loading="lazy" decoding="async" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:var(--r-md);margin-bottom:var(--sp-4)">` : ''}
         <span class="eyebrow">${esc(item.category || 'Announcement')}</span>
         <h2 class="feature-card__title">${esc(item.title)}</h2>
         <p class="feature-card__desc">${esc(item.body)}</p>

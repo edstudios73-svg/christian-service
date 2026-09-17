@@ -458,6 +458,7 @@ function fromRow(key, row) {
   return it;
 }
 const MEDIA = '/storage/v1/object/public/media/';
+const sessionExpired = ex => !!ex && (/jwt expired|token is expired|refresh token/i.test(ex.message || '') || ex.code === 'PGRST301' || ex.status === 401);
 const Store = {
   mode: 'demo', sb: null, notice: '',
   async init() {
@@ -476,8 +477,20 @@ const Store = {
     if (raw === null) { const s = seed()[col] || []; lsSet(LS + col, JSON.stringify(s)); return s; }
     try { return JSON.parse(raw) || []; } catch (e) { return []; }
   },
+  async ensureSession() {
+    if (this.mode !== 'supabase') return;
+    const current = await this.sb.auth.getSession();
+    if (current.error) throw current.error;
+    if (!current.data.session) { const e = new Error('Your admin session has expired. Sign in again.'); e.code = 'AUTH_EXPIRED'; throw e; }
+    const expiresAt = Number(current.data.session.expires_at || 0);
+    if (expiresAt && expiresAt < Math.floor(Date.now() / 1000) + 60) {
+      const refreshed = await this.sb.auth.refreshSession();
+      if (refreshed.error || !refreshed.data.session) { const e = refreshed.error || new Error('Your admin session has expired. Sign in again.'); e.code = 'AUTH_EXPIRED'; throw e; }
+    }
+  },
   async save(col, item) {
     if (this.mode === 'supabase') {
+      await this.ensureSession();
       const { error } = await this.sb.from(col).upsert(toRow(col, item));
       if (error) throw error;
       return;
@@ -489,6 +502,7 @@ const Store = {
   },
   async remove(col, id) {
     if (this.mode === 'supabase') {
+      await this.ensureSession();
       const { data, error } = await this.sb.from(col).delete().eq('id', id).select('id');
       if (error) throw error;
       if (!data || !data.length) { const e = new Error('Not allowed'); e.code = '42501'; throw e; }
@@ -499,6 +513,7 @@ const Store = {
   },
   /* photos go to a public Supabase Storage bucket called "media"; demo mode keeps them inline */
   async uploadImage(dataUrl) {
+    await this.ensureSession();
     const blob = await (await fetch(dataUrl)).blob();
     const path = new Date().getFullYear() + '/' + uid() + '.jpg';
     const { error } = await this.sb.storage.from('media').upload(path, blob, { contentType: 'image/jpeg', cacheControl: '31536000' });
@@ -550,7 +565,8 @@ function authError(e) {
   if (m.includes('not confirmed') || m.includes('email not confirmed')) return 'Confirm this user in Supabase Authentication, then try again.';
   if (e && (e.status === 429 || m.includes('rate limit'))) return 'Too many attempts. Wait a few minutes and try again.';
   if (m.includes('fetch') || m.includes('network') || m.includes('load https://cdn')) return 'The admin page cannot reach Supabase. Open it through your website or a local web server, not directly as a file.';
-  if (m.includes('api key') || m.includes('jwt')) return 'The Supabase URL or anon key is invalid. Check the project API settings.';
+  if (m.includes('jwt') || m.includes('expired') || c === 'AUTH_EXPIRED') return 'Your admin session expired. Sign in again to continue.';
+  if (m.includes('api key')) return 'The Supabase URL or anon key is invalid. Check the project API settings.';
   return 'Could not sign in: ' + ((e && e.message) || 'check the Supabase project and try again.');
 }
 function showLogin() {
@@ -997,6 +1013,13 @@ async function saveForm() {
     toast(saved.length > 1 ? `${saved.length} photos saved` : `${col.singular[0].toUpperCase() + col.singular.slice(1)} saved`);
     if (route === key) drawList(key); else if (route === 'dashboard') viewDashboard($('#main'));
   } catch (ex) {
+    if (sessionExpired(ex) || ex?.code === 'AUTH_EXPIRED') {
+      Store.notice = 'Your admin session expired. Sign in again to continue saving.';
+      $('#formDlg').close();
+      if (Store.mode === 'supabase') await Store.sb.auth.signOut();
+      showLogin();
+      return;
+    }
     err.textContent = blocked(ex) ? 'Saving was blocked. Sign in with the admin email you put in the SQL, then try again.' : ((ex && ex.message) || 'Could not save. Try again.');
     btn.disabled = false; btn.textContent = label;
   }
@@ -1087,7 +1110,10 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') toggleMenu(f
   catch (e) { Store.mode = 'demo'; Store.notice = 'Supabase could not be reached, so this is running in demo mode.'; }
   if (Store.mode === 'supabase') {
     const { data } = await Store.sb.auth.getSession();
-    if (data && data.session) showApp(); else showLogin();
+    if (data && data.session) {
+      try { await Store.ensureSession(); showApp(); }
+      catch (_) { Store.notice = 'Your admin session expired. Sign in again to continue.'; await Store.sb.auth.signOut(); showLogin(); }
+    } else showLogin();
     /* setTimeout keeps Supabase calls out of the auth callback, as its docs advise */
     Store.sb.auth.onAuthStateChange((event, session) => setTimeout(() => {
       if (session && $('#app').hidden) showApp();

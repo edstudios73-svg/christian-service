@@ -2053,6 +2053,7 @@ main { position: relative; z-index: 1; }
   font-family: var(--font-display);
   font-size: var(--fs-lg);
   font-weight: 700;
+.member-card__bio { color: var(--c-text-muted); font-size: var(--fs-sm); line-height: 1.6; margin-top: var(--sp-3); }
   color: var(--c-text);
   margin: 0 0 var(--sp-1) 0;
   line-height: 1.3;

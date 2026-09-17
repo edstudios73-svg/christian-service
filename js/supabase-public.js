@@ -95,6 +95,64 @@
       </article>`).join('') : '<p class="muted">There are no announcements right now.</p>';
   }
 
+  function renderLeaders(items) {
+    const mount = document.querySelector('[data-supabase-leaders]');
+    if (!mount || !items.length) return;
+    mount.innerHTML = items.map((item, index) => `
+      <div class="member-card reveal-scale" data-delay="${(index % 3) + 1}">
+        <div class="member-card__image"${item.image ? imageStyle(item.image) : ''}></div>
+        <div class="member-card__content">
+          <h3 class="member-card__name">${esc(item.name || '')}</h3>
+          <p class="member-card__role">${esc(item.role || '')}</p>
+          ${item.location ? `<p class="member-card__location"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-13-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${esc(item.location)}</p>` : ''}
+          ${item.body ? `<p class="member-card__bio">${esc(item.body)}</p>` : ''}
+          ${(item.phone || item.email) ? `<div class="member-card__contact">${item.phone ? `<a href="tel:${esc(item.phone)}" class="contact-btn" title="Call">Call</a>` : ''}${item.email ? `<a href="mailto:${esc(item.email)}" class="contact-btn" title="Email">Email</a>` : ''}</div>` : ''}
+        </div>
+      </div>`).join('');
+  }
+
+  function updateAnnouncementBadge(total) {
+    document.querySelectorAll('.nav__announcement-count').forEach((badge) => {
+      const hasAnnouncements = total > 0;
+      badge.textContent = total > 99 ? '99+' : String(total);
+      badge.hidden = !hasAnnouncements;
+      badge.parentElement?.setAttribute('aria-label', hasAnnouncements ? `Announcements (${total})` : 'Announcements');
+    });
+    if (typeof navigator.setAppBadge === 'function') {
+      const result = total > 0 ? navigator.setAppBadge(total) : (typeof navigator.clearAppBadge === 'function' ? navigator.clearAppBadge() : null);
+      if (result?.catch) result.catch(() => {});
+    }
+  }
+
+  async function initPrayerForm(sb) {
+    const form = document.querySelector('[data-prayer-form]');
+    if (!form || form.dataset.supabaseReady) return;
+    form.dataset.supabaseReady = 'true';
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const button = form.querySelector('button[type="submit"]');
+      const values = (selector) => form.querySelector(selector)?.value.trim() || '';
+      button.disabled = true;
+      const { error } = await sb.from('prayers').insert({
+        name: values('[data-prayer-name]'),
+        contact: [values('[data-prayer-email]'), values('[data-prayer-phone]')].filter(Boolean).join(' | '),
+        body: values('[data-prayer-request]'),
+        status: 'New',
+        date: new Date().toISOString().slice(0, 10)
+      });
+      button.disabled = false;
+      if (error) {
+        button.insertAdjacentHTML('afterend', `<p class="form-hint" role="alert">We could not send your request. Please try again.</p>`);
+        return;
+      }
+      const success = form.querySelector('.form-success');
+      const card = form.querySelector('.form-card__inner');
+      if (card) card.style.display = 'none';
+      if (success) success.classList.add('is-shown');
+    }, { once: false });
+  }
+
   async function applyPageSettings(sb) {
     const header = document.querySelector('[data-page-key]');
     if (!header) return;
@@ -103,7 +161,7 @@
     const bg = header.querySelector('.page-header__bg, .hero__bg');
     const title = header.querySelector('.page-header__title, .hero__title, h1');
     const subtitle = header.querySelector('.page-header__sub, .hero__tagline, h1 + p');
-    if (bg && header.dataset.pageKey === 'home' && data.hero_image) bg.style.backgroundImage = `linear-gradient(135deg, rgba(10,26,63,.5), rgba(27,58,139,.45)), url('${data.hero_image.replace(/'/g, '%27')}')`;
+    if (bg && data.hero_image) bg.style.backgroundImage = `linear-gradient(135deg, rgba(10,26,63,.5), rgba(27,58,139,.45)), url('${data.hero_image.replace(/'/g, '%27')}')`;
     if (title && data.title) title.textContent = data.title;
     if (subtitle && data.subtitle) subtitle.textContent = data.subtitle;
     if (data.body && !header.nextElementSibling?.matches('.page-managed-copy')) {
@@ -116,24 +174,31 @@
   }
 
   async function init() {
-    const hasMount = document.querySelector('[data-page-key], [data-supabase-events], [data-supabase-sermons], [data-gallery-grid], [data-supabase-testimonies], [data-supabase-announcements]');
+    const hasMount = document.querySelector('[data-page-key], [data-supabase-events], [data-supabase-sermons], [data-gallery-grid], [data-supabase-testimonies], [data-supabase-announcements], [data-supabase-leaders], [data-prayer-form]');
     if (!hasMount) return;
     try {
       await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2');
       const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      window.CSC_SUPABASE = sb;
       await applyPageSettings(sb);
       if (document.querySelector('[data-supabase-announcements]')) renderAnnouncements(await fetchPublished(sb, 'announcements', 'date'));
       const { count } = await sb.from('announcements').select('id', { count: 'exact', head: true }).eq('published', true);
-      document.querySelectorAll('.nav__announcement-count').forEach((badge) => {
-        const total = Number(count || 0);
-        badge.textContent = total > 99 ? '99+' : String(total);
-        badge.hidden = false;
-        badge.parentElement?.setAttribute('aria-label', `Announcements (${total})`);
-      });
+      updateAnnouncementBadge(Number(count || 0));
       if (document.querySelector('[data-supabase-events]')) renderEvents(await fetchPublished(sb, 'events', 'date'));
       if (document.querySelector('[data-supabase-sermons]')) renderSermons(await fetchPublished(sb, 'sermons', 'date'));
       if (document.querySelector('[data-gallery-grid]')) renderGallery(await fetchPublished(sb, 'gallery', 'date'));
       if (document.querySelector('[data-supabase-testimonies]')) renderTestimonies(await fetchPublished(sb, 'testimonies', 'date'));
+      if (document.querySelector('[data-supabase-leaders]')) renderLeaders(await fetchPublished(sb, 'leaders', 'created_at'));
+      await initPrayerForm(sb);
+      sb.channel('public-site-live')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'announcements' }, async () => {
+          if (document.querySelector('[data-supabase-announcements]')) renderAnnouncements(await fetchPublished(sb, 'announcements', 'date'));
+          const { count: nextCount } = await sb.from('announcements').select('id', { count: 'exact', head: true }).eq('published', true);
+          updateAnnouncementBadge(Number(nextCount || 0));
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'leaders' }, async () => renderLeaders(await fetchPublished(sb, 'leaders', 'created_at')))
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'pages' }, async () => applyPageSettings(sb))
+        .subscribe();
     } catch (error) {
       console.warn('Published church content is unavailable.', error);
     }

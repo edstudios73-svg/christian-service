@@ -173,6 +173,7 @@
   function initForms() {
     // Generic success handler
     document.querySelectorAll('form[data-form]').forEach((form) => {
+      if (form.matches('[data-prayer-form]')) return;
       form.addEventListener('submit', (e) => {
         e.preventDefault();
         const success = form.querySelector('.form-success');

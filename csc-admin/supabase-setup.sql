@@ -6,9 +6,9 @@
 -- ---------------------------------------------------------------------
 -- STEP 1 of 3: create the tables
 -- ---------------------------------------------------------------------
-create table if not exists public.updates (
+create table if not exists public.leaders (
   id text primary key default gen_random_uuid()::text,
-  title text, category text, date date, body text, image text,
+  name text, role text, location text, body text, phone text, email text, image text,
   published boolean not null default true,
   created_at timestamptz not null default now(), updated_at timestamptz
 );
@@ -149,7 +149,7 @@ where email = 'edstudios77@gmail.com';
 do $$
 declare t text;
 begin
-  foreach t in array array['updates','sermons','gallery','testimonies','events','pages','announcements'] loop
+  foreach t in array array['leaders','sermons','gallery','testimonies','events','pages','announcements'] loop
     execute format('alter table public.%I enable row level security', t);
     execute format('drop policy if exists "visitors read published" on public.%I', t);
     execute format('drop policy if exists "admin full access" on public.%I', t);
@@ -173,6 +173,16 @@ create policy "visitors send requests" on public.prayers
   for insert with check (status is null or status = 'New');
 create policy "admin full access" on public.prayers
   for all using (public.is_admin()) with check (public.is_admin());
+
+-- Enable instant updates for the public site and admin dashboard.
+do $$
+begin
+  alter publication supabase_realtime add table public.leaders;
+  alter publication supabase_realtime add table public.pages;
+  alter publication supabase_realtime add table public.announcements;
+  alter publication supabase_realtime add table public.prayers;
+exception when duplicate_object then null;
+end $$;
 
 
 -- ---------------------------------------------------------------------

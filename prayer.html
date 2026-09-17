@@ -391,19 +391,19 @@
     <!-- PRAYER FORM -->
     <section class="section bg-alt">
       <div class="container">
-        <form class="form-card reveal" data-form>
+        <form class="form-card reveal" data-form data-prayer-form>
           <div class="form-card__inner">
             <div class="form-group">
               <label class="form-label">Your Name</label>
-              <input type="text" class="form-input" placeholder="Joseph Ezekiel or 'Anonymous'" required>
+              <input type="text" class="form-input" placeholder="Joseph Ezekiel or 'Anonymous'" data-prayer-name required>
             </div>
             <div class="form-group">
               <label class="form-label">Email Address <span class="light">(optional)</span></label>
-              <input type="email" class="form-input" placeholder="For a personal response (optional)">
+              <input type="email" class="form-input" placeholder="For a personal response (optional)" data-prayer-email>
             </div>
             <div class="form-group">
               <label class="form-label">Phone Number <span class="light">(optional)</span></label>
-              <input type="tel" class="form-input" placeholder="+233 558 362 423">
+              <input type="tel" class="form-input" placeholder="+233 558 362 423" data-prayer-phone>
             </div>
             <div class="form-group">
               <label class="form-label">Prayer Category</label>
@@ -419,7 +419,7 @@
             </div>
             <div class="form-group">
               <label class="form-label">Share Your Request</label>
-              <textarea class="form-textarea" placeholder="Tell us what you need prayer for. Share as much or as little as you'd like — we are here to stand with you in faith." required></textarea>
+              <textarea class="form-textarea" placeholder="Tell us what you need prayer for. Share as much or as little as you'd like — we are here to stand with you in faith." data-prayer-request required></textarea>
             </div>
             <div class="form-group">
               <label class="form-label">Would you like a pastor to contact you?</label>

@@ -86,18 +86,18 @@ create table if not exists public.announcements (
 insert into public.pages (slug, title, subtitle, hero_image)
 values
   ('home', 'Christian Service Church', 'House of Testimonies · East Legon, Accra', 'gallery/HERO.png'),
-  ('about', 'Who We Are', 'A Bible-believing church family in East Legon, Accra.', 'gallery/rev dr payin.jpeg'),
-  ('contact', 'Contact & Visit', 'Call us, send a message, or come and see us.', 'gallery/building.jpg'),
-  ('events', 'Upcoming Events', 'Here is what is coming up at Christian Service Church.', 'assets/outreach.jpg'),
-  ('gallery', 'Gallery', 'Pictures from our services, programmes and outreach.', 'assets/media.jpg'),
-  ('giving', 'Giving', 'Support the work of God at Christian Service Church.', 'assets/giving header.jpg'),
-  ('members', 'Our Leaders & Church Family', 'Meet the pastors, elders and leaders who serve.', 'assets/sermon-images/7655.png'),
-  ('ministries', 'Our Ministries', 'Whatever your age, there is a group here for you.', 'gallery/building.jpg'),
-  ('pastor', 'Rev. Dr. Joseph Payin Ezekiel', 'General Overseer of Christian Service Church.', 'gallery/4.jpeg'),
-  ('prayer', 'Prayer Request', 'You are not alone. We will pray with you.', 'assets/prayer.jpg'),
-  ('sermons', 'Sermons', 'Watch and listen to messages preached at Christian Service Church.', 'gallery/gifty ezekiel.png'),
-  ('testimonies', 'Testimonies', 'Members share what God has done for them.', 'assets/hero.png'),
-  ('announcements', 'Announcements', 'Stay up to date with the latest church information.', 'gallery/building.jpg')
+  ('about', 'Who We Are', 'A Bible-believing church family in East Legon, Accra.', null),
+  ('contact', 'Contact & Visit', 'Call us, send a message, or come and see us.', null),
+  ('events', 'Upcoming Events', 'Here is what is coming up at Christian Service Church.', null),
+  ('gallery', 'Gallery', 'Pictures from our services, programmes and outreach.', null),
+  ('giving', 'Giving', 'Support the work of God at Christian Service Church.', null),
+  ('members', 'Our Leaders & Church Family', 'Meet the pastors, elders and leaders who serve.', null),
+  ('ministries', 'Our Ministries', 'Whatever your age, there is a group here for you.', null),
+  ('pastor', 'Rev. Dr. Joseph Payin Ezekiel', 'General Overseer of Christian Service Church.', null),
+  ('prayer', 'Prayer Request', 'You are not alone. We will pray with you.', null),
+  ('sermons', 'Sermons', 'Watch and listen to messages preached at Christian Service Church.', null),
+  ('testimonies', 'Testimonies', 'Members share what God has done for them.', null),
+  ('announcements', 'Announcements', 'Stay up to date with the latest church information.', null)
 on conflict (slug) do nothing;
 
 delete from public.pages where slug = 'constitution';

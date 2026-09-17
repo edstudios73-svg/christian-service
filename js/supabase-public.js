@@ -102,7 +102,7 @@
     const bg = header.querySelector('.page-header__bg, .hero__bg');
     const title = header.querySelector('.page-header__title, .hero__title, h1');
     const subtitle = header.querySelector('.page-header__sub, .hero__tagline, h1 + p');
-    if (bg && data.hero_image) bg.style.backgroundImage = `linear-gradient(135deg, rgba(10,26,63,.5), rgba(27,58,139,.45)), url('${data.hero_image.replace(/'/g, '%27')}')`;
+    if (bg && header.dataset.pageKey === 'home' && data.hero_image) bg.style.backgroundImage = `linear-gradient(135deg, rgba(10,26,63,.5), rgba(27,58,139,.45)), url('${data.hero_image.replace(/'/g, '%27')}')`;
     if (title && data.title) title.textContent = data.title;
     if (subtitle && data.subtitle) subtitle.textContent = data.subtitle;
     if (data.body && !header.nextElementSibling?.matches('.page-managed-copy')) {

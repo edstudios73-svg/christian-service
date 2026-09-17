@@ -744,7 +744,7 @@ async function viewDashboard(main) {
 }
 
 const SQL = `-- Run this once in Supabase: SQL Editor > New query > paste > Run.
--- Change admin@yourchurch.org to the email you will sign in with.
+-- The configured administrator email is edstudios77@gmail.com.
 
 create table if not exists public.updates (
   id text primary key default gen_random_uuid()::text,
@@ -787,7 +787,7 @@ create table if not exists public.prayers (
 -- Who counts as the admin
 create or replace function public.is_admin() returns boolean
 language sql stable as $$
-  select coalesce((auth.jwt() ->> 'email') = 'admin@yourchurch.org', false)
+  select coalesce((auth.jwt() ->> 'email') = 'edstudios77@gmail.com', false)
 $$;
 
 -- Visitors read published items only. Only the admin can change anything.
@@ -814,7 +814,7 @@ create policy "admin edits media" on storage.objects for update using (bucket_id
 create policy "admin removes media" on storage.objects for delete using (bucket_id = 'media' and public.is_admin());`;
 const SNIPPET = `<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>
 <script>
-  const sb = supabase.createClient('YOUR_SUPABASE_URL', 'YOUR_ANON_KEY');
+  const sb = supabase.createClient('https://uysfgupzlxfhplwqcttp.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5c2ZndXB6bHhmaHBsd3FjdHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk4MTUxNTEsImV4cCI6MjEwNTM5MTE1MX0.uAh-0SFwbLVGKA4J62f2blR_18PCUfquJZs0k9pY1Gs');
 
   // Show items: use updates, sermons, gallery, testimonies or events
   sb.from('sermons').select('*').eq('published', true)
@@ -838,7 +838,7 @@ function viewSetup(main) {
         <li>Create a free project at <b>supabase.com</b>.</li>
         <li>Open <b>SQL Editor</b>, paste the code below (with your admin email in it), and press <b>Run</b>. This creates the tables, the photo storage and the security rules.</li>
         <li>Open <b>Authentication</b>, then <b>Users</b>, and add your admin user with the same email. Then turn off <b>Allow new users to sign up</b> in the sign-in settings.</li>
-        <li>Open <b>Project Settings</b>, then <b>API</b>. Copy the Project URL and the anon (or publishable) key into <code>SUPABASE_URL</code> and <code>SUPABASE_ANON_KEY</code> at the top of this file. Set <code>DEMO_PASSWORD</code> to something private, then upload the file to your site.</li>
+        <li>The Supabase project is already configured in this dashboard. Create the <b>edstudios77@gmail.com</b> Auth user in Supabase, set a private password, and upload this file to your site.</li>
       </ol>
       <p style="margin-top:10px">The anon key is meant to be public. The security rules are what protect your data.</p></section>
     <section class="card"><div class="cardh"><h3>Supabase SQL</h3><button class="btn sm" type="button" data-act="copy" data-t="sql">Copy</button></div>

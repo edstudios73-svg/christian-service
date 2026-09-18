@@ -199,13 +199,23 @@
     prompt.setAttribute('aria-label', 'Install Christian Service Church app');
     prompt.innerHTML = `
       <div class="install-prompt__icon"><img src="assets/church-logo.png" alt=""></div>
-      <div class="install-prompt__copy"><strong>Install our web app</strong><span>Keep Christian Service Church one tap away.</span></div>
+      <div class="install-prompt__copy"><strong>Install as app</strong><span>Install Christian Service Church as a classic app on your device.</span></div>
       <button class="install-prompt__close" type="button" aria-label="Dismiss install prompt">&times;</button>
       <button class="btn btn-gold btn-sm install-prompt__install" type="button">Install</button>`;
+
+    const show = () => {
+      let dismissed = false;
+      try { dismissed = sessionStorage.getItem('csc-install-dismissed') === '1'; } catch (_) {}
+      if (installed() || dismissed) return;
+      if (!document.body.contains(prompt)) document.body.appendChild(prompt);
+      requestAnimationFrame(() => prompt.classList.add('is-visible'));
+    };
+
     const close = () => {
       prompt.classList.remove('is-visible');
       try { sessionStorage.setItem('csc-install-dismissed', '1'); } catch (_) {}
     };
+
     prompt.querySelector('.install-prompt__close').addEventListener('click', close);
     prompt.querySelector('.install-prompt__install').addEventListener('click', async () => {
       if (!installEvent) return close();
@@ -214,17 +224,16 @@
       installEvent = null;
       if (choice.outcome === 'accepted') close();
     });
+
     window.addEventListener('beforeinstallprompt', (event) => {
       event.preventDefault();
       installEvent = event;
-      let dismissed = false;
-      try { dismissed = sessionStorage.getItem('csc-install-dismissed') === '1'; } catch (_) {}
-      if (!installed() && !dismissed) {
-        document.body.appendChild(prompt);
-        requestAnimationFrame(() => prompt.classList.add('is-visible'));
-      }
+      show();
     });
     window.addEventListener('appinstalled', () => { installEvent = null; close(); });
+    setTimeout(() => {
+      if (!installed()) show();
+    }, 350);
   }
 
   function registerApp() {

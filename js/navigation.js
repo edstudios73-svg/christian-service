@@ -42,9 +42,7 @@
     return path === '' ? 'index.html' : path;
   }
 
-  function buildNav() {
-    const nav = document.createElement('nav');
-    const currentPage = getCurrentPage();
+  function buildDesktopHeader(currentPage) {
     const desktopPages = [
       { href: 'index.html', label: 'Home' },
       { href: 'about.html', label: 'About' },
@@ -54,9 +52,47 @@
     ];
     const desktopLinks = desktopPages.map((link) => {
       const active = currentPage === link.href ? ' is-active' : '';
-      return `<a href="${link.href}" class="nav__desktop-link${active}">${link.label}</a>`;
+      return `<a href="${link.href}" class="csc-dh__link${active}">${link.label}</a>`;
     }).join('');
 
+    const header = document.createElement('header');
+    header.className = 'csc-dh';
+    header.setAttribute('aria-label', 'Main header');
+    header.innerHTML = `
+      <div class="csc-dh__inner">
+        <div class="csc-dh__brand" aria-label="Christian Service Church home">
+          <span class="csc-dh__logo">
+            <img src="assets/church-logo.png" alt="Christian Service Church logo" loading="eager">
+          </span>
+          <span class="csc-dh__divider" aria-hidden="true"></span>
+          <span class="csc-dh__name">
+            <span>Christian Service</span>
+            <small>CHURCH</small>
+          </span>
+        </div>
+
+        <nav class="csc-dh__nav" aria-label="Primary navigation">
+          ${desktopLinks}
+        </nav>
+
+        <div class="csc-dh__actions" aria-label="Quick actions">
+          <a href="announcements.html" class="csc-dh__bell" aria-label="Announcements" title="Announcements">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5"/>
+              <path d="M9.5 18a2.5 2.5 0 0 0 5 0"/>
+            </svg>
+            <span class="csc-dh__badge nav__announcement-count">3</span>
+          </a>
+          <span class="csc-dh__divider csc-dh__divider--action" aria-hidden="true"></span>
+          <a href="giving.html" class="csc-dh__give" data-nav-give>Give</a>
+        </div>
+      </div>
+    `;
+    return header;
+  }
+
+  function buildNav() {
+    const nav = document.createElement('nav');
     nav.className = 'nav nav--solid';
     nav.setAttribute('aria-label', 'Main navigation');
     nav.innerHTML = `
@@ -70,22 +106,6 @@
             <small>CHURCH</small>
           </span>
         </a>
-
-        <div class="nav__desktop-brand" aria-label="Christian Service Church home">
-          <span class="nav__desktop-mark">
-            <img src="assets/church-logo.png" alt="Christian Service Church logo" loading="eager">
-          </span>
-          <span class="nav__desktop-divider" aria-hidden="true"></span>
-          <span class="nav__desktop-name">
-            Christian Service
-            <small>CHURCH</small>
-          </span>
-        </div>
-
-        <div class="nav__desktop-links" aria-label="Primary navigation links">
-          ${desktopLinks}
-        </div>
-
         <div class="nav__actions">
           <div class="nav__links" aria-label="Quick links">
             <a href="index.html" class="nav__link is-active">Home</a>
@@ -94,22 +114,13 @@
             <a href="sermons.html" class="nav__link">Sermons</a>
             <a href="testimonies.html" class="nav__link">Testimonies</a>
           </div>
-          <a href="announcements.html" class="nav__icon-button nav__announcement-link${currentPage === 'announcements.html' ? ' is-active' : ''}" aria-label="Announcements" title="Announcements">
+          <a href="announcements.html" class="nav__icon-button nav__announcement-link${getCurrentPage() === 'announcements.html' ? ' is-active' : ''}" aria-label="Announcements" title="Announcements">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 010 7M18.5 6a8.5 8.5 0 010 12"/></svg>
           </a>
           <a href="giving.html" class="nav__cta" data-nav-give>Give</a>
           <button class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
             <span></span><span></span><span></span>
           </button>
-        </div>
-
-        <div class="nav__desktop-actions" aria-label="Quick actions">
-          <a href="announcements.html" class="nav__announcement" aria-label="Announcements">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5"/><path d="M9.5 18a2.5 2.5 0 0 0 5 0"/></svg>
-            <span class="nav__announcement-count">3</span>
-          </a>
-          <span class="nav__desktop-divider nav__desktop-divider--action" aria-hidden="true"></span>
-          <a href="giving.html" class="nav__desktop-cta" data-nav-give>Give</a>
         </div>
       </div>
     `;
@@ -240,8 +251,10 @@
     const current = getCurrentPage();
 
     const nav = buildNav();
+    const desktopHeader = buildDesktopHeader(current);
     const menu = buildMenu(current);
     const quickBar = buildQuickBar(current);
+    header.prepend(desktopHeader);
     header.prepend(nav);
     document.body.appendChild(menu);
     document.body.appendChild(quickBar);

@@ -16,11 +16,12 @@ create table if not exists public.leaders (
 create table if not exists public.sermons (
   id text primary key default gen_random_uuid()::text,
   title text, preacher text, date date, series text,
-  video_url text, audio_url text, body text, image text,
+  video_url text, audio_url text, download_url text, body text, image text,
   published boolean not null default true,
   created_at timestamptz not null default now(), updated_at timestamptz
 );
 alter table public.sermons add column if not exists video_file text;
+alter table public.sermons add column if not exists download_url text;
 
 create table if not exists public.gallery (
   id text primary key default gen_random_uuid()::text,

@@ -364,9 +364,10 @@ const COLLECTIONS = {
       { name: 'preacher', label: 'Preacher', type: 'text', half: true, def: 'Rev. Dr. Joseph Payin Ezekiel' },
       { name: 'date', label: 'Date preached', type: 'date', half: true, def: 'today' },
       { name: 'series', label: 'Series (optional)', type: 'text', half: true },
-      { name: 'videoUrl', label: 'Video link', type: 'url', half: true, ph: 'https://youtube.com/watch?v=…' },
+      { name: 'videoUrl', label: 'Watch link', type: 'url', half: true, required: true, ph: 'https://youtube.com/watch?v=… or direct video/audio link' },
       { name: 'videoFile', label: 'Local video upload (optional)', type: 'file', accept: 'video/*', half: true },
       { name: 'audioUrl', label: 'Audio link (optional)', type: 'url' },
+      { name: 'downloadUrl', label: 'Download link or file', type: 'url', ph: 'https://.../sermon.mp3 or a file URL from storage' },
       { name: 'body', label: 'Summary or notes', type: 'textarea', rows: 4 },
       { name: 'image', label: 'Thumbnail (optional)', type: 'image' }
     ]
@@ -1128,6 +1129,13 @@ async function saveForm() {
   err.textContent = '';
   const imgFields = col.fields.filter(f => f.type === 'image' || f.type === 'file');
   for (const f of imgFields) if (f.required && !(formImages[f.name] || []).length) { err.textContent = 'Add at least one photo before saving.'; return; }
+  if (key === 'sermons') {
+    const watchLink = (form.elements.videoUrl || {}).value || '';
+    if (!watchLink.trim()) {
+      err.textContent = 'The Watch link is required so every sermon card has a working button.';
+      return;
+    }
+  }
   const data = {};
   for (const f of col.fields) {
     if (f.type === 'image' || f.type === 'file') continue;

@@ -1344,7 +1344,8 @@ main { position: relative; z-index: 1; }
 .page-header {
   position: relative;
   width: 100%;
-  height: min(56.2963vw, 608px);
+  height: calc(100vw * 608 / 1080);
+  max-height: 608px;
   min-height: 0;
   display: flex;
   align-items: flex-end;

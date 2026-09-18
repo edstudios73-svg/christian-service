@@ -5,7 +5,9 @@
   const SUPABASE_URL = 'https://uysfgupzlxfhplwqcttp.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6InV5c2ZndXB6bHhmaHBsd3FjdHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk4MTUxNTEsImV4cCI6MjEwNTM5MTE1MX0.uAh-0SFwbLVGKA4J62f2blR_18PCUfquJZs0k9pY1Gs';
   const VAPID_PUBLIC_KEY = window.CSC_PUSH_VAPID_PUBLIC_KEY || '';
+  const CURRENT_SUPABASE_PUBLIC_KEY = 'sb_publishable_5T68Teyy88wmJUlckVRneA_Yfh0OKZV';
   const LOCAL_READS = 'csc:announcement-reads';
+  const REST_HEADERS = { apikey: CURRENT_SUPABASE_PUBLIC_KEY, Authorization: `Bearer ${CURRENT_SUPABASE_PUBLIC_KEY}` };
   let sb;
   let userId;
   let originalFavicon;
@@ -66,7 +68,7 @@
   async function ensureSupabase() {
     if (sb) return sb;
     if (!window.supabase) await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2');
-    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    sb = window.supabase.createClient(SUPABASE_URL, CURRENT_SUPABASE_PUBLIC_KEY);
     window.CSC_SUPABASE = window.CSC_SUPABASE || sb;
     let { data } = await sb.auth.getSession();
     if (!data.session) {
@@ -79,16 +81,23 @@
   }
 
   async function unreadCount() {
-    const client = await ensureSupabase();
-    const [{ data: announcements, error: announcementsError }, { data: reads, error: readsError }] = await Promise.all([
-      client.from('announcements').select('id').eq('published', true),
-      client.from('announcement_reads').select('announcement_id')
-    ]);
-    if (announcementsError) throw announcementsError;
-    if (readsError) throw readsError;
-    const readIds = new Set((reads || []).map((row) => String(row.announcement_id)));
-    const count = (announcements || []).filter((row) => !readIds.has(String(row.id))).length;
-    return paintCount(count);
+    try {
+      const client = await ensureSupabase();
+      const [{ data: announcements, error: announcementsError }, { data: reads, error: readsError }] = await Promise.all([
+        client.from('announcements').select('id').eq('published', true),
+        client.from('announcement_reads').select('announcement_id')
+      ]);
+      if (announcementsError) throw announcementsError;
+      if (readsError) throw readsError;
+      const readIds = new Set([...readLocal(), ...(reads || []).map((row) => String(row.announcement_id))]);
+      return paintCount((announcements || []).filter((row) => !readIds.has(String(row.id))).length);
+    } catch (_) {
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/announcements?select=id&published=eq.true`, { headers: REST_HEADERS });
+      if (!response.ok) throw new Error('Could not load announcements');
+      const announcements = await response.json();
+      const readIds = new Set(readLocal());
+      return paintCount(announcements.filter((row) => !readIds.has(String(row.id))).length);
+    }
   }
 
   async function markRead(id) {

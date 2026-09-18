@@ -1,2 +1,2 @@
 // Set this to the public VAPID key generated for the Supabase notification function.
-window.CSC_PUSH_VAPID_PUBLIC_KEY = 'BAWrMzkbKDmT0fc5D5kz_ZK6fTPRpYh4XKEQnrW2zax8C0_oavfL5_ZDKsywbrTRwpLOdtLBlyklP-CO_Fnqx8A';
+window.CSC_PUSH_VAPID_PUBLIC_KEY = 'BNT7aD7vRfvWN6_RYbXFy0nNfidlEaSb1R2T3LtS0p1q4vKucdjCuffjc1MMoQ70Pto9nzqepTW5C3fXzeBYTSA';

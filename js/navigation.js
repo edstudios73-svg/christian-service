@@ -59,17 +59,17 @@
         </a>
         <div class="nav__actions">
           <div class="nav__links" aria-label="Quick links">
-            <a href="index.html" class="nav__link">Home</a>
+            <a href="index.html" class="nav__link is-active">Home</a>
             <a href="contact.html" class="nav__link">Visit</a>
             <a href="giving.html" class="nav__link">Give</a>
             <a href="sermons.html" class="nav__link">Sermons</a>
             <a href="testimonies.html" class="nav__link">Testimonies</a>
           </div>
-            <a href="announcements.html" class="nav__announcement" aria-label="Announcements" title="Announcements">
-              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15 9a4 4 0 0 1 0 6M18 6a8 8 0 0 1 0 12"/></svg>
-              <span class="nav__announcement-count" hidden>0</span>
-            </a>
-          <a href="giving.html" class="btn btn-gold btn-sm" style="display:none" data-nav-give>Give</a>
+          <a href="announcements.html" class="nav__announcement" aria-label="Announcements" title="Announcements">
+            <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5"/><path d="M9.5 18a2.5 2.5 0 0 0 5 0"/></svg>
+            <span class="nav__announcement-count">3</span>
+          </a>
+          <a href="giving.html" class="nav__cta" data-nav-give>Give</a>
           <button class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
             <span></span><span></span><span></span>
           </button>

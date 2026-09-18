@@ -507,7 +507,19 @@ main { position: relative; z-index: 1; }
 .install-prompt__copy span { color: var(--c-text-muted); font-size: var(--fs-xs); }
 .install-prompt__close { align-self: start; border: 0; background: transparent; color: var(--c-text-muted); font-size: 22px; line-height: 1; cursor: pointer; }
 
-.csc-dh { display: none; }
+.csc-dh {
+  display: none !important;
+}
+
+.csc-dh[hidden],
+#cscDesktopHeader[hidden] {
+  display: none !important;
+}
+
+.csc-dh img {
+  max-width: 100%;
+  height: auto;
+}
 
 @media (display-mode: standalone) {
   .nav { height: calc(var(--nav-h) + var(--safe-top)); padding-top: var(--safe-top); }
@@ -561,6 +573,7 @@ main { position: relative; z-index: 1; }
   }
 
   .csc-dh {
+    display: block !important;
     position: fixed;
     top: 0;
     left: 0;

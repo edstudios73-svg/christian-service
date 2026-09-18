@@ -1,7 +1,16 @@
-const CACHE_NAME = 'csc-app-shell-v6';
+const CACHE_NAME = 'csc-app-shell-v7';
 
-self.addEventListener('install', () => self.skipWaiting());
-self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()));
+self.addEventListener('install', (event) => {
+  event.waitUntil(self.skipWaiting());
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil((async () => {
+    const cacheNames = await caches.keys();
+    await Promise.all(cacheNames.filter((name) => name !== CACHE_NAME).map((name) => caches.delete(name)));
+    await self.clients.claim();
+  })());
+});
 
 self.addEventListener('push', (event) => {
   let payload = {};
@@ -42,6 +51,24 @@ self.addEventListener('notificationclick', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET' || new URL(event.request.url).origin !== self.location.origin) return;
-  event.respondWith(fetch(event.request));
+  const request = event.request;
+  if (request.method !== 'GET' || new URL(request.url).origin !== self.location.origin) return;
+
+  const isHtml = request.mode === 'navigate' || /\.(html|htm)$/.test(new URL(request.url).pathname);
+  const isAsset = /\.(css|js|png|jpg|jpeg|gif|svg|ico|webp|woff2?)$/i.test(new URL(request.url).pathname);
+
+  if (isHtml || isAsset) {
+    event.respondWith((async () => {
+      try {
+        const network = await fetch(request, { cache: 'no-cache' });
+        const cache = await caches.open(CACHE_NAME);
+        if (network && network.ok) await cache.put(request, network.clone());
+        return network;
+      } catch (error) {
+        const cached = await caches.match(request);
+        if (cached) return cached;
+        throw error;
+      }
+    })());
+  }
 });

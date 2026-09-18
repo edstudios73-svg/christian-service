@@ -57,7 +57,9 @@
 
     const header = document.createElement('header');
     header.className = 'csc-dh';
+    header.id = 'cscDesktopHeader';
     header.setAttribute('aria-label', 'Main header');
+    header.hidden = true;
     header.innerHTML = `
       <div class="csc-dh__inner">
         <div class="csc-dh__brand" aria-label="Christian Service Church home">
@@ -258,6 +260,19 @@
     header.prepend(nav);
     document.body.appendChild(menu);
     document.body.appendChild(quickBar);
+
+    const desktopQuery = window.matchMedia('(min-width: 1024px)');
+    const syncDesktopHeader = () => {
+      const activeHeader = document.getElementById('cscDesktopHeader');
+      if (!activeHeader) return;
+      activeHeader.hidden = !desktopQuery.matches;
+    };
+    syncDesktopHeader();
+    if (desktopQuery.addEventListener) {
+      desktopQuery.addEventListener('change', syncDesktopHeader);
+    } else if (desktopQuery.addListener) {
+      desktopQuery.addListener(syncDesktopHeader);
+    }
 
     const hamburger = nav.querySelector('.hamburger');
     const giveBtn = nav.querySelector('[data-nav-give]');

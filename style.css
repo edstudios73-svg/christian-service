@@ -308,7 +308,7 @@ main { position: relative; z-index: 1; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: clamp(12px, 1.6vw, 24px);
+  gap: clamp(12px, 1.4vw, 22px);
 }
 
 .nav__logo {
@@ -322,6 +322,7 @@ main { position: relative; z-index: 1; }
   transition: color 0.3s;
   white-space: nowrap;
   flex-shrink: 0;
+  min-width: 220px;
 }
 .nav--transparent .nav__logo { color: #fff; }
 .nav--solid .nav__logo { color: var(--c-primary); }
@@ -358,7 +359,7 @@ main { position: relative; z-index: 1; }
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: clamp(18px, 2vw, 30px);
+  gap: clamp(14px, 1.6vw, 22px);
   flex: 1 1 auto;
   min-width: 0;
 }
@@ -367,8 +368,8 @@ main { position: relative; z-index: 1; }
   display: none;
   align-items: center;
   justify-content: center;
-  gap: clamp(20px, 2.2vw, 38px);
-  margin-right: 10px;
+  gap: clamp(16px, 1.8vw, 28px);
+  margin-right: 8px;
   flex-wrap: nowrap;
   flex: 1 1 auto;
   min-width: 0;
@@ -378,12 +379,13 @@ main { position: relative; z-index: 1; }
   align-items: center;
   justify-content: center;
   padding: 10px 0;
-  font-size: clamp(0.72rem, 0.8vw, 0.94rem);
+  font-size: clamp(0.72rem, 0.78vw, 0.9rem);
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   transition: color 0.2s ease;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 .nav--transparent .nav__link { color: rgba(255,255,255,0.92); }
 .nav--solid .nav__link { color: var(--c-text-muted); }
@@ -482,12 +484,47 @@ main { position: relative; z-index: 1; }
     padding-right: 28px;
   }
   .nav__logo {
-    min-width: 210px;
+    min-width: 220px;
   }
-  .nav__links { display: flex; }
+  .nav__links {
+    display: flex;
+    justify-content: flex-end;
+    gap: clamp(12px, 1.1vw, 20px);
+  }
+  .nav__link {
+    letter-spacing: 0.08em;
+  }
   .hamburger,
   .mobile-menu,
   .mobile-quickbar { display: none; }
+}
+
+@media (max-width: 1180px) {
+  .nav__logo {
+    min-width: 190px;
+  }
+  .nav__links {
+    gap: clamp(12px, 1.4vw, 16px);
+  }
+  .nav__link {
+    letter-spacing: 0.06em;
+  }
+}
+
+@media (max-width: 960px) {
+  .nav__inner {
+    gap: 10px;
+  }
+  .nav__logo {
+    min-width: 170px;
+  }
+  .nav__links {
+    gap: 12px;
+  }
+  .nav__link {
+    letter-spacing: 0.04em;
+    font-size: 0.72rem;
+  }
 }
 
 .mobile-quickbar {

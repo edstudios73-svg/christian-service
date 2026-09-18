@@ -44,16 +44,22 @@
       </article>`).join('') : '<p class="muted">No published events yet.</p>';
   }
 
+  function renderEmptySermonsState() {
+    const mount = document.querySelector('[data-supabase-sermons]');
+    if (!mount) return;
+    mount.innerHTML = '';
+    const shell = document.querySelector('.sermon-empty-shell');
+    if (shell) shell.style.display = 'block';
+  }
+
   function renderSermons(items) {
     const mount = document.querySelector('[data-supabase-sermons]');
     if (!mount) return;
 
     if (!items.length) {
-      mount.innerHTML = `
-        <div class="sermon-empty-state compact">
-          <h3>No published sermons yet</h3>
-          <p>New sermons uploaded from the admin dashboard will appear here.</p>
-        </div>`;
+      mount.innerHTML = '';
+      const shell = document.querySelector('.sermon-empty-shell');
+      if (shell) shell.style.display = 'block';
       return;
     }
 
@@ -239,6 +245,13 @@
   async function init() {
     const hasMount = document.querySelector('[data-page-key], [data-supabase-events], [data-supabase-sermons], [data-gallery-grid], [data-supabase-testimonies], [data-supabase-announcements], [data-supabase-leaders], [data-supabase-ministries], [data-prayer-form]');
     if (!hasMount) return;
+
+    const sermonArchivePage = /\/sermons\.html$/i.test(window.location.pathname) || document.querySelector('[data-page-key="sermons"]');
+    if (sermonArchivePage) {
+      renderEmptySermonsState();
+      return;
+    }
+
     document.querySelectorAll('[data-supabase-events], [data-supabase-sermons], [data-supabase-leaders], [data-supabase-ministries], [data-supabase-announcements]').forEach((mount) => { mount.innerHTML = '<p class="muted">Loading...</p>'; });
     try {
       await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2');

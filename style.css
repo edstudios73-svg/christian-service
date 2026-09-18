@@ -1196,8 +1196,7 @@ main { position: relative; z-index: 1; }
 .hero {
   position: relative;
   width: 100%;
-  aspect-ratio: 1080 / 608;
-  height: auto;
+  height: min(56.2963vw, 608px);
   min-height: 0;
   display: flex;
   align-items: flex-end;
@@ -1345,8 +1344,7 @@ main { position: relative; z-index: 1; }
 .page-header {
   position: relative;
   width: 100%;
-  aspect-ratio: 1080 / 608;
-  height: auto;
+  height: min(56.2963vw, 608px);
   min-height: 0;
   display: flex;
   align-items: flex-end;

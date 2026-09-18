@@ -130,11 +130,6 @@ img, video, iframe { max-width: 100%; }
 .container { padding-left: var(--sp-5); padding-right: var(--sp-5); }
 
 @media (max-width: 767px) {
-  .hero {
-    aspect-ratio: 1080 / 608;
-    height: auto;
-    min-height: 0;
-  }
   .hero__bg {
     inset: 0;
     background-position: center;

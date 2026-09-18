@@ -44,6 +44,19 @@
 
   function buildNav() {
     const nav = document.createElement('nav');
+    const currentPage = getCurrentPage();
+    const desktopPages = [
+      { href: 'index.html', label: 'Home' },
+      { href: 'about.html', label: 'About' },
+      { href: 'contact.html', label: 'Visit' },
+      { href: 'sermons.html', label: 'Sermons' },
+      { href: 'testimonies.html', label: 'Testimonies' }
+    ];
+    const desktopLinks = desktopPages.map((link) => {
+      const active = currentPage === link.href ? ' is-active' : '';
+      return `<a href="${link.href}" class="nav__desktop-link${active}">${link.label}</a>`;
+    }).join('');
+
     nav.className = 'nav nav--solid';
     nav.setAttribute('aria-label', 'Main navigation');
     nav.innerHTML = `
@@ -57,6 +70,22 @@
             <small>CHURCH</small>
           </span>
         </a>
+
+        <div class="nav__desktop-brand" aria-label="Christian Service Church home">
+          <span class="nav__desktop-mark">
+            <img src="assets/church-logo.png" alt="Christian Service Church logo" loading="eager">
+          </span>
+          <span class="nav__desktop-divider" aria-hidden="true"></span>
+          <span class="nav__desktop-name">
+            Christian Service
+            <small>CHURCH</small>
+          </span>
+        </div>
+
+        <div class="nav__desktop-links" aria-label="Primary navigation links">
+          ${desktopLinks}
+        </div>
+
         <div class="nav__actions">
           <div class="nav__links" aria-label="Quick links">
             <a href="index.html" class="nav__link is-active">Home</a>
@@ -72,6 +101,15 @@
           <button class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
             <span></span><span></span><span></span>
           </button>
+        </div>
+
+        <div class="nav__desktop-actions" aria-label="Quick actions">
+          <a href="announcements.html" class="nav__announcement" aria-label="Announcements">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5"/><path d="M9.5 18a2.5 2.5 0 0 0 5 0"/></svg>
+            <span class="nav__announcement-count">3</span>
+          </a>
+          <span class="nav__desktop-divider nav__desktop-divider--action" aria-hidden="true"></span>
+          <a href="giving.html" class="nav__desktop-cta" data-nav-give>Give</a>
         </div>
       </div>
     `;

@@ -1168,9 +1168,19 @@ main { position: relative; z-index: 1; }
   inset: -2%;
   background-size: cover;
   background-position: center 22%;
+  background-repeat: no-repeat;
   z-index: 0;
   transform: scale(1.04);
   animation: hero-pan 20s ease-in-out infinite alternate;
+}
+.hero__bg.page-settings-image,
+.page-header__bg.page-settings-image {
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transform: none;
+  animation: none;
 }
 .hero[data-page-key], .page-header[data-page-key] { visibility: hidden; }
 .hero[data-page-key].page-settings-ready, .page-header[data-page-key].page-settings-ready { visibility: visible; }
@@ -1292,11 +1302,9 @@ main { position: relative; z-index: 1; }
 }
 .page-header__bg {
   position: absolute; inset: 0;
-  background-size: cover; background-position: center;
-}
-.page-header.page-settings-image {
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
 }
 .page-header__overlay {
   position: absolute; inset: 0;

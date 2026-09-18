@@ -470,7 +470,7 @@
       bg.style.backgroundImage = data.hero_image
         ? `linear-gradient(135deg, rgba(10,26,63,.5), rgba(27,58,139,.45)), url('${data.hero_image.replace(/'/g, '%27')}')`
         : '';
-      if (data.hero_image) bg.classList.add('page-settings-image');
+      bg.classList.toggle('page-settings-image', Boolean(data.hero_image));
     }
     if (title) title.textContent = data.title || '';
     if (subtitle) subtitle.textContent = data.subtitle || '';

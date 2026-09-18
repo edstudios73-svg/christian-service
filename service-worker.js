@@ -50,6 +50,18 @@ self.addEventListener('notificationclick', (event) => {
   })());
 });
 
+self.addEventListener('pushsubscriptionchange', (event) => {
+  event.waitUntil((async () => {
+    const registration = event.target;
+    if (!registration) return;
+    const subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: event.oldSubscription?.options?.applicationServerKey || undefined
+    });
+    if (subscription) return subscription;
+  })());
+});
+
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   if (request.method !== 'GET' || new URL(request.url).origin !== self.location.origin) return;

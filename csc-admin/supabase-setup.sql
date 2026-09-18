@@ -120,10 +120,16 @@ create table if not exists public.push_subscriptions (
   endpoint text not null unique,
   p256dh text not null,
   auth text not null,
+  user_agent text,
   active boolean not null default true,
-  last_seen_at timestamptz not null default now(),
+  last_seen timestamptz not null default now(),
+  last_seen_at timestamptz,
   created_at timestamptz not null default now()
 );
+
+alter table public.push_subscriptions add column if not exists user_agent text;
+alter table public.push_subscriptions add column if not exists last_seen timestamptz;
+alter table public.push_subscriptions add column if not exists last_seen_at timestamptz;
 
 create table if not exists public.announcement_reads (
   user_id uuid not null references auth.users(id) on delete cascade,

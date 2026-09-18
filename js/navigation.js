@@ -83,7 +83,7 @@
               <path d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5"/>
               <path d="M9.5 18a2.5 2.5 0 0 0 5 0"/>
             </svg>
-            <span class="csc-dh__badge nav__announcement-count">3</span>
+            <span class="csc-dh__badge nav__announcement-count" aria-live="polite" aria-atomic="true" hidden>0</span>
           </a>
           <span class="csc-dh__divider csc-dh__divider--action" aria-hidden="true"></span>
           <a href="giving.html" class="csc-dh__give" data-nav-give>Give</a>
@@ -118,6 +118,7 @@
           </div>
           <a href="announcements.html" class="nav__icon-button nav__announcement-link${getCurrentPage() === 'announcements.html' ? ' is-active' : ''}" aria-label="Announcements" title="Announcements">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 010 7M18.5 6a8.5 8.5 0 010 12"/></svg>
+            <span class="nav__announcement-count" aria-live="polite" aria-atomic="true" hidden>0</span>
           </a>
           <a href="giving.html" class="nav__cta" data-nav-give>Give</a>
           <button class="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">

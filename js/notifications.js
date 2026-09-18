@@ -3,158 +3,176 @@
   'use strict';
 
   const SUPABASE_URL = 'https://uysfgupzlxfhplwqcttp.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6InV5c2ZndXB6bHhmaHBsd3FjdHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk4MTUxNTEsImV4cCI6MjEwNTM5MTE1MX0.uAh-0SFwbLVGKA4J62f2blR_18PCUfquJZs0k9pY1Gs';
+  const SUPABASE_PUBLIC_KEY = 'sb_publishable_5T68Teyy88wmJUlckVRneA_Yfh0OKZV';
   const VAPID_PUBLIC_KEY = window.CSC_PUSH_VAPID_PUBLIC_KEY || '';
-  const CURRENT_SUPABASE_PUBLIC_KEY = 'sb_publishable_5T68Teyy88wmJUlckVRneA_Yfh0OKZV';
-  const LOCAL_READS = 'csc:announcement-reads';
-  const REST_HEADERS = { apikey: CURRENT_SUPABASE_PUBLIC_KEY, Authorization: `Bearer ${CURRENT_SUPABASE_PUBLIC_KEY}` };
-  let sb;
-  let userId;
-  let originalFavicon;
+  const LAST_READ_KEY = 'csc:announcement-last-read';
+  const DISMISS_KEY = 'csc:notification-prompt-dismissed';
+  const BADGE_SCOPE = 'csc-announcement-badge';
+
+  const state = { sb: null, pollTimer: null, lastCount: 0, broadcast: null };
 
   const loadScript = (src) => new Promise((resolve, reject) => {
     const script = document.createElement('script');
     script.src = src;
+    script.async = true;
     script.onload = resolve;
     script.onerror = reject;
     document.head.appendChild(script);
   });
 
-  function readLocal() {
-    try { return JSON.parse(localStorage.getItem(LOCAL_READS) || '[]'); } catch (_) { return []; }
+  function getLastReadValue() {
+    try { return localStorage.getItem(LAST_READ_KEY) || '1970-01-01T00:00:00.000Z'; }
+    catch (_) { return '1970-01-01T00:00:00.000Z'; }
   }
 
-  function writeLocal(ids) {
-    try { localStorage.setItem(LOCAL_READS, JSON.stringify([...new Set(ids)])); } catch (_) {}
+  function setLastReadValue(value) {
+    try { localStorage.setItem(LAST_READ_KEY, value); } catch (_) {}
+    if (state.broadcast) state.broadcast.postMessage({ type: 'csc-last-read', value });
   }
 
-  function updateFavicon(count) {
-    const link = document.querySelector('link[rel="icon"]');
-    if (!link) return;
-    if (!originalFavicon) originalFavicon = link.href;
-    if (!count) {
-      link.href = originalFavicon;
-      return;
-    }
-    const image = new Image();
-    image.onload = () => {
-      const size = 64;
-      const canvas = document.createElement('canvas');
-      canvas.width = size; canvas.height = size;
-      const context = canvas.getContext('2d');
-      context.drawImage(image, 0, 0, size, size);
-      context.fillStyle = '#d94b4b';
-      context.beginPath(); context.arc(49, 15, 15, 0, Math.PI * 2); context.fill();
-      context.fillStyle = '#fff'; context.font = 'bold 18px sans-serif'; context.textAlign = 'center'; context.textBaseline = 'middle';
-      context.fillText(count > 9 ? '9+' : String(count), 49, 15);
-      const badgeLink = link.cloneNode(false);
-      badgeLink.href = `${canvas.toDataURL('image/png')}#unread-${count}`;
-      link.replaceWith(badgeLink);
-    };
-    image.src = originalFavicon;
-  }
+  function setBadge(count, animate = false) {
+    const value = Math.max(0, Number(count) || 0);
+    state.lastCount = value;
 
-  function paintCount(count) {
-    const value = Number(count || 0);
-    document.querySelectorAll('.nav__announcement-count').forEach((badge) => {
-      badge.textContent = value > 99 ? '99+' : String(value);
-      badge.hidden = value < 1;
-      badge.parentElement?.setAttribute('aria-label', value ? `Announcements (${value})` : 'Announcements');
+    document.querySelectorAll('.nav__announcement-count, .csc-dh__badge').forEach((badge) => {
+      const display = value > 9 ? '9+' : String(value);
+      badge.textContent = display;
+      badge.hidden = value === 0;
+      badge.parentElement?.setAttribute('aria-label', value > 0 ? `Announcements, ${value} unread` : 'Announcements');
+      badge.parentElement?.setAttribute('title', value > 0 ? `Announcements, ${value} unread` : 'Announcements');
+      badge.classList.toggle('is-popping', !!animate && value > 0);
+      if (animate) setTimeout(() => badge.classList.remove('is-popping'), 240);
     });
-    updateFavicon(value);
-    const badgePromise = value > 0 && typeof navigator.setAppBadge === 'function'
-      ? navigator.setAppBadge(value)
-      : value === 0 && typeof navigator.clearAppBadge === 'function' ? navigator.clearAppBadge() : null;
-    if (badgePromise?.catch) badgePromise.catch(() => {});
+
+    if (typeof navigator.setAppBadge === 'function') {
+      const result = value > 0 ? navigator.setAppBadge(value) : navigator.clearAppBadge?.();
+      if (result && typeof result.catch === 'function') result.catch(() => {});
+    }
+    if (value === 0 && typeof navigator.clearAppBadge === 'function') navigator.clearAppBadge().catch(() => {});
     window.CSC_ANNOUNCEMENT_COUNT = value;
-    return value;
   }
 
   async function ensureSupabase() {
-    if (sb) {
-      const current = await sb.auth.getSession();
-      const expiresAt = Number(current.data?.session?.expires_at || 0);
-      if (current.error || !current.data?.session || (expiresAt && expiresAt < Math.floor(Date.now() / 1000) + 60)) {
-        await recoverAnonymousSession();
-      }
-      return sb;
+    if (!state.sb) {
+      if (!window.supabase) await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2');
+      state.sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLIC_KEY);
+      window.CSC_SUPABASE = state.sb;
     }
-    if (!window.supabase) await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2');
-    sb = window.supabase.createClient(SUPABASE_URL, CURRENT_SUPABASE_PUBLIC_KEY);
-    window.CSC_SUPABASE = window.CSC_SUPABASE || sb;
-    await recoverAnonymousSession();
-    return sb;
+    return state.sb;
   }
 
-  async function recoverAnonymousSession() {
-    let { data, error } = await sb.auth.getSession();
-    const expiresAt = Number(data?.session?.expires_at || 0);
-    if (!error && data.session && (!expiresAt || expiresAt >= Math.floor(Date.now() / 1000) + 60)) {
-      userId = data.session.user.id;
-      return;
+  function getNewestAnnouncementDate(items) {
+    let newest = null;
+    for (const item of items || []) {
+      const candidate = item?.created_at || item?.date || item?.updated_at || '';
+      if (!candidate) continue;
+      const time = new Date(candidate).getTime();
+      if (Number.isFinite(time) && (!newest || time > newest)) newest = time;
     }
-    if (data?.session) await sb.auth.refreshSession();
-    ({ data, error } = await sb.auth.getSession());
-    if (error || !data.session || (data.session.expires_at && data.session.expires_at < Math.floor(Date.now() / 1000))) {
-      await sb.auth.signOut({ scope: 'local' });
-      const result = await sb.auth.signInAnonymously();
-      if (result.error) throw result.error;
-      data = result.data;
-    }
-    userId = data.session?.user?.id;
+    return newest ? new Date(newest).toISOString() : null;
   }
 
-  async function unreadCount() {
+  async function refreshUnreadBadge() {
+    const lastRead = getLastReadValue();
     try {
       const client = await ensureSupabase();
-      const [{ data: announcements, error: announcementsError }, { data: reads, error: readsError }] = await Promise.all([
-        client.from('announcements').select('id').eq('published', true),
-        client.from('announcement_reads').select('announcement_id')
-      ]);
-      if (announcementsError) throw announcementsError;
-      if (readsError) throw readsError;
-      const readIds = new Set([...readLocal(), ...(reads || []).map((row) => String(row.announcement_id))]);
-      return paintCount((announcements || []).filter((row) => !readIds.has(String(row.id))).length);
+      const { count, error } = await client
+        .from('announcements')
+        .select('id', { count: 'exact', head: true })
+        .eq('published', true)
+        .gt('created_at', lastRead);
+      if (error) throw error;
+      setBadge(Number(count || 0), true);
+      return Number(count || 0);
     } catch (_) {
-      const response = await fetch(`${SUPABASE_URL}/rest/v1/announcements?select=id&published=eq.true`, { headers: REST_HEADERS });
-      if (!response.ok) throw new Error('Could not load announcements');
-      const announcements = await response.json();
-      const readIds = new Set(readLocal());
-      return paintCount(announcements.filter((row) => !readIds.has(String(row.id))).length);
+      setBadge(0, false);
+      return 0;
     }
   }
 
-  async function markRead(id) {
-    if (!id) return;
-    const local = readLocal();
-    if (!local.includes(String(id))) { local.push(String(id)); writeLocal(local); }
-    try {
-      const client = await ensureSupabase();
-      await client.from('announcement_reads').upsert({ user_id: userId, announcement_id: String(id) }, { onConflict: 'user_id,announcement_id' });
-      await unreadCount();
-    } catch (_) { paintCount(Math.max(0, Number(window.CSC_ANNOUNCEMENT_COUNT || 0) - 1)); }
+  function updatePolling() {
+    if (state.pollTimer) clearInterval(state.pollTimer);
+    if (document.visibilityState === 'visible') {
+      state.pollTimer = window.setInterval(() => {
+        if (document.visibilityState === 'visible') refreshUnreadBadge().catch(() => {});
+      }, 60000);
+    }
   }
 
-  async function subscribe() {
-    if (!('serviceWorker' in navigator) || !('PushManager' in window) || !VAPID_PUBLIC_KEY) {
-      throw new Error('Push notifications are not configured for this site yet.');
-    }
-    const permission = await Notification.requestPermission();
-    if (permission !== 'granted') return false;
-    const registration = await navigator.serviceWorker.ready;
-    const existing = await registration.pushManager.getSubscription();
-    const subscription = existing || await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) });
-    const json = subscription.toJSON();
-    const client = await ensureSupabase();
-    const { error } = await client.from('push_subscriptions').upsert({
-      user_id: userId,
-      endpoint: subscription.endpoint,
-      p256dh: json.keys?.p256dh,
-      auth: json.keys?.auth,
-      active: true,
-      last_seen_at: new Date().toISOString()
-    }, { onConflict: 'endpoint' });
-    if (error) throw error;
+  function showNotificationSheet() {
+    if (document.querySelector('[data-csc-notify-sheet]')) return;
+    const sheet = document.createElement('div');
+    sheet.setAttribute('data-csc-notify-sheet', 'true');
+    sheet.className = 'csc-notification-sheet';
+    sheet.innerHTML = `
+      <div class="csc-notification-sheet__panel">
+        <div class="csc-notification-sheet__header">
+          <div class="csc-notification-sheet__icon" aria-hidden="true">!</div>
+          <div>
+            <strong>Never miss an announcement</strong>
+            <p>Get church announcements on your phone.</p>
+          </div>
+        </div>
+        <div class="csc-notification-sheet__actions">
+          <button type="button" class="btn btn-primary" data-csc-enable-notifications>Enable Notifications</button>
+          <button type="button" class="btn btn-outline" data-csc-dismiss-notifications>Not now</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(sheet);
+
+    const close = () => sheet.remove();
+    sheet.querySelector('[data-csc-dismiss-notifications]').addEventListener('click', () => {
+      try { localStorage.setItem(DISMISS_KEY, String(Date.now())); } catch (_) {}
+      close();
+    });
+    sheet.querySelector('[data-csc-enable-notifications]').addEventListener('click', async () => {
+      close();
+      if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window) || !VAPID_PUBLIC_KEY) {
+        window.location.href = 'announcements.html';
+        return;
+      }
+      const result = await Notification.requestPermission();
+      if (result === 'granted') {
+        try {
+          const registration = await navigator.serviceWorker.ready;
+          const existing = await registration.pushManager.getSubscription();
+          const subscription = existing || await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+          });
+          const json = subscription.toJSON();
+          const client = await ensureSupabase();
+          await client.from('push_subscriptions').upsert({
+            endpoint: subscription.endpoint,
+            p256dh: json.keys?.p256dh || '',
+            auth: json.keys?.auth || '',
+            user_agent: navigator.userAgent,
+            active: true,
+            last_seen: new Date().toISOString()
+          }, { onConflict: 'endpoint' });
+          const toast = document.createElement('div');
+          toast.className = 'csc-toast';
+          toast.textContent = 'Notifications enabled';
+          document.body.appendChild(toast);
+          setTimeout(() => toast.remove(), 2200);
+        } catch (_) {
+          const toast = document.createElement('div');
+          toast.className = 'csc-toast csc-toast--error';
+          toast.textContent = 'Notifications could not be enabled right now.';
+          document.body.appendChild(toast);
+          setTimeout(() => toast.remove(), 2600);
+        }
+      }
+      window.location.href = 'announcements.html';
+    });
+  }
+
+  function shouldPromptForNotifications() {
+    if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window) || !VAPID_PUBLIC_KEY) return false;
+    if (Notification.permission !== 'default') return false;
+    const dismissed = Number(localStorage.getItem(DISMISS_KEY) || 0);
+    if (dismissed && Date.now() - dismissed < 7 * 24 * 60 * 60 * 1000) return false;
     return true;
   }
 
@@ -164,82 +182,91 @@
     return Uint8Array.from([...raw].map((character) => character.charCodeAt(0)));
   }
 
-  function showPermissionPrompt() {
-    let dialog = document.querySelector('[data-notification-dialog]');
-    if (!dialog) {
-      dialog = document.createElement('dialog');
-      dialog.className = 'notification-dialog';
-      dialog.dataset.notificationDialog = '';
-      dialog.innerHTML = `
-        <div class="notification-dialog__content">
-          <button class="notification-dialog__close" type="button" data-notification-close aria-label="Close">&times;</button>
-          <span class="notification-dialog__icon" aria-hidden="true">!</span>
-          <h2>Stay up to date</h2>
-          <p>Get important church announcements and updates, even when you are not on the website.</p>
-          <p class="notification-dialog__status" data-notification-status role="status"></p>
-          <div class="notification-dialog__actions">
-            <button class="btn btn-outline" type="button" data-notification-close>Not now</button>
-            <button class="btn btn-primary" type="button" data-enable-notifications>Enable announcements</button>
-          </div>
-        </div>`;
-      document.body.appendChild(dialog);
-      dialog.querySelectorAll('[data-notification-close]').forEach((button) => button.addEventListener('click', () => dialog.close()));
-      dialog.querySelector('[data-enable-notifications]').addEventListener('click', async (event) => {
-        const button = event.currentTarget;
-        const status = dialog.querySelector('[data-notification-status]');
-        button.disabled = true;
-        status.textContent = 'Connecting notifications…';
-        try {
-          const enabled = await subscribe();
-          status.textContent = enabled ? 'Announcements are enabled on this device.' : 'Notifications were not enabled.';
-          if (enabled) setTimeout(() => dialog.close(), 900);
-        } catch (error) {
-          status.textContent = /invalid.*(api|key)|applicationserverkey/i.test(error.message || '')
-            ? 'Notifications are not fully configured yet. Please try again later.'
-            : (error.message || 'Notifications could not be enabled on this device.');
-          button.disabled = false;
-        }
-      });
+  function markAnnouncementsRead(items) {
+    const newest = getNewestAnnouncementDate(items);
+    if (!newest) return;
+    setLastReadValue(newest);
+    setBadge(0, false);
+    window.dispatchEvent(new CustomEvent('csc-announcements-read', { detail: { newest } }));
+  }
+
+  document.addEventListener('csc-announcements-rendered', (event) => {
+    const list = Array.isArray(event.detail?.items) ? event.detail.items : [];
+    if (window.location.pathname.toLowerCase().endsWith('announcements.html')) {
+      markAnnouncementsRead(list);
     }
-    if (typeof dialog.showModal === 'function') dialog.showModal();
-    else dialog.setAttribute('open', '');
-  }
+  });
 
-  function bindPermissionPrompt() {
-    const link = document.querySelector('.nav__announcement');
-    if (!link || link.dataset.notificationPromptBound) return;
-    link.dataset.notificationPromptBound = 'true';
-    if (!('Notification' in window) || Notification.permission !== 'default' || !VAPID_PUBLIC_KEY) return;
-    link.addEventListener('click', (event) => {
-      if (Notification.permission === 'granted') return;
+  document.addEventListener('click', (event) => {
+    const target = event.target.closest('.nav__announcement-link, .csc-dh__bell');
+    if (!target) return;
+    if (Notification.permission === 'default' && shouldPromptForNotifications()) {
       event.preventDefault();
-      showPermissionPrompt();
+      showNotificationSheet();
+    }
+  }, true);
+
+  if (typeof BroadcastChannel !== 'undefined') {
+    state.broadcast = new BroadcastChannel(BADGE_SCOPE);
+    state.broadcast.addEventListener('message', (event) => {
+      if (event.data?.type === 'csc-last-read') refreshUnreadBadge().catch(() => {});
     });
   }
 
-  function bindAnnouncementCards() {
-    document.querySelectorAll('[data-announcement-id]').forEach((card) => {
-      if (card.dataset.readBound) return;
-      card.dataset.readBound = 'true';
-      const id = card.dataset.announcementId;
-      card.addEventListener('click', () => markRead(id));
-      if (decodeURIComponent(window.location.hash.slice(1)) === id) markRead(id);
+  window.addEventListener('storage', (event) => {
+    if (event.key === LAST_READ_KEY) refreshUnreadBadge().catch(() => {});
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    updatePolling();
+    if (!document.hidden) refreshUnreadBadge().catch(() => {});
+  });
+
+  if ('serviceWorker' in navigator && 'PushManager' in window) {
+    navigator.serviceWorker.addEventListener('message', (event) => {
+      if (event.data?.type === 'announcement-received') refreshUnreadBadge().catch(() => {});
     });
   }
 
-  async function init() {
-    bindPermissionPrompt();
-    bindAnnouncementCards();
-    try { await unreadCount(); } catch (_) { paintCount(0); }
-    navigator.serviceWorker?.addEventListener('message', (event) => {
-      if (event.data?.type === 'announcement-received') unreadCount().catch(() => {});
-    });
-    window.addEventListener('pageshow', () => unreadCount().catch(() => {}));
-    window.addEventListener('focus', () => unreadCount().catch(() => {}));
-    window.CSC_NOTIFICATIONS = { updateUnreadAnnouncementBadge: unreadCount, clearAnnouncementBadge: () => paintCount(0), markAnnouncementRead: markRead, subscribe };
-    new MutationObserver(bindAnnouncementCards).observe(document.body, { childList: true, subtree: true });
+  window.CSC_NOTIFICATIONS = {
+    updateUnreadAnnouncementBadge: () => refreshUnreadBadge().catch(() => {}),
+    clearAnnouncementBadge: () => setBadge(0, false),
+    markAnnouncementRead: markAnnouncementsRead,
+    subscribe: async () => {
+      if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window) || !VAPID_PUBLIC_KEY) {
+        throw new Error('Push notifications are not supported on this browser.');
+      }
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') return false;
+      const registration = await navigator.serviceWorker.ready;
+      const existing = await registration.pushManager.getSubscription();
+      const subscription = existing || await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+      });
+      const json = subscription.toJSON();
+      const client = await ensureSupabase();
+      await client.from('push_subscriptions').upsert({
+        endpoint: subscription.endpoint,
+        p256dh: json.keys?.p256dh || '',
+        auth: json.keys?.auth || '',
+        user_agent: navigator.userAgent,
+        active: true,
+        last_seen: new Date().toISOString()
+      }, { onConflict: 'endpoint' });
+      return true;
+    }
+  };
+
+  function init() {
+    setBadge(0, false);
+    refreshUnreadBadge().catch(() => {});
+    updatePolling();
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
-  else init();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init, { once: true });
+  } else {
+    init();
+  }
 })();

@@ -348,8 +348,9 @@
   function renderAnnouncements(items) {
     const mount = document.querySelector('[data-supabase-announcements]');
     if (!mount) return;
-    mount.innerHTML = items.length ? items.map((item) => `
-      <article class="feature-card reveal" data-announcement-id="${esc(item.id)}">
+    const sorted = [...items].sort((a, b) => new Date(b.created_at || b.date || 0).getTime() - new Date(a.created_at || a.date || 0).getTime());
+    mount.innerHTML = sorted.length ? sorted.map((item) => `
+      <article class="feature-card reveal" data-announcement-id="${esc(item.id)}" data-created-at="${esc(item.created_at || item.date || '')}" data-announcement-date="${esc(item.date || item.created_at || '')}">
         ${item.image ? `<img src="${esc(item.image)}" alt="${esc(item.title || 'Church announcement')}" loading="lazy" decoding="async" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:var(--r-md);margin-bottom:var(--sp-4)">` : ''}
         <span class="eyebrow">${esc(item.category || 'Announcement')}</span>
         <h2 class="feature-card__title">${esc(item.title)}</h2>
@@ -357,6 +358,7 @@
         <p class="feature-card__desc">${esc(item.body)}</p>
         <small class="muted">${formatDate(item.date)}</small>
       </article>`).join('') : '<p class="muted">There are no announcements right now.</p>';
+    window.dispatchEvent(new CustomEvent('csc-announcements-rendered', { detail: { items: sorted } }));
   }
 
   function renderLeaders(items) {

@@ -342,7 +342,8 @@ const COLLECTIONS = {
       { name: 'category', label: 'Category', type: 'select', options: ['General', 'Service', 'Prayer', 'Event', 'Urgent'], half: true },
       { name: 'date', label: 'Date', type: 'date', required: true, half: true, def: 'today' },
       { name: 'body', label: 'Announcement details', type: 'textarea', required: true, rows: 6 },
-      { name: 'image', label: 'Image (optional)', type: 'image' }
+      { name: 'image', label: 'Image (optional)', type: 'image' },
+      { name: 'sendPush', label: 'Send push notification to subscribers', type: 'checkbox', def: true }
     ]
   },
   leaders: {
@@ -1137,8 +1138,9 @@ async function saveForm() {
     }
   }
   const data = {};
+  const sendPush = key === 'announcements' ? !!(form.elements.sendPush ? form.elements.sendPush.checked : true) : false;
   for (const f of col.fields) {
-    if (f.type === 'image' || f.type === 'file') continue;
+    if (f.type === 'image' || f.type === 'file' || f.name === 'sendPush') continue;
     const el = form.elements[f.name];
     data[f.name] = f.type === 'checkbox' ? !!el.checked : (el ? (el.value || '').trim() : '');
   }
@@ -1170,7 +1172,15 @@ async function saveForm() {
       }
     }
     if (key === 'announcements' && saved.some(o => o.published && !item?.published)) {
-      try { await Promise.all(saved.filter(o => o.published && !item?.published).map(o => Store.notifyAnnouncement(o.id))); }
+      try {
+        const publishQueue = saved.filter(o => o.published && !item?.published);
+        if (sendPush) {
+          await Promise.all(publishQueue.map(o => Store.notifyAnnouncement(o.id)));
+          toast(`${publishQueue.length} announcement${publishQueue.length === 1 ? '' : 's'} published and push sent`);
+        } else {
+          toast(`${publishQueue.length} announcement${publishQueue.length === 1 ? '' : 's'} published`);
+        }
+      }
       catch (notificationError) { toast('Announcement saved, but push delivery needs configuration.', 'bad'); }
     }
     if (item) imgFields.forEach(f => { if (item[f.name] && item[f.name] !== saved[0][f.name]) Store.removeFile(item[f.name]); });

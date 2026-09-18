@@ -473,29 +473,29 @@
           <p class="section-head__desc">Have a question, or coming for the first time? Send us a message and we will reply you.</p>
         </div>
 
-        <form class="form-card reveal" data-delay="1" data-form>
+        <form class="form-card reveal" data-delay="1" data-form data-visit-form>
           <div class="form-card__inner">
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">First Name</label>
-                <input type="text" class="form-input" placeholder="" required>
+                <input name="first_name" type="text" class="form-input" placeholder="" required>
               </div>
               <div class="form-group">
                 <label class="form-label">Last Name</label>
-                <input type="text" class="form-input" placeholder="" required>
+                <input name="last_name" type="text" class="form-input" placeholder="" required>
               </div>
             </div>
             <div class="form-group">
               <label class="form-label">Email Address</label>
-              <input type="email" class="form-input" placeholder="example@gmail.com" required>
+              <input name="email" type="email" class="form-input" placeholder="example@gmail.com" required>
             </div>
             <div class="form-group">
               <label class="form-label">Phone Number</label>
-              <input type="tel" class="form-input" placeholder="+233 XXX XXX XXX">
+              <input name="phone" type="tel" class="form-input" placeholder="+233 XXX XXX XXX">
             </div>
             <div class="form-group">
               <label class="form-label">How can we help?</label>
-              <select class="form-select">
+              <select name="subject" class="form-select">
                 <option>Plan my first visit</option>
                 <option>General inquiry</option>
                 <option>Prayer request</option>
@@ -506,7 +506,7 @@
             </div>
             <div class="form-group">
               <label class="form-label">Your Message</label>
-              <textarea class="form-textarea" placeholder="Tell us a bit about yourself and how we can serve you." required></textarea>
+              <textarea name="message" class="form-textarea" placeholder="Tell us a bit about yourself and how we can serve you." required></textarea>
             </div>
             <div class="form-group">
               <label class="form-label">When are you planning to visit?</label>

@@ -346,6 +346,8 @@ const COLLECTIONS = {
     hint: 'Publish notices that members can view from the announcement icon.',
     fields: [
       { name: 'title', label: 'Headline', type: 'text', required: true },
+      { name: 'senderName', label: 'Sender name', type: 'text', required: true, half: true, ph: 'e.g. Rev. Dr. Joseph Payin Ezekiel' },
+      { name: 'senderRole', label: 'Sender role or position', type: 'text', required: true, half: true, ph: 'e.g. General Overseer' },
       { name: 'category', label: 'Category', type: 'select', options: ['General', 'Service', 'Prayer', 'Event', 'Urgent'], half: true },
       { name: 'date', label: 'Date', type: 'date', required: true, half: true, def: 'today' },
       { name: 'body', label: 'Announcement details', type: 'textarea', required: true, rows: 6 },
@@ -360,8 +362,6 @@ const COLLECTIONS = {
       { name: 'role', label: 'Role or title', type: 'text', required: true, half: true },
       { name: 'location', label: 'Location', type: 'text', half: true, def: 'Accra, Ghana' },
       { name: 'body', label: 'Short biography', type: 'textarea', rows: 4 },
-      { name: 'phone', label: 'Phone (optional)', type: 'tel', half: true },
-      { name: 'email', label: 'Email (optional)', type: 'email', half: true },
       { name: 'image', label: 'Portrait (optional)', type: 'image' }
     ]
   },
@@ -374,6 +374,7 @@ const COLLECTIONS = {
       { name: 'date', label: 'Date preached', type: 'date', half: true, def: 'today' },
       { name: 'series', label: 'Series (optional)', type: 'text', half: true },
       { name: 'videoUrl', label: 'Video link', type: 'url', half: true, ph: 'https://youtube.com/watch?v=…' },
+      { name: 'videoFile', label: 'Local video upload (optional)', type: 'file', accept: 'video/*', half: true },
       { name: 'audioUrl', label: 'Audio link (optional)', type: 'url' },
       { name: 'body', label: 'Summary or notes', type: 'textarea', rows: 4 },
       { name: 'image', label: 'Thumbnail (optional)', type: 'image' }
@@ -413,6 +414,31 @@ const COLLECTIONS = {
       { name: 'image', label: 'Poster or banner (optional)', type: 'image' }
     ]
   },
+  ministries: {
+    label: 'Ministries', singular: 'ministry', icon: 'heart', titleField: 'title', meta: [], image: 'image',
+    hint: 'Add and publish the ministries shown on the Ministries page.',
+    fields: [
+      { name: 'title', label: 'Ministry name', type: 'text', required: true },
+      { name: 'body', label: 'Description', type: 'textarea', required: true, rows: 5 },
+      { name: 'link', label: 'Learn more link', type: 'url', half: true, ph: 'contact.html' },
+      { name: 'image', label: 'Ministry image (optional)', type: 'image' }
+    ]
+  },
+  visitMessages: {
+    table: 'visit_messages', label: 'Visit Messages', singular: 'visit message', icon: 'user', titleField: 'firstName', meta: ['email', 'visitTime'],
+    noPublish: true, statusField: 'status',
+    hint: 'Messages submitted through the Plan Your Visit form.',
+    fields: [
+      { name: 'firstName', label: 'First name', type: 'text', required: true, half: true },
+      { name: 'lastName', label: 'Last name', type: 'text', half: true },
+      { name: 'email', label: 'Email', type: 'email', required: true, half: true },
+      { name: 'phone', label: 'Phone', type: 'tel', half: true },
+      { name: 'subject', label: 'Subject', type: 'text' },
+      { name: 'message', label: 'Message', type: 'textarea', required: true, rows: 5 },
+      { name: 'visitTime', label: 'Planned visit', type: 'text', half: true },
+      { name: 'status', label: 'Status', type: 'select', options: ['New', 'Read', 'Replied'], half: true, def: 'New' }
+    ]
+  },
   prayers: {
     label: 'Prayer Requests', singular: 'prayer request', icon: 'heart', titleField: 'name', meta: ['contact', 'date'],
     noPublish: true, statusField: 'status',
@@ -441,6 +467,7 @@ function seed() {
 }
 /* Supabase columns are snake_case (videoUrl is video_url). Convert both ways. */
 const snake = s => s.replace(/[A-Z]/g, c => '_' + c.toLowerCase());
+const dbTable = key => COLLECTIONS[key]?.table || key;
 const blocked = ex => !!ex && (ex.code === '42501' || ex.status === 403 || String(ex.statusCode) === '403' || /row-level security|not authorized|permission denied/i.test(ex.message || ''));
 function toRow(key, it) {
   const col = COLLECTIONS[key];
@@ -478,7 +505,7 @@ const Store = {
   },
   async list(col) {
     if (this.mode === 'supabase') {
-      const { data, error } = await this.sb.from(col).select('*');
+      const { data, error } = await this.sb.from(dbTable(col)).select('*');
       if (error) throw error;
       return data.map(r => fromRow(col, r));
     }
@@ -506,7 +533,7 @@ const Store = {
   async save(col, item) {
     if (this.mode === 'supabase') {
       await this.ensureSession();
-      const { error } = await this.sb.from(col).upsert(toRow(col, item));
+      const { error } = await this.sb.from(dbTable(col)).upsert(toRow(col, item));
       if (error) throw error;
       return;
     }
@@ -518,7 +545,7 @@ const Store = {
   async remove(col, id) {
     if (this.mode === 'supabase') {
       await this.ensureSession();
-      const { data, error } = await this.sb.from(col).delete().eq('id', id).select('id');
+      const { data, error } = await this.sb.from(dbTable(col)).delete().eq('id', id).select('id');
       if (error) throw error;
       if (!data || !data.length) { const e = new Error('Not allowed'); e.code = '42501'; throw e; }
       return;
@@ -530,8 +557,9 @@ const Store = {
   async uploadImage(dataUrl) {
     await this.ensureSession();
     const blob = await (await fetch(dataUrl)).blob();
-    const path = new Date().getFullYear() + '/' + uid() + '.jpg';
-    const { error } = await this.sb.storage.from('media').upload(path, blob, { contentType: 'image/jpeg', cacheControl: '31536000' });
+    const extension = blob.type.startsWith('video/') ? (blob.type.split('/')[1] || 'mp4') : 'jpg';
+    const path = new Date().getFullYear() + '/' + uid() + '.' + extension;
+    const { error } = await this.sb.storage.from('media').upload(path, blob, { contentType: blob.type || 'application/octet-stream', cacheControl: '31536000', upsert: false });
     if (error) throw error;
     return this.sb.storage.from('media').getPublicUrl(path).data.publicUrl;
   },
@@ -919,11 +947,12 @@ function fieldHTML(f, v, isEdit) {
     case 'textarea': return `<div class="${cls}">${lab}<textarea id="${id}" name="${f.name}" rows="${f.rows || 5}" ${req}>${esc(v)}</textarea></div>`;
     case 'select': return `<div class="${cls}">${lab}<select id="${id}" name="${f.name}">${f.options.map(o => `<option${o === v ? ' selected' : ''}>${esc(o)}</option>`).join('')}</select></div>`;
     case 'checkbox': return `<div class="${cls}"><label class="switch"><input type="checkbox" name="${f.name}"${v ? ' checked' : ''}><span></span>${esc(f.label)}</label></div>`;
-    case 'image': {
+    case 'image':
+    case 'file': {
       const multi = f.multiple && !isEdit;
       return `<div class="${cls}"><label class="l">${esc(f.label)}${f.required ? ' <i aria-hidden="true">*</i>' : ''}</label>
         <div class="prevs" id="prev_${f.name}"></div>
-        <label class="btn upl">${icon('image', 18)}<span>${multi ? 'Choose photos' : 'Choose photo'}</span><input class="vh" type="file" accept="image/*" data-file="${f.name}"${multi ? ' multiple' : ''}></label>
+        <label class="btn upl">${icon('image', 18)}<span>${multi ? 'Choose photos' : 'Choose file'}</span><input class="vh" type="file" accept="${esc(f.accept || 'image/*')}" data-file="${f.name}"${multi ? ' multiple' : ''}></label>
         ${multi ? '<p class="hint">Pick as many as you like. Each becomes its own gallery photo.</p>' : ''}</div>`;
     }
     default: return `<div class="${cls}">${lab}<input id="${id}" name="${f.name}" type="${f.type}" value="${esc(v)}" ${req}${f.ph ? ` placeholder="${esc(f.ph)}"` : ''}></div>`;
@@ -935,7 +964,7 @@ function openForm(key, id) {
   if (id && !it) return;
   editing = { key, id: id || null, item: it };
   formImages = {};
-  col.fields.filter(f => f.type === 'image').forEach(f => { formImages[f.name] = it && it[f.name] ? [it[f.name]] : []; });
+  col.fields.filter(f => f.type === 'image' || f.type === 'file').forEach(f => { formImages[f.name] = it && it[f.name] ? [it[f.name]] : []; });
   const dlg = $('#formDlg');
   dlg.innerHTML = `<form id="form" autocomplete="off">
     <div class="dh"><h2 id="formTitle">${it ? 'Edit' : 'Add'} ${esc(col.singular)}</h2><button type="button" class="icon" data-act="closeform" aria-label="Close">${icon('x', 22)}</button></div>
@@ -982,7 +1011,7 @@ document.addEventListener('change', async e => {
   inp.value = '';
   if (!files.length) return;
   try {
-    const urls = await Promise.all(files.map(f => compress(f)));
+    const urls = await Promise.all(files.map(f => f.type.startsWith('image/') ? compress(f) : new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(f); })));
     formImages[name] = multi ? [...(formImages[name] || []), ...urls] : [urls[0]];
     drawPrev(name);
     $('#formErr').textContent = '';
@@ -993,7 +1022,7 @@ document.addEventListener('submit', e => { if (e.target.id === 'form') { e.preve
 async function saveForm() {
   const { key, id, item } = editing, col = COLLECTIONS[key], form = $('#form'), err = $('#formErr');
   err.textContent = '';
-  const imgFields = col.fields.filter(f => f.type === 'image');
+  const imgFields = col.fields.filter(f => f.type === 'image' || f.type === 'file');
   for (const f of imgFields) if (f.required && !(formImages[f.name] || []).length) { err.textContent = 'Add at least one photo before saving.'; return; }
   const data = {};
   for (const f of col.fields) {

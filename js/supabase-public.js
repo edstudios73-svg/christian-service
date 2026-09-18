@@ -36,6 +36,7 @@
       <article class="event-card reveal">
         <div class="event-card__date"><div class="day">${esc(item.date ? item.date.slice(8, 10) : '')}</div><div class="month">${esc(item.date ? new Date(`${item.date}T00:00:00`).toLocaleDateString('en-US', { month: 'short' }) : '')}</div></div>
         <div class="event-card__body">
+          ${item.image ? `<img class="event-card__image" src="${esc(item.image)}" alt="${esc(item.title || 'Church event')}" loading="lazy" decoding="async">` : ''}
           <h3 class="event-card__title">${esc(item.title)}</h3>
           <div class="event-card__meta"><span>${esc(item.time || '')}</span><span>${esc(item.location || '')}</span></div>
           <p class="event-card__desc">${esc(item.body || '')}</p>
@@ -48,13 +49,13 @@
     if (!mount) return;
     mount.innerHTML = items.length ? items.map((item) => `
       <article class="sermon-card reveal"${imageStyle(item.image)}>
-        <div class="sermon-card__media"${imageStyle(item.image)}><div class="sermon-card__play"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><polygon points="6 4 20 12 6 20"/></svg></div></div>
+        <div class="sermon-card__media"${imageStyle(item.image)}>${item.video_file ? `<video controls preload="metadata" src="${esc(item.video_file)}"></video>` : '<div class="sermon-card__play"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><polygon points="6 4 20 12 6 20"/></svg></div>'}</div>
         <div class="sermon-card__body">
           <div class="sermon-card__series">${esc(item.series || 'Sermon')}</div>
           <h3 class="sermon-card__title">${esc(item.title)}</h3>
           <div class="sermon-card__meta"><span>${esc(item.preacher || '')}</span><span>${formatDate(item.date)}</span></div>
           <p class="muted">${esc(item.body || '')}</p>
-          <div class="sermon-card__actions">${item.video_url ? `<a class="btn btn-primary btn-sm" href="${esc(item.video_url)}" target="_blank" rel="noopener">Watch</a>` : ''}${item.audio_url ? `<a class="btn btn-outline btn-sm" href="${esc(item.audio_url)}" target="_blank" rel="noopener">Listen</a>` : ''}</div>
+          <div class="sermon-card__actions">${item.video_url ? `<a class="btn btn-primary btn-sm" href="${esc(item.video_url)}" target="_blank" rel="noopener">Watch</a>` : ''}${item.video_file ? `<a class="btn btn-primary btn-sm" href="${esc(item.video_file)}" target="_blank" rel="noopener">Open video</a>` : ''}${item.audio_url ? `<a class="btn btn-outline btn-sm" href="${esc(item.audio_url)}" target="_blank" rel="noopener">Listen</a>` : ''}</div>
         </div>
       </article>`).join('') : '<p class="muted">No published sermons yet.</p>';
   }
@@ -91,6 +92,7 @@
         ${item.image ? `<img src="${esc(item.image)}" alt="${esc(item.title || 'Church announcement')}" loading="lazy" decoding="async" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:var(--r-md);margin-bottom:var(--sp-4)">` : ''}
         <span class="eyebrow">${esc(item.category || 'Announcement')}</span>
         <h2 class="feature-card__title">${esc(item.title)}</h2>
+        <p class="feature-card__sender">Posted by ${esc(item.sender_name || 'Church office')}${item.sender_role ? `, ${esc(item.sender_role)}` : ''}</p>
         <p class="feature-card__desc">${esc(item.body)}</p>
         <small class="muted">${formatDate(item.date)}</small>
       </article>`).join('') : '<p class="muted">There are no announcements right now.</p>';
@@ -98,8 +100,8 @@
 
   function renderLeaders(items) {
     const mount = document.querySelector('[data-supabase-leaders]');
-    if (!mount || !items.length) return;
-    mount.innerHTML = items.map((item, index) => `
+    if (!mount) return;
+    mount.innerHTML = items.length ? items.map((item, index) => `
       <div class="member-card reveal-scale" data-delay="${(index % 3) + 1}">
         <div class="member-card__image"${item.image ? imageStyle(item.image) : ''}></div>
         <div class="member-card__content">
@@ -107,9 +109,18 @@
           <p class="member-card__role">${esc(item.role || '')}</p>
           ${item.location ? `<p class="member-card__location"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-13-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${esc(item.location)}</p>` : ''}
           ${item.body ? `<p class="member-card__bio">${esc(item.body)}</p>` : ''}
-          ${(item.phone || item.email) ? `<div class="member-card__contact">${item.phone ? `<a href="tel:${esc(item.phone)}" class="contact-btn" title="Call">Call</a>` : ''}${item.email ? `<a href="mailto:${esc(item.email)}" class="contact-btn" title="Email">Email</a>` : ''}</div>` : ''}
         </div>
-      </div>`).join('');
+      </div>`).join('') : '<p class="muted">No leaders have been published yet.</p>';
+  }
+
+  function renderMinistries(items) {
+    const mount = document.querySelector('[data-supabase-ministries]');
+    if (!mount) return;
+    mount.innerHTML = items.length ? items.map((item, index) => `
+      <article class="ministry-card reveal" data-delay="${(index % 2) + 1}">
+        <div class="ministry-card__media"${imageStyle(item.image)}></div>
+        <div class="ministry-card__body"><h3 class="ministry-card__title">${esc(item.title)}</h3><p class="ministry-card__desc">${esc(item.body || '')}</p>${item.link ? `<a href="${esc(item.link)}" class="ministry-card__link">Learn More</a>` : ''}</div>
+      </article>`).join('') : '<p class="muted">No ministries have been published yet.</p>';
   }
 
   function updateAnnouncementBadge(total) {
@@ -154,6 +165,33 @@
     }, { once: false });
   }
 
+  async function initVisitForm(sb) {
+    const form = document.querySelector('[data-visit-form]');
+    if (!form || form.dataset.supabaseReady) return;
+    form.dataset.supabaseReady = 'true';
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const button = form.querySelector('button[type="submit"]');
+      const value = (name) => form.elements[name]?.value.trim() || '';
+      const visitTime = form.querySelector('.chip.is-selected')?.textContent.trim() || '';
+      button.disabled = true;
+      const { error } = await sb.from('visit_messages').insert({
+        first_name: value('first_name'), last_name: value('last_name'), email: value('email'),
+        phone: value('phone'), subject: value('subject'), message: value('message'), visit_time: visitTime, status: 'New'
+      });
+      button.disabled = false;
+      if (error) {
+        button.insertAdjacentHTML('afterend', '<p class="form-hint" role="alert">We could not send your visit message. Please try again.</p>');
+        return;
+      }
+      const card = form.querySelector('.form-card__inner');
+      const success = form.querySelector('.form-success');
+      if (card) card.style.display = 'none';
+      if (success) success.classList.add('is-shown');
+    }, { once: false });
+  }
+
   async function applyPageSettings(sb) {
     const header = document.querySelector('[data-page-key]');
     if (!header) return;
@@ -189,11 +227,12 @@
   }
 
   async function init() {
-    const hasMount = document.querySelector('[data-page-key], [data-supabase-events], [data-supabase-sermons], [data-gallery-grid], [data-supabase-testimonies], [data-supabase-announcements], [data-supabase-leaders], [data-prayer-form]');
+    const hasMount = document.querySelector('[data-page-key], [data-supabase-events], [data-supabase-sermons], [data-gallery-grid], [data-supabase-testimonies], [data-supabase-announcements], [data-supabase-leaders], [data-supabase-ministries], [data-prayer-form]');
     if (!hasMount) return;
+    document.querySelectorAll('[data-supabase-events], [data-supabase-sermons], [data-supabase-leaders], [data-supabase-ministries], [data-supabase-announcements]').forEach((mount) => { mount.innerHTML = '<p class="muted">Loading...</p>'; });
     try {
       await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2');
-      const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const sb = window.supabase.createClient(SUPABASE_URL, 'sb_publishable_5T68Teyy88wmJUlckVRneA_Yfh0OKZV');
       window.CSC_SUPABASE = sb;
       await applyPageSettings(sb);
       if (document.querySelector('[data-supabase-announcements]')) renderAnnouncements(await fetchPublished(sb, 'announcements', 'date'));
@@ -202,13 +241,16 @@
       if (document.querySelector('[data-gallery-grid]')) renderGallery(await fetchPublished(sb, 'gallery', 'date'));
       if (document.querySelector('[data-supabase-testimonies]')) renderTestimonies(await fetchPublished(sb, 'testimonies', 'date'));
       if (document.querySelector('[data-supabase-leaders]')) renderLeaders(await fetchPublished(sb, 'leaders', 'created_at'));
+      if (document.querySelector('[data-supabase-ministries]')) renderMinistries(await fetchPublished(sb, 'ministries', 'created_at'));
       await initPrayerForm(sb);
+        await initVisitForm(sb);
       sb.channel('public-site-live')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'announcements' }, async () => {
           if (document.querySelector('[data-supabase-announcements]')) renderAnnouncements(await fetchPublished(sb, 'announcements', 'date'));
           window.CSC_NOTIFICATIONS?.updateUnreadAnnouncementBadge?.();
         })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'leaders' }, async () => renderLeaders(await fetchPublished(sb, 'leaders', 'created_at')))
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'ministries' }, async () => renderMinistries(await fetchPublished(sb, 'ministries', 'created_at')))
         .on('postgres_changes', { event: '*', schema: 'public', table: 'pages' }, async () => applyPageSettings(sb))
         .subscribe();
     } catch (error) {

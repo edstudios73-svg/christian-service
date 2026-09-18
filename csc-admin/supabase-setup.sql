@@ -20,6 +20,7 @@ create table if not exists public.sermons (
   published boolean not null default true,
   created_at timestamptz not null default now(), updated_at timestamptz
 );
+alter table public.sermons add column if not exists video_file text;
 
 create table if not exists public.gallery (
   id text primary key default gen_random_uuid()::text,
@@ -81,6 +82,33 @@ create table if not exists public.announcements (
   body text not null,
   image text,
   published boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+alter table public.announcements add column if not exists sender_name text;
+alter table public.announcements add column if not exists sender_role text;
+
+create table if not exists public.ministries (
+  id text primary key default gen_random_uuid()::text,
+  title text not null,
+  body text,
+  image text,
+  link text,
+  published boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.visit_messages (
+  id text primary key default gen_random_uuid()::text,
+  first_name text not null,
+  last_name text,
+  email text not null,
+  phone text,
+  subject text,
+  message text not null,
+  visit_time text,
+  status text not null default 'New',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -178,7 +206,7 @@ where email = 'edstudios77@gmail.com';
 do $$
 declare t text;
 begin
-  foreach t in array array['leaders','sermons','gallery','testimonies','events','pages','announcements'] loop
+  foreach t in array array['leaders','sermons','gallery','testimonies','events','pages','announcements','ministries'] loop
     execute format('alter table public.%I enable row level security', t);
     execute format('drop policy if exists "visitors read published" on public.%I', t);
     execute format('drop policy if exists "admin full access" on public.%I', t);
@@ -203,6 +231,14 @@ create policy "visitors send requests" on public.prayers
 create policy "admin full access" on public.prayers
   for all using (public.is_admin()) with check (public.is_admin());
 
+alter table public.visit_messages enable row level security;
+drop policy if exists "visitors send visit messages" on public.visit_messages;
+drop policy if exists "admin manages visit messages" on public.visit_messages;
+create policy "visitors send visit messages" on public.visit_messages
+  for insert with check (status = 'New');
+create policy "admin manages visit messages" on public.visit_messages
+  for all using (public.is_admin()) with check (public.is_admin());
+
 alter table public.push_subscriptions enable row level security;
 alter table public.announcement_reads enable row level security;
 alter table public.notification_events enable row level security;
@@ -222,6 +258,7 @@ begin
   alter publication supabase_realtime add table public.leaders;
   alter publication supabase_realtime add table public.pages;
   alter publication supabase_realtime add table public.announcements;
+  alter publication supabase_realtime add table public.ministries;
   alter publication supabase_realtime add table public.prayers;
 exception when duplicate_object then null;
 end $$;

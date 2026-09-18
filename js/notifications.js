@@ -32,7 +32,10 @@
     const link = document.querySelector('link[rel="icon"]');
     if (!link) return;
     if (!originalFavicon) originalFavicon = link.href;
-    if (!count) { link.href = originalFavicon; return; }
+    if (!count) {
+      link.href = originalFavicon;
+      return;
+    }
     const image = new Image();
     image.onload = () => {
       const size = 64;
@@ -44,7 +47,9 @@
       context.beginPath(); context.arc(49, 15, 15, 0, Math.PI * 2); context.fill();
       context.fillStyle = '#fff'; context.font = 'bold 18px sans-serif'; context.textAlign = 'center'; context.textBaseline = 'middle';
       context.fillText(count > 9 ? '9+' : String(count), 49, 15);
-      link.href = canvas.toDataURL('image/png');
+      const badgeLink = link.cloneNode(false);
+      badgeLink.href = `${canvas.toDataURL('image/png')}#unread-${count}`;
+      link.replaceWith(badgeLink);
     };
     image.src = originalFavicon;
   }

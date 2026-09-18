@@ -71,18 +71,37 @@
   }
 
   async function ensureSupabase() {
-    if (sb) return sb;
+    if (sb) {
+      const current = await sb.auth.getSession();
+      const expiresAt = Number(current.data?.session?.expires_at || 0);
+      if (current.error || !current.data?.session || (expiresAt && expiresAt < Math.floor(Date.now() / 1000) + 60)) {
+        await recoverAnonymousSession();
+      }
+      return sb;
+    }
     if (!window.supabase) await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2');
     sb = window.supabase.createClient(SUPABASE_URL, CURRENT_SUPABASE_PUBLIC_KEY);
     window.CSC_SUPABASE = window.CSC_SUPABASE || sb;
-    let { data } = await sb.auth.getSession();
-    if (!data.session) {
+    await recoverAnonymousSession();
+    return sb;
+  }
+
+  async function recoverAnonymousSession() {
+    let { data, error } = await sb.auth.getSession();
+    const expiresAt = Number(data?.session?.expires_at || 0);
+    if (!error && data.session && (!expiresAt || expiresAt >= Math.floor(Date.now() / 1000) + 60)) {
+      userId = data.session.user.id;
+      return;
+    }
+    if (data?.session) await sb.auth.refreshSession();
+    ({ data, error } = await sb.auth.getSession());
+    if (error || !data.session || (data.session.expires_at && data.session.expires_at < Math.floor(Date.now() / 1000))) {
+      await sb.auth.signOut({ scope: 'local' });
       const result = await sb.auth.signInAnonymously();
       if (result.error) throw result.error;
       data = result.data;
     }
     userId = data.session?.user?.id;
-    return sb;
   }
 
   async function unreadCount() {

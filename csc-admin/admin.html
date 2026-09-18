@@ -224,7 +224,7 @@ dialog form{display:flex;flex-direction:column;min-height:0;flex:1}
    SETTINGS: edit this block
    ============================================================ */
 const SUPABASE_URL = 'https://uysfgupzlxfhplwqcttp.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5c2ZndXB6bHhmaHBsd3FjdHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk4MTUxNTEsImV4cCI6MjEwNTM5MTE1MX0.uAh-0SFwbLVGKA4J62f2blR_18PCUfquJZs0k9pY1Gs';
+const SUPABASE_ANON_KEY = 'sb_publishable_5T68Teyy88wmJUlckVRneA_Yfh0OKZV';
 /* This is the public anon key. Never place a service-role key in this file. */
 const DEMO_PASSWORD = 'change-this-demo-password';   /* demo mode only. Not real security. */
 </script>
@@ -1048,7 +1048,15 @@ async function saveForm() {
       imgFields.forEach(f => { obj[f.name] = (formImages[f.name] || [])[0] || ''; });
       saved.push(obj);
     }
-    for (const o of saved) await Store.save(key, o);
+    for (const o of saved) {
+      try {
+        await Store.save(key, o);
+      } catch (saveError) {
+        if (!sessionExpired(saveError) || Store.mode !== 'supabase') throw saveError;
+        await Store.sb.auth.refreshSession();
+        await Store.save(key, o);
+      }
+    }
     if (key === 'announcements' && saved.some(o => o.published && !item?.published)) {
       try { await Promise.all(saved.filter(o => o.published && !item?.published).map(o => Store.notifyAnnouncement(o.id))); }
       catch (notificationError) { toast('Announcement saved, but push delivery needs configuration.', 'bad'); }

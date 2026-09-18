@@ -76,7 +76,8 @@ label.l i{color:var(--bad);font-style:normal}
 .app{display:grid;grid-template-columns:268px minmax(0,1fr);min-height:100vh}
 .side{background:linear-gradient(180deg,var(--navy) 0%,var(--navy-d) 100%);color:#fff;padding:22px 14px 16px;position:sticky;top:0;height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:auto}
 .brand{display:flex;align-items:center;gap:12px;padding:2px 8px 22px}
-.brand .mark{width:42px;height:42px;border-radius:12px;margin:0;background:rgba(255,255,255,.1)}
+.brand .mark{width:46px;height:46px;border-radius:14px;margin:0;padding:5px;background:linear-gradient(145deg,rgba(255,255,255,.24),rgba(255,255,255,.07));border:1px solid rgba(255,255,255,.28);box-shadow:0 8px 24px rgba(0,0,0,.18),0 0 0 3px rgba(201,162,39,.14);display:grid;place-items:center;overflow:hidden}
+.brand .mark img{width:100%;height:100%;object-fit:contain;display:block;filter:drop-shadow(0 3px 5px rgba(0,0,0,.25))}
 .brand b{display:block;font-family:"Source Serif 4",Georgia,serif;font-size:18px;line-height:1.15}
 .brand small{color:rgba(255,255,255,.65);font-size:13px}
 .nav{display:flex;flex-direction:column;gap:2px}
@@ -242,7 +243,7 @@ const DEMO_PASSWORD = 'change-this-demo-password';   /* demo mode only. Not real
 <div class="app" id="app" hidden>
   <aside class="side" id="side">
     <div class="brand">
-      <div class="mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 3v18M6.5 9h11"/></svg></div>
+      <div class="mark"><img src="../assets/church-logo.png" alt="Christian Service Church logo"></div>
       <div><b>CSC Admin</b><small>House of Testimonies</small></div>
     </div>
     <nav class="nav" id="nav" aria-label="Sections"></nav>

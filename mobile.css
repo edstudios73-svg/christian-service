@@ -103,15 +103,6 @@ img, video, iframe { max-width: 100%; }
   overscroll-behavior: contain;
 }
 
-/* ---------- 100svh with fallback ---------- */
-@media (max-width: 767px) {
-  .hero,
-  .page-header {
-    height: 640px;
-    min-height: 640px;
-  }
-}
-
 /* ---------- Desktop guard: center the mobile container ---------- */
 @media (min-width: 480px) {
   body {
@@ -140,8 +131,9 @@ img, video, iframe { max-width: 100%; }
 
 @media (max-width: 767px) {
   .hero {
-    height: 640px;
-    min-height: 640px;
+    aspect-ratio: 1080 / 608;
+    height: auto;
+    min-height: 0;
   }
   .hero__bg {
     inset: 0;

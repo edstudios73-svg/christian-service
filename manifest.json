@@ -9,6 +9,6 @@
   "background_color": "#091b3f",
   "theme_color": "#091b3f",
   "icons": [
-    { "src": "assets/CHURCH LOGO.png", "sizes": "any", "type": "image/png", "purpose": "any maskable" }
+    { "src": "assets/church-logo.png", "sizes": "any", "type": "image/png", "purpose": "any maskable" }
   ]
 }

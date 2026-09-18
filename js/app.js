@@ -1,5 +1,5 @@
-﻿/* ==========================================================================
-   App — shared footer, forms (prayer, contact, newsletter), countdown,
+/* ==========================================================================
+   App � shared footer, forms (prayer, contact, newsletter), countdown,
    giving amount selector, chip selectors, accordions.
    ========================================================================== */
 (function () {
@@ -15,7 +15,7 @@
     footer.innerHTML = `
       <div class="container">
         <div class="footer__brand">
-          <img src="assets/CHURCH LOGO.png" alt="Christian Service Church logo" loading="lazy">
+          <img src="assets/church-logo.png" alt="Christian Service Church logo" loading="lazy">
           <div class="footer__brand-text">
             Christian Service Church
             <small>House of Testimonies</small>

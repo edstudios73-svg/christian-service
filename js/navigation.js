@@ -1,8 +1,10 @@
-ï»¿/* ==========================================================================
-   Navigation â€” sticky transparent-to-solid, hamburger, full-screen menu
+/* ==========================================================================
+   Navigation — sticky transparent-to-solid, hamburger, full-screen menu
    ========================================================================== */
 (function () {
   'use strict';
+
+  window.CSC_GA_MEASUREMENT_ID = window.CSC_GA_MEASUREMENT_ID || 'G-XXXXXXXXXX';
 
   const NAV_LINKS = [
     { href: 'ministries.html',  label: 'Ministries',  icon: 'heart' },
@@ -46,7 +48,7 @@
       <div class="nav__inner">
         <a href="index.html" class="nav__logo" aria-label="Christian Service Church home">
           <span class="nav__logo-mark">
-            <img src="assets/CHURCH LOGO.png" alt="Christian Service Church logo" loading="eager">
+            <img src="assets/church-logo.png" alt="Christian Service Church logo" loading="eager">
           </span>
           <span class="nav__logo-text">
             Christian Service
@@ -130,7 +132,7 @@
       </div>
       <div class="mobile-menu__verse">
         "For where two or three gather in my name, there am I with them."
-        <br><strong>â€” Matthew 18:20</strong>
+        <br><strong>— Matthew 18:20</strong>
       </div>
     `;
     return menu;
@@ -143,7 +145,7 @@
     prompt.className = 'install-prompt';
     prompt.setAttribute('aria-label', 'Install Christian Service Church app');
     prompt.innerHTML = `
-      <div class="install-prompt__icon"><img src="assets/CHURCH LOGO.png" alt=""></div>
+      <div class="install-prompt__icon"><img src="assets/church-logo.png" alt=""></div>
       <div class="install-prompt__copy"><strong>Install our web app</strong><span>Keep Christian Service Church one tap away.</span></div>
       <button class="install-prompt__close" type="button" aria-label="Dismiss install prompt">&times;</button>
       <button class="btn btn-gold btn-sm install-prompt__install" type="button">Install</button>`;
@@ -174,6 +176,12 @@
 
   function registerApp() {
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js').catch(() => {});
+
+    const gaScript = document.createElement('script');
+    gaScript.src = 'js/ga4.js';
+    gaScript.defer = true;
+    document.head.appendChild(gaScript);
+
     if (!document.querySelector('script[data-notifications]')) {
       const config = document.createElement('script');
       config.src = 'js/push-config.js';

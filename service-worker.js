@@ -12,8 +12,8 @@ self.addEventListener('push', (event) => {
   event.waitUntil((async () => {
     await self.registration.showNotification('Christian Service Church', {
       body: `${title}\n${body}`,
-      icon: '/assets/CHURCH LOGO.png',
-      badge: '/assets/CHURCH LOGO.png',
+      icon: '/assets/church-logo.png',
+      badge: '/assets/church-logo.png',
       tag: `announcement-${payload.announcementId || Date.now()}`,
       data: { url, announcementId: payload.announcementId }
     });

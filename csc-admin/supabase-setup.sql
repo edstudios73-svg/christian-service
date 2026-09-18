@@ -52,12 +52,14 @@ create table if not exists public.prayers (
 -- Auth credentials stay in auth.users. This table stores profile and role data only.
 create table if not exists public.users (
   id uuid primary key references auth.users(id) on delete cascade,
-  email text not null unique,
+  email text unique,
   full_name text,
   role text not null default 'editor' check (role in ('admin', 'editor')),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.users alter column email drop not null;
 
 create table if not exists public.pages (
   id text primary key default gen_random_uuid()::text,
@@ -81,6 +83,33 @@ create table if not exists public.announcements (
   published boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
+);
+
+create table if not exists public.push_subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  endpoint text not null unique,
+  p256dh text not null,
+  auth text not null,
+  active boolean not null default true,
+  last_seen_at timestamptz not null default now(),
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.announcement_reads (
+  user_id uuid not null references auth.users(id) on delete cascade,
+  announcement_id text not null references public.announcements(id) on delete cascade,
+  read_at timestamptz not null default now(),
+  primary key (user_id, announcement_id)
+);
+
+create table if not exists public.notification_events (
+  id uuid primary key default gen_random_uuid(),
+  announcement_id text not null unique references public.announcements(id) on delete cascade,
+  triggered_by uuid references auth.users(id),
+  sent_count integer not null default 0,
+  sent_at timestamptz,
+  created_at timestamptz not null default now()
 );
 
 insert into public.pages (slug, title, subtitle, hero_image)
@@ -122,7 +151,7 @@ create or replace function public.handle_new_user() returns trigger
 language plpgsql security definer set search_path = public as $$
 begin
   insert into public.users (id, email, full_name, role)
-  values (new.id, new.email, coalesce(new.raw_user_meta_data ->> 'full_name', ''), 'editor')
+  values (new.id, coalesce(new.email, 'anonymous:' || new.id::text), coalesce(new.raw_user_meta_data ->> 'full_name', ''), 'editor')
   on conflict (id) do update set email = excluded.email;
   return new;
 end;
@@ -173,6 +202,19 @@ create policy "visitors send requests" on public.prayers
   for insert with check (status is null or status = 'New');
 create policy "admin full access" on public.prayers
   for all using (public.is_admin()) with check (public.is_admin());
+
+alter table public.push_subscriptions enable row level security;
+alter table public.announcement_reads enable row level security;
+alter table public.notification_events enable row level security;
+drop policy if exists "users manage own push subscriptions" on public.push_subscriptions;
+create policy "users manage own push subscriptions" on public.push_subscriptions
+  for all using (user_id = auth.uid()) with check (user_id = auth.uid());
+drop policy if exists "users manage own announcement reads" on public.announcement_reads;
+create policy "users manage own announcement reads" on public.announcement_reads
+  for all using (user_id = auth.uid()) with check (user_id = auth.uid());
+drop policy if exists "admins read notification events" on public.notification_events;
+create policy "admins read notification events" on public.notification_events
+  for select using (public.is_admin());
 
 -- Enable instant updates for the public site and admin dashboard.
 do $$

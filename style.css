@@ -363,6 +363,9 @@ main { position: relative; z-index: 1; }
 .nav--solid .nav__announcement { color: var(--c-primary); }
 .nav__announcement:hover { background: rgba(255,255,255,0.12); color: var(--c-accent-light); }
 .nav__announcement-count { position: absolute; top: 1px; right: 1px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 99px; background: #d94b4b; color: #fff; font-size: 10px; font-weight: 800; line-height: 16px; text-align: center; }
+.nav__notify { border: 1px solid currentColor; border-radius: var(--r-sm); background: transparent; color: inherit; padding: 7px 10px; font: inherit; font-size: 11px; cursor: pointer; }
+.nav__notify:hover { color: var(--c-accent-light); }
+.nav__notify:disabled { opacity: .7; cursor: wait; }
 .nav--transparent .nav__link:hover { color: var(--c-accent-light); }
 
 .install-prompt {

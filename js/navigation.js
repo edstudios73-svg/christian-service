@@ -174,6 +174,18 @@
 
   function registerApp() {
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js').catch(() => {});
+    if (!document.querySelector('script[data-notifications]')) {
+      const config = document.createElement('script');
+      config.src = 'js/push-config.js';
+      config.dataset.notifications = 'config';
+      config.onload = () => {
+        const script = document.createElement('script');
+        script.src = 'js/notifications.js';
+        script.dataset.notifications = 'client';
+        document.body.appendChild(script);
+      };
+      document.head.appendChild(config);
+    }
   }
 
   function init() {

@@ -87,7 +87,7 @@
     const mount = document.querySelector('[data-supabase-announcements]');
     if (!mount) return;
     mount.innerHTML = items.length ? items.map((item) => `
-      <article class="feature-card reveal">
+      <article class="feature-card reveal" data-announcement-id="${esc(item.id)}">
         ${item.image ? `<img src="${esc(item.image)}" alt="${esc(item.title || 'Church announcement')}" loading="lazy" decoding="async" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:var(--r-md);margin-bottom:var(--sp-4)">` : ''}
         <span class="eyebrow">${esc(item.category || 'Announcement')}</span>
         <h2 class="feature-card__title">${esc(item.title)}</h2>
@@ -197,8 +197,6 @@
       window.CSC_SUPABASE = sb;
       await applyPageSettings(sb);
       if (document.querySelector('[data-supabase-announcements]')) renderAnnouncements(await fetchPublished(sb, 'announcements', 'date'));
-      const { count } = await sb.from('announcements').select('id', { count: 'exact', head: true }).eq('published', true);
-      updateAnnouncementBadge(Number(count || 0));
       if (document.querySelector('[data-supabase-events]')) renderEvents(await fetchPublished(sb, 'events', 'date'));
       if (document.querySelector('[data-supabase-sermons]')) renderSermons(await fetchPublished(sb, 'sermons', 'date'));
       if (document.querySelector('[data-gallery-grid]')) renderGallery(await fetchPublished(sb, 'gallery', 'date'));
@@ -208,8 +206,7 @@
       sb.channel('public-site-live')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'announcements' }, async () => {
           if (document.querySelector('[data-supabase-announcements]')) renderAnnouncements(await fetchPublished(sb, 'announcements', 'date'));
-          const { count: nextCount } = await sb.from('announcements').select('id', { count: 'exact', head: true }).eq('published', true);
-          updateAnnouncementBadge(Number(nextCount || 0));
+          window.CSC_NOTIFICATIONS?.updateUnreadAnnouncementBadge?.();
         })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'leaders' }, async () => renderLeaders(await fetchPublished(sb, 'leaders', 'created_at')))
         .on('postgres_changes', { event: '*', schema: 'public', table: 'pages' }, async () => applyPageSettings(sb))

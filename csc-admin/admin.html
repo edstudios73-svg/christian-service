@@ -497,6 +497,12 @@ const Store = {
       if (refreshed.error || !refreshed.data.session) { const e = refreshed.error || new Error('Your admin session has expired. Sign in again.'); e.code = 'AUTH_EXPIRED'; throw e; }
     }
   },
+  async notifyAnnouncement(id) {
+    if (this.mode !== 'supabase' || !id) return;
+    await this.ensureSession();
+    const { error } = await this.sb.functions.invoke('send-announcement-notification', { body: { announcement_id: id } });
+    if (error) throw error;
+  },
   async save(col, item) {
     if (this.mode === 'supabase') {
       await this.ensureSession();
@@ -1014,6 +1020,10 @@ async function saveForm() {
       saved.push(obj);
     }
     for (const o of saved) await Store.save(key, o);
+    if (key === 'announcements' && saved.some(o => o.published && !item?.published)) {
+      try { await Promise.all(saved.filter(o => o.published && !item?.published).map(o => Store.notifyAnnouncement(o.id))); }
+      catch (notificationError) { toast('Announcement saved, but push delivery needs configuration.', 'bad'); }
+    }
     if (item) imgFields.forEach(f => { if (item[f.name] && item[f.name] !== saved[0][f.name]) Store.removeFile(item[f.name]); });
     cache[key] = cache[key] || [];
     saved.forEach(o => { const i = cache[key].findIndex(x => x.id === o.id); if (i >= 0) cache[key][i] = o; else cache[key].push(o); });
@@ -1064,8 +1074,15 @@ $('#confYes').addEventListener('click', async () => {
 });
 async function togglePub(key, id) {
   const it = cache[key].find(x => x.id === id); if (!it) return;
+  const wasPublished = !!it.published;
   const upd = { ...it, published: !it.published, updatedAt: new Date().toISOString() };
-  try { await Store.save(key, upd); Object.assign(it, upd); drawList(key); toast(upd.published ? 'Published' : 'Moved to drafts'); }
+  try {
+    await Store.save(key, upd);
+    if (key === 'announcements' && upd.published && !wasPublished) {
+      try { await Store.notifyAnnouncement(upd.id); } catch (_) { toast('Published, but push delivery needs configuration.', 'bad'); }
+    }
+    Object.assign(it, upd); drawList(key); toast(upd.published ? 'Published' : 'Moved to drafts');
+  }
   catch (ex) { toast(ex.message || 'Could not update.', 'bad'); }
 }
 async function exportAll() {

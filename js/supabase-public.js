@@ -47,7 +47,17 @@
   function renderSermons(items) {
     const mount = document.querySelector('[data-supabase-sermons]');
     if (!mount) return;
-    mount.innerHTML = items.length ? items.map((item) => `
+
+    if (!items.length) {
+      mount.innerHTML = `
+        <div class="sermon-empty-state compact">
+          <h3>No published sermons yet</h3>
+          <p>New sermons uploaded from the admin dashboard will appear here.</p>
+        </div>`;
+      return;
+    }
+
+    mount.innerHTML = items.map((item) => `
       <article class="sermon-card reveal"${imageStyle(item.image)}>
         <div class="sermon-card__media"${imageStyle(item.image)}>${item.video_file ? `<video controls preload="metadata" src="${esc(item.video_file)}"></video>` : '<div class="sermon-card__play"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><polygon points="6 4 20 12 6 20"/></svg></div>'}</div>
         <div class="sermon-card__body">
@@ -57,7 +67,7 @@
           <p class="muted">${esc(item.body || '')}</p>
           <div class="sermon-card__actions">${item.video_url ? `<a class="btn btn-primary btn-sm" href="${esc(item.video_url)}" target="_blank" rel="noopener">Watch</a>` : ''}${item.video_file ? `<a class="btn btn-primary btn-sm" href="${esc(item.video_file)}" target="_blank" rel="noopener">Open video</a>` : ''}${item.audio_url ? `<a class="btn btn-outline btn-sm" href="${esc(item.audio_url)}" target="_blank" rel="noopener">Listen</a>` : ''}</div>
         </div>
-      </article>`).join('') : '<p class="muted">No published sermons yet.</p>';
+      </article>`).join('');
   }
 
   function renderGallery(items) {

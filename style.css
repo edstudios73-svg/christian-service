@@ -892,6 +892,41 @@ main { position: relative; z-index: 1; }
 .ministry-card__link:hover { gap: var(--sp-3); color: var(--c-accent); }
 
 /* Sermon cards */
+.sermon-empty-shell {
+  background: #fff;
+  border: 1px solid rgba(27, 58, 139, 0.12);
+  border-radius: var(--r-xl);
+  box-shadow: var(--sh-sm);
+  padding: clamp(var(--sp-5), 5vw, var(--sp-8));
+}
+.sermon-empty-state {
+  display: grid;
+  place-items: center;
+  text-align: center;
+  min-height: 260px;
+  color: var(--c-text-muted);
+}
+.sermon-empty-state h2 {
+  font-family: var(--font-display);
+  color: var(--c-primary);
+  margin: var(--sp-2) 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+.sermon-empty-state p {
+  max-width: 560px;
+  margin: 0;
+  font-size: var(--fs-base);
+}
+.sermon-empty-state.compact {
+  min-height: 180px;
+  padding: var(--sp-5);
+}
+.sermon-empty-state.compact h3 {
+  font-family: var(--font-display);
+  color: var(--c-primary);
+  margin: var(--sp-2) 0;
+}
+
 .sermon-card {
   background: #fff;
   border-radius: var(--r-lg);

@@ -507,6 +507,8 @@ main { position: relative; z-index: 1; }
 .install-prompt__copy span { color: var(--c-text-muted); font-size: var(--fs-xs); }
 .install-prompt__close { align-self: start; border: 0; background: transparent; color: var(--c-text-muted); font-size: 22px; line-height: 1; cursor: pointer; }
 
+.csc-dh { display: none; }
+
 @media (display-mode: standalone) {
   .nav { height: calc(var(--nav-h) + var(--safe-top)); padding-top: var(--safe-top); }
   .nav__inner { min-height: var(--nav-h); padding-left: max(var(--sp-4), env(safe-area-inset-left)); padding-right: max(var(--sp-4), env(safe-area-inset-right)); }

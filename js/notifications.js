@@ -131,28 +131,57 @@
     return Uint8Array.from([...raw].map((character) => character.charCodeAt(0)));
   }
 
-  function addPermissionControl() {
-    const actions = document.querySelector('.nav__actions');
-    if (!actions || document.querySelector('[data-enable-notifications]')) return;
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'nav__notify';
-    button.dataset.enableNotifications = '';
-    button.textContent = 'Enable notifications';
-    button.title = 'Get church announcements even when you are away';
-    button.addEventListener('click', async () => {
-      button.disabled = true;
-      try {
-        const enabled = await subscribe();
-        button.textContent = enabled ? 'Notifications enabled' : 'Notifications are off';
-        if (enabled) setTimeout(() => { button.hidden = true; }, 1800);
-      } catch (error) {
-        button.disabled = false;
-        button.textContent = error.message || 'Could not enable notifications';
-      }
+  function showPermissionPrompt() {
+    let dialog = document.querySelector('[data-notification-dialog]');
+    if (!dialog) {
+      dialog = document.createElement('dialog');
+      dialog.className = 'notification-dialog';
+      dialog.dataset.notificationDialog = '';
+      dialog.innerHTML = `
+        <div class="notification-dialog__content">
+          <button class="notification-dialog__close" type="button" data-notification-close aria-label="Close">&times;</button>
+          <span class="notification-dialog__icon" aria-hidden="true">!</span>
+          <h2>Stay up to date</h2>
+          <p>Get important church announcements and updates, even when you are not on the website.</p>
+          <p class="notification-dialog__status" data-notification-status role="status"></p>
+          <div class="notification-dialog__actions">
+            <button class="btn btn-outline" type="button" data-notification-close>Not now</button>
+            <button class="btn btn-primary" type="button" data-enable-notifications>Enable announcements</button>
+          </div>
+        </div>`;
+      document.body.appendChild(dialog);
+      dialog.querySelectorAll('[data-notification-close]').forEach((button) => button.addEventListener('click', () => dialog.close()));
+      dialog.querySelector('[data-enable-notifications]').addEventListener('click', async (event) => {
+        const button = event.currentTarget;
+        const status = dialog.querySelector('[data-notification-status]');
+        button.disabled = true;
+        status.textContent = 'Connecting notifications…';
+        try {
+          const enabled = await subscribe();
+          status.textContent = enabled ? 'Announcements are enabled on this device.' : 'Notifications were not enabled.';
+          if (enabled) setTimeout(() => dialog.close(), 900);
+        } catch (error) {
+          status.textContent = /invalid.*(api|key)|applicationserverkey/i.test(error.message || '')
+            ? 'Notifications are not fully configured yet. Please try again later.'
+            : (error.message || 'Notifications could not be enabled on this device.');
+          button.disabled = false;
+        }
+      });
+    }
+    if (typeof dialog.showModal === 'function') dialog.showModal();
+    else dialog.setAttribute('open', '');
+  }
+
+  function bindPermissionPrompt() {
+    const link = document.querySelector('.nav__announcement');
+    if (!link || link.dataset.notificationPromptBound) return;
+    link.dataset.notificationPromptBound = 'true';
+    if (!('Notification' in window) || Notification.permission !== 'default' || !VAPID_PUBLIC_KEY) return;
+    link.addEventListener('click', (event) => {
+      if (Notification.permission === 'granted') return;
+      event.preventDefault();
+      showPermissionPrompt();
     });
-    if (!('Notification' in window) || Notification.permission === 'granted') button.hidden = true;
-    actions.insertBefore(button, actions.querySelector('.hamburger'));
   }
 
   function bindAnnouncementCards() {
@@ -166,7 +195,7 @@
   }
 
   async function init() {
-    addPermissionControl();
+    bindPermissionPrompt();
     bindAnnouncementCards();
     try { await unreadCount(); } catch (_) { paintCount(0); }
     navigator.serviceWorker?.addEventListener('message', (event) => {

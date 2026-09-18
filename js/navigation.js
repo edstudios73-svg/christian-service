@@ -9,9 +9,19 @@
   window.CSC_GA_MEASUREMENT_ID = window.CSC_GA_MEASUREMENT_ID || '';
 
   const NAV_LINKS = [
-    { href: 'ministries.html',  label: 'Ministries',  icon: 'heart' },
-    { href: 'gallery.html',     label: 'Gallery',     icon: 'image' },
-    { href: 'members.html',     label: 'Our Leaders', icon: 'user' },
+    { href: 'index.html', label: 'Home', icon: 'home' },
+    { href: 'about.html', label: 'About', icon: 'info' },
+    { href: 'pastor.html', label: 'Our Pastor', icon: 'user' },
+    { href: 'ministries.html', label: 'Ministries', icon: 'heart' },
+    { href: 'gallery.html', label: 'Gallery', icon: 'image' },
+    { href: 'members.html', label: 'Our Leaders', icon: 'user' },
+    { href: 'sermons.html', label: 'Sermons', icon: 'play' },
+    { href: 'events.html', label: 'Events', icon: 'calendar' },
+    { href: 'prayer.html', label: 'Prayer', icon: 'pray' },
+    { href: 'giving.html', label: 'Giving', icon: 'gift' },
+    { href: 'announcements.html', label: 'Announcements', icon: 'megaphone' },
+    { href: 'contact.html', label: 'Visit', icon: 'phone' },
+    { href: 'testimonies.html', label: 'Testimonies', icon: 'quote' },
   ];
 
   const ICONS = {
@@ -179,6 +189,10 @@
     }).join('');
 
     menu.innerHTML = `
+      <div class="mobile-menu__topbar">
+        <div class="mobile-menu__eyebrow">Explore</div>
+        <button class="mobile-menu__close" type="button" aria-label="Close menu">Close</button>
+      </div>
       <nav class="mobile-menu__nav">${linksHtml}</nav>
       <div class="mobile-menu__cta">
         <a href="contact.html" class="btn btn-gold btn-lg btn-block">Plan Your Visit</a>
@@ -316,6 +330,7 @@
       document.body.style.overflow = open ? 'hidden' : '';
     }
     hamburger.addEventListener('click', () => setMenu(!menuOpen));
+    menu.querySelector('.mobile-menu__close')?.addEventListener('click', () => setMenu(false));
 
     // Close menu on link click (links navigate anyway, but for same-page anchors)
     menu.querySelectorAll('a').forEach((a) => {

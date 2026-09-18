@@ -104,11 +104,12 @@ img, video, iframe { max-width: 100%; }
 }
 
 /* ---------- 100svh with fallback ---------- */
-@supports (height: 100svh) {
-  .hero { min-height: 100svh; }
-}
-@supports not (height: 100svh) {
-  .hero { min-height: 100vh; min-height: 100dvh; }
+@media (max-width: 767px) {
+  .hero,
+  .page-header {
+    height: 640px;
+    min-height: 640px;
+  }
 }
 
 /* ---------- Desktop guard: center the mobile container ---------- */
@@ -139,7 +140,8 @@ img, video, iframe { max-width: 100%; }
 
 @media (max-width: 767px) {
   .hero {
-    min-height: min(100svh, 920px);
+    height: 640px;
+    min-height: 640px;
   }
   .hero__bg {
     inset: 0;

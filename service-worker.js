@@ -54,21 +54,24 @@ self.addEventListener('fetch', (event) => {
   const request = event.request;
   if (request.method !== 'GET' || new URL(request.url).origin !== self.location.origin) return;
 
-  const isHtml = request.mode === 'navigate' || /\.(html|htm)$/.test(new URL(request.url).pathname);
-  const isAsset = /\.(css|js|png|jpg|jpeg|gif|svg|ico|webp|woff2?)$/i.test(new URL(request.url).pathname);
+  const url = new URL(request.url);
+  const isNavigate = request.mode === 'navigate' || /\.(html|htm)$/i.test(url.pathname) || url.pathname.endsWith('/');
+  const isAsset = /\.(css|js|png|jpg|jpeg|gif|svg|ico|webp|woff2?|pdf|mp4)$/i.test(url.pathname);
 
-  if (isHtml || isAsset) {
-    event.respondWith((async () => {
-      try {
-        const network = await fetch(request, { cache: 'no-cache' });
+  if (!isNavigate && !isAsset) return;
+
+  event.respondWith((async () => {
+    try {
+      const network = await fetch(request, { cache: 'no-store', credentials: 'same-origin' });
+      if (network && network.ok) {
         const cache = await caches.open(CACHE_NAME);
-        if (network && network.ok) await cache.put(request, network.clone());
-        return network;
-      } catch (error) {
-        const cached = await caches.match(request);
-        if (cached) return cached;
-        throw error;
+        await cache.put(request, network.clone());
       }
-    })());
-  }
+      return network;
+    } catch (error) {
+      const cached = await caches.match(request);
+      if (cached) return cached;
+      throw error;
+    }
+  })());
 });

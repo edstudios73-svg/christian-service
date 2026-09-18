@@ -511,6 +511,18 @@
           if (document.querySelector('[data-supabase-announcements]')) renderAnnouncements(await fetchPublished(sb, 'announcements', 'date'));
           window.CSC_NOTIFICATIONS?.updateUnreadAnnouncementBadge?.();
         })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, async () => {
+          if (document.querySelector('[data-supabase-events]')) renderEvents(await fetchPublished(sb, 'events', 'date'));
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'sermons' }, async () => {
+          if (document.querySelector('[data-supabase-sermons]')) renderSermons(await fetchPublished(sb, 'sermons', 'date'));
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'gallery' }, async () => {
+          if (document.querySelector('[data-gallery-grid]')) renderGallery(await fetchPublished(sb, 'gallery', 'date'));
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'testimonies' }, async () => {
+          if (document.querySelector('[data-supabase-testimonies]')) renderTestimonies(await fetchPublished(sb, 'testimonies', 'date'));
+        })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'leaders' }, async () => renderLeaders(await fetchPublished(sb, 'leaders', 'created_at')))
         .on('postgres_changes', { event: '*', schema: 'public', table: 'ministries' }, async () => renderMinistries(await fetchPublished(sb, 'ministries', 'created_at')))
         .on('postgres_changes', { event: '*', schema: 'public', table: 'pages' }, async () => applyPageSettings(sb))

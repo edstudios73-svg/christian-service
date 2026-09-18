@@ -1,0 +1,25 @@
+{
+  "name": "christian-service-church",
+  "version": "1.0.0",
+  "description": "",
+  "main": "service-worker.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/edstudios73-svg/christian-service.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/edstudios73-svg/christian-service/issues"
+  },
+  "homepage": "https://github.com/edstudios73-svg/christian-service#readme",
+  "dependencies": {
+    "@google-analytics/data": "^7.1.0"
+  }
+}

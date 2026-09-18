@@ -1,15 +1,6 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-SN8DFGQ90N"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-SN8DFGQ90N');
-</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
@@ -677,7 +668,7 @@ function logout() {
    navigation
    ============================================================ */
 function buildNav() {
-  const items = [['dashboard', 'Dashboard', 'home'], ...KEYS.map(k => [k, COLLECTIONS[k].label, COLLECTIONS[k].icon]), ['setup', 'Setup and backup', 'cog']];
+  const items = [['dashboard', 'Dashboard', 'home'], ...KEYS.map(k => [k, COLLECTIONS[k].label, COLLECTIONS[k].icon]), ['analytics', 'Analytics', 'chart'], ['setup', 'Setup and backup', 'cog']];
   $('#nav').innerHTML = items.map(([k, l, i]) => `<a href="#/${k}" data-r="${k}">${icon(i)}<span>${esc(l)}</span>${COLLECTIONS[k] ? `<em class="badge" data-badge="${k}"></em>` : ''}</a>`).join('');
 }
 function toggleMenu(force) {
@@ -687,15 +678,16 @@ function toggleMenu(force) {
 }
 function go() {
   route = location.hash.replace(/^#\/?/, '') || 'dashboard';
-  if (route !== 'dashboard' && route !== 'setup' && !COLLECTIONS[route]) { location.hash = '#/dashboard'; return; }
+  if (route !== 'dashboard' && route !== 'setup' && route !== 'analytics' && !COLLECTIONS[route]) { location.hash = '#/dashboard'; return; }
   ui = { q: '', f: 'all' };
   $$('#nav a').forEach(a => a.classList.toggle('on', a.dataset.r === route));
-  $('#pageTitle').textContent = COLLECTIONS[route] ? COLLECTIONS[route].label : route === 'setup' ? 'Setup and backup' : 'Dashboard';
+  $('#pageTitle').textContent = COLLECTIONS[route] ? COLLECTIONS[route].label : route === 'setup' ? 'Setup and backup' : route === 'analytics' ? 'Analytics' : 'Dashboard';
   toggleMenu(false);
   window.scrollTo(0, 0);
   const main = $('#main');
   if (route === 'dashboard') viewDashboard(main);
   else if (route === 'setup') viewSetup(main);
+  else if (route === 'analytics') viewAnalytics(main);
   else viewCollection(main, route);
 }
 window.addEventListener('hashchange', () => { if (!$('#app').hidden) go(); });
@@ -814,6 +806,118 @@ async function viewDashboard(main) {
         <div class="info"><div class="t">${esc(titleOf(c, it))}</div><div class="m"><span>${esc(c.label)}</span></div></div>
         <span class="when">${esc(fmtDate((it.updatedAt || it.createdAt || '').slice(0, 10)))}</span>
       </div>`; }).join('')}</div>` : `<div class="empty"><h3>Nothing here yet</h3><p>Add an update or sermon to get started.</p></div>`}`;
+}
+
+async function viewAnalytics(main) {
+  const defaultRange = 'last_30_days';
+  const statusMap = {
+    connected: { cls: 'ok', label: 'Connected' },
+    configuration_required: { cls: 'warn', label: 'Configuration Required' },
+    unauthorized: { cls: 'warn', label: 'Unauthorized' },
+    google_api_error: { cls: 'bad', label: 'Connection Error' },
+    loading: { cls: 'info', label: 'Loading' }
+  };
+
+  function metricCard(label, value, meta) {
+    return `<div class="card"><p class="muted" style="margin-bottom:8px">${esc(label)}</p><h3 style="font-size:clamp(26px,4vw,34px)">${esc(value)}</h3><p class="muted" style="margin-top:8px">${esc(meta || '')}</p></div>`;
+  }
+
+  async function loadAnalytics(range = defaultRange) {
+    if (!Store.sb || !Store.sb.auth) {
+      return { status: 'configuration_required', message: 'Google Analytics is not connected yet. Add the required GA4 credentials to the server environment.' };
+    }
+    try {
+      const { data: sessionData } = await Store.sb.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      if (!token) {
+        return { status: 'unauthorized', message: 'Admin authentication is required to view analytics.' };
+      }
+
+      const { data, error } = await Store.sb.functions.invoke('google-analytics-report', {
+        body: { range },
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (error) {
+        const detail = error?.message || 'Edge Function returned a non-2xx status code.';
+        throw new Error(detail);
+      }
+
+      return data || { status: 'configuration_required', message: 'Google Analytics is not connected yet. Add the required GA4 credentials to the server environment.' };
+    } catch (err) {
+      const message = err?.message || 'Google Analytics could not be reached.';
+      return { status: 'google_api_error', message, rawError: message };
+    }
+  }
+
+  main.innerHTML = `
+    <header class="ph"><div><h1>Analytics</h1><p>Website traffic, engagement and visitor activity pulled from Google Analytics 4.</p></div><div class="btnrow"><button class="btn sm" type="button" data-act="ga-refresh">Refresh</button></div></header>
+    <div id="analytics-body" class="loading">Loading analytics…</div>
+  `;
+
+  const render = async (range = defaultRange) => {
+    const body = $('#analytics-body');
+    if (!body || route !== 'analytics') return;
+    body.className = '';
+    body.innerHTML = `
+      <div class="card">
+        <div class="cardh">
+          <div>
+            <h3>Google Analytics</h3>
+            <p class="muted">Status: <span class="pill warn">Loading</span></p>
+          </div>
+          <div class="chips">
+            ${['today', 'yesterday', 'last_7_days', 'last_30_days', 'last_90_days'].map((option) => `<button class="fchip ${option === range ? 'on' : ''}" type="button" data-act="ga-range" data-range="${option}">${option.replace(/_/g, ' ').replace(/(^\w|\s\w)/g, (m) => m.toUpperCase())}</button>`).join('')}
+          </div>
+        </div>
+        <p class="muted">Loading analytics…</p>
+      </div>
+    `;
+    const report = await loadAnalytics(range);
+    if (!body || route !== 'analytics') return;
+    const status = statusMap[report.status] || statusMap.configuration_required;
+    const summary = report.summary || {};
+    const errorText = report.rawError ? `${report.message || 'Google Analytics error.'} Details: ${report.rawError}` : (report.message || (report.status === 'connected' ? 'Google Analytics is connected and ready.' : 'No analytics data available for this period.'));
+    const topCards = `
+      <div class="card">
+        <div class="cardh">
+          <div>
+            <h3>Google Analytics</h3>
+            <p class="muted">Status: <span class="pill ${status.cls}">${status.label}</span></p>
+          </div>
+          <div class="chips">
+            ${['today', 'yesterday', 'last_7_days', 'last_30_days', 'last_90_days'].map((option) => `<button class="fchip ${option === range ? 'on' : ''}" type="button" data-act="ga-range" data-range="${option}">${option.replace(/_/g, ' ').replace(/(^\w|\s\w)/g, (m) => m.toUpperCase())}</button>`).join('')}
+          </div>
+        </div>
+        <p class="muted">Property: ${esc(report.propertyId || 'Not configured')} • Last updated: ${esc(report.lastUpdated ? new Date(report.lastUpdated).toLocaleString() : '—')}</p>
+        <p style="margin-top:12px; color:${report.status === 'connected' ? 'var(--ok)' : 'var(--bad)'}; font-weight:600">${esc(errorText)}</p>
+      </div>
+      <div class="secure-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin:16px 0;">
+        ${metricCard('Total Users', report.status === 'connected' ? (summary.totalUsers ?? 0).toLocaleString() : 'No data available', report.status === 'connected' ? 'Users across the selected period' : 'No data available')}
+        ${metricCard('Active Users', report.status === 'connected' ? (summary.activeUsers ?? 0).toLocaleString() : 'No data available', report.status === 'connected' ? 'Users active in the date range' : 'No data available')}
+        ${metricCard('New Users', report.status === 'connected' ? (summary.newUsers ?? 0).toLocaleString() : 'No data available', report.status === 'connected' ? 'New visitor users' : 'No data available')}
+        ${metricCard('Sessions', report.status === 'connected' ? (summary.sessions ?? 0).toLocaleString() : 'No data available', report.status === 'connected' ? 'Recorded sessions' : 'No data available')}
+        ${metricCard('Page Views', report.status === 'connected' ? (summary.pageViews ?? 0).toLocaleString() : 'No data available', report.status === 'connected' ? 'Total page views' : 'No data available')}
+        ${metricCard('Engagement Time', report.status === 'connected' ? `${Number(summary.engagementRate || 0).toFixed(1)}%` : 'No data available', report.status === 'connected' ? 'Average engagement rate' : 'No data available')}
+      </div>
+    `;
+    body.innerHTML = topCards;
+  };
+
+  await render(defaultRange);
+
+  document.addEventListener('click', async (event) => {
+    const btn = event.target.closest('[data-act="ga-range"]');
+    if (btn && route === 'analytics') {
+      await render(btn.dataset.range || defaultRange);
+    }
+    const refresh = event.target.closest('[data-act="ga-refresh"]');
+    if (refresh && route === 'analytics') {
+      await render(defaultRange);
+    }
+  }, { once: false });
 }
 
 const SQL = `-- Run this once in Supabase: SQL Editor > New query > paste > Run.
@@ -952,7 +1056,7 @@ function fieldHTML(f, v, isEdit) {
       const multi = f.multiple && !isEdit;
       return `<div class="${cls}"><label class="l">${esc(f.label)}${f.required ? ' <i aria-hidden="true">*</i>' : ''}</label>
         <div class="prevs" id="prev_${f.name}"></div>
-        <label class="btn upl">${icon('image', 18)}<span>${multi ? 'Choose photos' : 'Choose file'}</span><input class="vh" type="file" accept="${esc(f.accept || 'image/*')}" data-file="${f.name}"${multi ? ' multiple' : ''}></label>
+        <label class="btn upl">${icon('image', 18)}<span>${multi ? 'Choose photos' : 'Choose file'}</span><input class="vh" type="file" name="${esc(f.name)}" accept="${esc(f.accept || 'image/*')}" data-file="${f.name}"${multi ? ' multiple' : ''}></label>
         ${multi ? '<p class="hint">Pick as many as you like. Each becomes its own gallery photo.</p>' : ''}</div>`;
     }
     default: return `<div class="${cls}">${lab}<input id="${id}" name="${f.name}" type="${f.type}" value="${esc(v)}" ${req}${f.ph ? ` placeholder="${esc(f.ph)}"` : ''}></div>`;
@@ -1026,9 +1130,9 @@ async function saveForm() {
   for (const f of imgFields) if (f.required && !(formImages[f.name] || []).length) { err.textContent = 'Add at least one photo before saving.'; return; }
   const data = {};
   for (const f of col.fields) {
-    if (f.type === 'image') continue;
+    if (f.type === 'image' || f.type === 'file') continue;
     const el = form.elements[f.name];
-    data[f.name] = f.type === 'checkbox' ? el.checked : (el.value || '').trim();
+    data[f.name] = f.type === 'checkbox' ? !!el.checked : (el ? (el.value || '').trim() : '');
   }
   if (!col.noPublish) data.published = form.elements.published.checked;
   const btn = $('button[type=submit]', form), label = btn.textContent;

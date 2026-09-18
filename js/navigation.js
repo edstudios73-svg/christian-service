@@ -1,10 +1,12 @@
 /* ==========================================================================
-   Navigation — sticky transparent-to-solid, hamburger, full-screen menu
+   Navigation ï¿½ sticky transparent-to-solid, hamburger, full-screen menu
    ========================================================================== */
 (function () {
   'use strict';
 
-  window.CSC_GA_MEASUREMENT_ID = window.CSC_GA_MEASUREMENT_ID || 'G-XXXXXXXXXX';
+  // Only initialize GA when the site explicitly sets a valid measurement ID.
+  // Leaving this empty prevents accidental tracking with a stale value.
+  window.CSC_GA_MEASUREMENT_ID = window.CSC_GA_MEASUREMENT_ID || '';
 
   const NAV_LINKS = [
     { href: 'ministries.html',  label: 'Ministries',  icon: 'heart' },
@@ -132,7 +134,7 @@
       </div>
       <div class="mobile-menu__verse">
         "For where two or three gather in my name, there am I with them."
-        <br><strong>— Matthew 18:20</strong>
+        <br><strong>ï¿½ Matthew 18:20</strong>
       </div>
     `;
     return menu;

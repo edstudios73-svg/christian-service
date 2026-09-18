@@ -263,7 +263,7 @@ img, video, iframe { max-width: 100%; }
     flex: 1 1 auto;
     min-width: 0;
     gap: 8px;
-    font-size: clamp(17px, 5.2vw, 22px);
+    font-size: clamp(14px, 4.2vw, 18px);
     letter-spacing: -0.04em;
     line-height: 1.05;
     white-space: nowrap;
@@ -284,7 +284,7 @@ img, video, iframe { max-width: 100%; }
   }
 
   .nav__logo-text small {
-    font-size: clamp(9px, 2vw, 11px);
+    font-size: clamp(8px, 1.8vw, 10px);
     letter-spacing: 0.28em;
     margin-top: 2px;
     font-weight: 600;

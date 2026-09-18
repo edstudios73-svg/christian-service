@@ -66,42 +66,51 @@
     const shell = document.querySelector('.sermon-empty-shell');
     if (shell) shell.style.display = 'none';
 
-    const latest = [...items].sort((a, b) => new Date(b.date || b.created_at || 0) - new Date(a.date || a.created_at || 0))[0];
-    const image = latest.image || latest.thumbnail || 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1200&q=80';
-    const preacher = latest.preacher || latest.speaker || 'Pastor';
-    const date = latest.date || latest.created_at ? formatDate(latest.date || latest.created_at) : '';
-    const reference = latest.reference || latest.scripture || latest.bible_reference || '';
-    const summary = latest.body || latest.summary || 'A powerful message to encourage your faith and strengthen your walk with God.';
-    const watchLink = latest.video_url || latest.video_file || latest.audio_url || '#';
-    const hasWatch = !!(latest.video_url || latest.video_file || latest.audio_url);
-    const canDownload = !!(latest.video_file || latest.audio_url || latest.download_url);
-    const titleText = latest.title || 'Sermon Message';
-    const seriesText = latest.series || 'SERIES';
+    const ordered = [...items].sort((a, b) => {
+      const aDate = new Date(a.date || a.created_at || 0).getTime();
+      const bDate = new Date(b.date || b.created_at || 0).getTime();
+      return bDate - aDate;
+    });
 
-    mount.innerHTML = `
-      <article class="sermon-card sermon-card--featured reveal">
-        <div class="sermon-card__media sermon-card__media--featured">
-          <img src="${esc(image)}" alt="${esc(titleText)}" loading="lazy" decoding="async">
-          ${latest.duration ? `<span class="sermon-card__duration">${esc(latest.duration)}</span>` : ''}
-        </div>
+    mount.innerHTML = ordered.map((item, index) => {
+      const image = item.image || item.thumbnail || 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1200&q=80';
+      const preacher = item.preacher || item.speaker || 'Pastor';
+      const date = item.date || item.created_at ? formatDate(item.date || item.created_at) : '';
+      const reference = item.reference || item.scripture || item.bible_reference || '';
+      const summary = item.body || item.summary || 'A powerful message to encourage your faith and strengthen your walk with God.';
+      const watchLink = item.video_url || item.video_file || item.audio_url || '#';
+      const hasWatch = !!(item.video_url || item.video_file || item.audio_url);
+      const canDownload = !!(item.video_file || item.audio_url || item.download_url);
+      const titleText = item.title || 'Sermon Message';
+      const seriesText = item.series || 'SERIES';
+      const isFeatured = index === 0;
 
-        <div class="sermon-card__body sermon-card__body--featured">
-          <div class="sermon-card__series">${esc(seriesText)}</div>
-          <h3 class="sermon-card__title">${esc(titleText)}</h3>
-
-          <div class="sermon-card__meta">
-            <span>${esc(preacher)}</span>
-            ${date ? `<span>${date}</span>` : ''}
+      return `
+        <article class="sermon-card ${isFeatured ? 'sermon-card--featured' : 'sermon-card--compact'} reveal">
+          <div class="sermon-card__media ${isFeatured ? 'sermon-card__media--featured' : ''}">
+            <img src="${esc(image)}" alt="${esc(titleText)}" loading="lazy" decoding="async">
+            ${item.duration ? `<span class="sermon-card__duration">${esc(item.duration)}</span>` : ''}
           </div>
 
-          <p class="sermon-card__summary">${esc(summary)}</p>
+          <div class="sermon-card__body ${isFeatured ? 'sermon-card__body--featured' : ''}">
+            <div class="sermon-card__series">${esc(seriesText)}</div>
+            <h3 class="sermon-card__title">${esc(titleText)}</h3>
 
-          <div class="sermon-card__actions">
-            ${hasWatch ? `<a class="btn btn-primary btn-block" href="${esc(watchLink)}" target="_blank" rel="noopener">Watch Now</a>` : ''}
-            ${canDownload ? `<a class="btn btn-outline btn-block" href="${esc(latest.video_file || latest.audio_url || latest.download_url || '#')}" target="_blank" rel="noopener">Download</a>` : ''}
+            <div class="sermon-card__meta">
+              <span>${esc(preacher)}</span>
+              ${date ? `<span>${date}</span>` : ''}
+              ${reference ? `<span>${esc(reference)}</span>` : ''}
+            </div>
+
+            <p class="sermon-card__summary">${esc(summary)}</p>
+
+            <div class="sermon-card__actions">
+              ${hasWatch ? `<a class="btn ${isFeatured ? 'btn-primary btn-block' : 'btn-outline btn-block'}" href="${esc(watchLink)}" target="_blank" rel="noopener">${isFeatured ? 'Watch Now' : 'Watch'}</a>` : ''}
+              ${canDownload ? `<a class="btn btn-outline btn-block" href="${esc(item.video_file || item.audio_url || item.download_url || '#')}" target="_blank" rel="noopener">Download</a>` : ''}
+            </div>
           </div>
-        </div>
-      </article>`;
+        </article>`;
+    }).join('');
   }
 
   function renderGallery(items) {

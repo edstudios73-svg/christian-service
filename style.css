@@ -1132,6 +1132,9 @@ main { position: relative; z-index: 1; }
   border-radius: 1.6rem;
   box-shadow: 0 16px 32px rgba(18, 32, 69, 0.12);
 }
+.sermon-card--compact {
+  margin-top: 1.25rem;
+}
 @media (max-width: 520px) {
   .sermon-card__body--featured {
     padding: 1rem 1rem 1.1rem;

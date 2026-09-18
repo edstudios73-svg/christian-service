@@ -251,28 +251,43 @@
   function init() {
     const header = document.querySelector('[data-nav-mount]') || document.body;
     const current = getCurrentPage();
-
-    const nav = buildNav();
-    const desktopHeader = buildDesktopHeader(current);
-    const menu = buildMenu(current);
-    const quickBar = buildQuickBar(current);
-    header.prepend(desktopHeader);
-    header.prepend(nav);
-    document.body.appendChild(menu);
-    document.body.appendChild(quickBar);
-
     const desktopQuery = window.matchMedia('(min-width: 1024px)');
+
     const syncDesktopHeader = () => {
       const activeHeader = document.getElementById('cscDesktopHeader');
-      if (!activeHeader) return;
-      activeHeader.hidden = !desktopQuery.matches;
+      if (!desktopQuery.matches) {
+        if (activeHeader) activeHeader.remove();
+        return;
+      }
+      if (!activeHeader) {
+        const newDesktopHeader = buildDesktopHeader(current);
+        header.prepend(newDesktopHeader);
+        return;
+      }
+      activeHeader.hidden = false;
     };
+
+    if (!desktopQuery.matches) {
+      const existingDesktopHeader = document.getElementById('cscDesktopHeader');
+      if (existingDesktopHeader) existingDesktopHeader.remove();
+    } else {
+      const desktopHeader = buildDesktopHeader(current);
+      header.prepend(desktopHeader);
+    }
+
     syncDesktopHeader();
     if (desktopQuery.addEventListener) {
       desktopQuery.addEventListener('change', syncDesktopHeader);
     } else if (desktopQuery.addListener) {
       desktopQuery.addListener(syncDesktopHeader);
     }
+
+    const nav = buildNav();
+    const menu = buildMenu(current);
+    const quickBar = buildQuickBar(current);
+    header.prepend(nav);
+    document.body.appendChild(menu);
+    document.body.appendChild(quickBar);
 
     const hamburger = nav.querySelector('.hamburger');
     const giveBtn = nav.querySelector('[data-nav-give]');

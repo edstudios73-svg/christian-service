@@ -63,17 +63,41 @@
       return;
     }
 
-    mount.innerHTML = items.map((item) => `
-      <article class="sermon-card reveal"${imageStyle(item.image)}>
-        <div class="sermon-card__media"${imageStyle(item.image)}>${item.video_file ? `<video controls preload="metadata" src="${esc(item.video_file)}"></video>` : '<div class="sermon-card__play"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><polygon points="6 4 20 12 6 20"/></svg></div>'}</div>
-        <div class="sermon-card__body">
-          <div class="sermon-card__series">${esc(item.series || 'Sermon')}</div>
-          <h3 class="sermon-card__title">${esc(item.title)}</h3>
-          <div class="sermon-card__meta"><span>${esc(item.preacher || '')}</span><span>${formatDate(item.date)}</span></div>
-          <p class="muted">${esc(item.body || '')}</p>
-          <div class="sermon-card__actions">${item.video_url ? `<a class="btn btn-primary btn-sm" href="${esc(item.video_url)}" target="_blank" rel="noopener">Watch</a>` : ''}${item.video_file ? `<a class="btn btn-primary btn-sm" href="${esc(item.video_file)}" target="_blank" rel="noopener">Open video</a>` : ''}${item.audio_url ? `<a class="btn btn-outline btn-sm" href="${esc(item.audio_url)}" target="_blank" rel="noopener">Listen</a>` : ''}</div>
-        </div>
-      </article>`).join('');
+    const shell = document.querySelector('.sermon-empty-shell');
+    if (shell) shell.style.display = 'none';
+
+    mount.innerHTML = items.map((item) => {
+      const image = item.image || item.thumbnail || 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1200&q=80';
+      const preacher = item.preacher || item.speaker || 'Pastor';
+      const date = formatDate(item.date || item.created_at);
+      const reference = item.reference || item.scripture || item.bible_reference || '';
+      const summary = item.body || item.summary || 'A powerful message to encourage your faith and strengthen your walk with God.';
+      const watchLink = item.video_url || item.video_file || item.audio_url || '#';
+      const hasWatch = !!(item.video_url || item.video_file || item.audio_url);
+      const canDownload = !!(item.video_file || item.audio_url || item.download_url);
+
+      return `
+        <article class="sermon-card reveal">
+          <div class="sermon-card__media">
+            <img src="${esc(image)}" alt="${esc(item.title || 'Sermon message')}" loading="lazy" decoding="async">
+            ${item.duration ? `<span class="sermon-card__duration">${esc(item.duration)}</span>` : ''}
+          </div>
+          <div class="sermon-card__body">
+            <div class="sermon-card__series">${esc(item.series || 'Sermon')}</div>
+            <h3 class="sermon-card__title">${esc(item.title)}</h3>
+            <div class="sermon-card__meta">
+              <span>${esc(preacher)}</span>
+              ${date ? `<span>${date}</span>` : ''}
+              ${reference ? `<span>${esc(reference)}</span>` : ''}
+            </div>
+            <p class="sermon-card__summary">${esc(summary)}</p>
+            <div class="sermon-card__actions">
+              ${hasWatch ? `<a class="btn btn-primary btn-sm" href="${esc(watchLink)}" target="_blank" rel="noopener">Watch Now</a>` : ''}
+              ${canDownload ? `<a class="btn btn-outline btn-sm" href="${esc(item.video_file || item.audio_url || item.download_url || '#')}" target="_blank" rel="noopener">Download</a>` : ''}
+            </div>
+          </div>
+        </article>`;
+    }).join('');
   }
 
   function renderGallery(items) {
@@ -245,12 +269,6 @@
   async function init() {
     const hasMount = document.querySelector('[data-page-key], [data-supabase-events], [data-supabase-sermons], [data-gallery-grid], [data-supabase-testimonies], [data-supabase-announcements], [data-supabase-leaders], [data-supabase-ministries], [data-prayer-form]');
     if (!hasMount) return;
-
-    const sermonArchivePage = /\/sermons\.html$/i.test(window.location.pathname) || document.querySelector('[data-page-key="sermons"]');
-    if (sermonArchivePage) {
-      renderEmptySermonsState();
-      return;
-    }
 
     document.querySelectorAll('[data-supabase-events], [data-supabase-sermons], [data-supabase-leaders], [data-supabase-ministries], [data-supabase-announcements]').forEach((mount) => { mount.innerHTML = '<p class="muted">Loading...</p>'; });
     try {

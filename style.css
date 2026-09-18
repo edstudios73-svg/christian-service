@@ -1232,6 +1232,12 @@ main { position: relative; z-index: 1; }
   transform: none;
   animation: none;
 }
+.page-header__bg.page-settings-image {
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: var(--c-secondary);
+}
 .hero[data-page-key], .page-header[data-page-key] { visibility: hidden; }
 .hero[data-page-key].page-settings-ready, .page-header[data-page-key].page-settings-ready { visibility: visible; }
 .hero__overlay {

@@ -489,6 +489,33 @@
     revealPageSettings();
   }
 
+  async function applyHomepageContent(sb) {
+    if (!document.querySelector('[data-home]')) return;
+    let result;
+    try { result = await sb.from('homepage_content').select('published_content').eq('id', 'home').maybeSingle(); } catch (_) { return; }
+    const { data, error } = result;
+    if (error || !data?.published_content || !Object.keys(data.published_content).length) return;
+    const content = data.published_content;
+    const get = (path) => path.split('.').reduce((value, key) => value?.[key], content);
+    document.querySelectorAll('[data-home]').forEach((element) => {
+      const value = get(element.dataset.home);
+      if (value == null) return;
+      element.textContent = String(value);
+    });
+    document.querySelectorAll('[data-home-image]').forEach((element) => {
+      const value = get(element.dataset.homeImage);
+      if (value) element.src = String(value);
+    });
+    const hero = content.hero || {};
+    const bg = document.querySelector('.hero__bg');
+    if (bg && hero.image) bg.style.backgroundImage = `linear-gradient(135deg, rgba(10,26,63,.18), rgba(10,26,63,.06)), url('${String(hero.image).replace(/'/g, '%27')}')`;
+    const rows = Array.isArray(content.serviceTimes?.rows) ? content.serviceTimes.rows : [];
+    const rowMount = document.querySelector('[data-home-service-rows]');
+    if (rowMount && rows.length) rowMount.innerHTML = rows.map((row, index) => `<tr${index === 0 ? ' class="is-main"' : ''}><td class="day">${esc(row.day)}</td><td>${esc(row.meeting)}</td><td class="time">${esc(row.time)}</td></tr>`).join('');
+    const phone = document.querySelector('[data-home="info.phoneValue"] a');
+    if (phone && content.info?.phoneValue) { phone.textContent = content.info.phoneValue; phone.href = `tel:${String(content.info.phoneValue).replace(/[^+\d]/g, '')}`; }
+  }
+
   async function init() {
     const hasMount = document.querySelector('[data-page-key], [data-supabase-events], [data-supabase-sermons], [data-gallery-grid], [data-supabase-testimonies], [data-supabase-announcements], [data-supabase-leaders], [data-supabase-ministries], [data-prayer-form]');
     if (!hasMount) return;
@@ -499,6 +526,7 @@
         const sb = window.supabase.createClient(SUPABASE_URL, 'sb_publishable_5T68Teyy88wmJUlckVRneA_Yfh0OKZV');
       window.CSC_SUPABASE = sb;
       await applyPageSettings(sb);
+      if (document.querySelector('[data-home]')) await applyHomepageContent(sb);
       if (document.querySelector('[data-supabase-announcements]')) renderAnnouncements(await fetchPublished(sb, 'announcements', 'date'));
       if (document.querySelector('[data-supabase-events]')) renderEvents(await fetchPublished(sb, 'events', 'date'));
       if (document.querySelector('[data-supabase-sermons]')) renderSermons(await fetchPublished(sb, 'sermons', 'date'));
@@ -528,6 +556,7 @@
         .on('postgres_changes', { event: '*', schema: 'public', table: 'leaders' }, async () => renderLeaders(await fetchPublished(sb, 'leaders', 'created_at')))
         .on('postgres_changes', { event: '*', schema: 'public', table: 'ministries' }, async () => renderMinistries(await fetchPublished(sb, 'ministries', 'created_at')))
         .on('postgres_changes', { event: '*', schema: 'public', table: 'pages' }, async () => applyPageSettings(sb))
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'homepage_content' }, async () => applyHomepageContent(sb))
         .subscribe();
     } catch (error) {
       console.warn('Published church content is unavailable.', error);
@@ -537,4 +566,7 @@
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
+  document.addEventListener('csc-footer-ready', () => {
+    if (window.CSC_SUPABASE) applyHomepageContent(window.CSC_SUPABASE);
+  });
 })();

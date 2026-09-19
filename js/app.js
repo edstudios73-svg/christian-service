@@ -22,7 +22,7 @@
           </div>
         </div>
 
-        <p class="footer__about">
+        <p class="footer__about" data-home="footer.text">
           Christian Service Church is a Bible-believing church at Jungle Avenue Road, East Legon, Accra.
           We meet every Sunday at 9:00 AM. The church was started by the late Rev. Captain (Rtd) James C. Ocran
           and is led today by his son, Rev. Dr. Joseph Payin Ezekiel.
@@ -42,7 +42,7 @@
         <div class="footer__block">
           <h4 class="footer__col-title">Service Times</h4>
           <div class="footer__times">
-            <div><span>Sunday &mdash; Worship</span><span>9:00 AM &ndash; 12 noon</span></div>
+            <div data-home="footer.service"><span>Sunday &mdash; Worship</span><span>9:00 AM &ndash; 12 noon</span></div>
             <div><span>Monday &mdash; Prayer Meeting</span><span>6:30 &ndash; 7:30 PM</span></div>
             <div><span>Tuesday &mdash; Women of Destiny</span><span>9:00 AM &ndash; 12 noon</span></div>
             <div><span>Tuesday &mdash; Youth Fellowship</span><span>6:30 &ndash; 7:30 PM</span></div>
@@ -92,6 +92,7 @@
       </div>
     `;
     mount.appendChild(footer);
+    document.dispatchEvent(new CustomEvent('csc-footer-ready'));
   }
 
   // ---------- FAQ toggles ----------

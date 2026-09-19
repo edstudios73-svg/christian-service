@@ -787,6 +787,35 @@ function filterList(col) {
 /* ============================================================
    views
    ============================================================ */
+async function viewPageEditors(main) {
+  main.innerHTML = `
+    <header class="ph">
+      <div><h1>Page Editors</h1><p>Edit the published content and presentation settings for every website page except the homepage.</p></div>
+    </header>
+    <div id="page-editor-list" class="loading">Loading page editors...</div>`;
+  await load('pages', true);
+  const rows = cache.pages || [];
+  const list = $('#page-editor-list');
+  if (!list || route !== 'page-editors') return;
+  list.className = 'page-editor-grid';
+  list.innerHTML = PAGE_EDITOR_PAGES.map(([slug, label, fallbackTitle]) => {
+    const item = rows.find(row => row.slug === slug);
+    const title = item?.title || fallbackTitle;
+    const status = item?.published ? 'Published' : item ? 'Draft' : 'Not configured';
+    const statusClass = item?.published ? 'ok' : item ? 'draft' : 'warn';
+    return `<article class="card page-editor-card">
+      <div class="page-editor-card__icon">${icon('file', 28)}</div>
+      <div class="page-editor-card__body">
+        <span class="pill ${statusClass}">${status}</span>
+        <h2>${esc(label)}</h2>
+        <p>${esc(title)}</p>
+        <small>${item?.body ? 'Content ready to edit' : 'Add page content, subtitle and hero settings'}</small>
+      </div>
+      <button class="btn pri" type="button" data-act="page-edit" data-slug="${esc(slug)}">${icon('edit', 16)}<span>Edit page</span></button>
+    </article>`;
+  }).join('');
+}
+
 async function viewCollection(main, key) {
   const col = COLLECTIONS[key];
   main.innerHTML = `
@@ -846,7 +875,7 @@ function drawList(key) {
 
 async function viewDashboard(main) {
   main.innerHTML = `<header class="ph"><div><h1>Welcome back</h1><p>Manage what people see on the Christian Service Church website.</p></div></header><div id="dash" class="loading">Loading…</div>`;
-  await Promise.all([ ...KEYS.map(k => load(k)), Store.getHomepage().then(value => { homepageEditor = value; }).catch(() => {}) ]);
+  await Promise.all([ ...KEYS.map(k => load(k)), load('pages'), Store.getHomepage().then(value => { homepageEditor = value; }).catch(() => {}) ]);
   const dash = $('#dash');
   if (!dash || route !== 'dashboard') return;
   const homepageRow = `<div class="lrow">
@@ -855,7 +884,13 @@ async function viewDashboard(main) {
       <div class="num" style="font-size:16px">${homepageEditor.published ? 'Published' : 'Ready'}</div>
       <a class="btn sm" href="#/homepage">Edit</a>
     </div>`;
-  const ledger = homepageRow + KEYS.map(k => {
+  const pageEditorsRow = `<div class="lrow">
+      <div class="ic">${icon('file')}</div>
+      <div><a class="nm" href="#/page-editors">Page Editors</a><small>${PAGE_EDITOR_PAGES.length} website pages ready to edit</small></div>
+      <div class="num" style="font-size:16px">${(cache.pages || []).filter(page => page.published).length}/${PAGE_EDITOR_PAGES.length}</div>
+      <a class="btn sm" href="#/page-editors">Open</a>
+    </div>`;
+  const ledger = homepageRow + pageEditorsRow + KEYS.map(k => {
     const c = COLLECTIONS[k], list = cache[k] || [];
     const sub = c.statusField ? `${list.filter(i => (i[c.statusField] || 'New') === 'New').length} new` : `${list.filter(i => !i.published).length} in drafts`;
     return `<div class="lrow">
@@ -866,6 +901,7 @@ async function viewDashboard(main) {
     </div>`;
   }).join('');
   const recent = KEYS.flatMap(k => (cache[k] || []).map(it => ({ k, it })))
+    .concat((cache.pages || []).map(it => ({ k: 'page-editors', it })))
     .sort((a, b) => String(b.it.updatedAt || b.it.createdAt || '').localeCompare(String(a.it.updatedAt || a.it.createdAt || ''))).slice(0, 6);
   dash.className = '';
   dash.innerHTML = `
@@ -874,8 +910,8 @@ async function viewDashboard(main) {
     <h2 class="sec">Recently changed</h2>
     ${recent.length ? `<div class="rows recent">${recent.map(({ k, it }) => { const c = COLLECTIONS[k]; return `
       <div class="row">
-        <div class="thumb">${icon(c.icon, 20)}</div>
-        <div class="info"><div class="t">${esc(titleOf(c, it))}</div><div class="m"><span>${esc(c.label)}</span></div></div>
+        <div class="thumb">${icon(k === 'page-editors' ? 'file' : c.icon, 20)}</div>
+        <div class="info"><div class="t">${esc(k === 'page-editors' ? (PAGE_EDITOR_PAGES.find(page => page[0] === it.slug)?.[1] || it.title) : titleOf(c, it))}</div><div class="m"><span>${esc(k === 'page-editors' ? 'Page Editors' : c.label)}</span></div></div>
         <span class="when">${esc(fmtDate((it.updatedAt || it.createdAt || '').slice(0, 10)))}</span>
       </div>`; }).join('')}</div>` : `<div class="empty"><h3>Nothing here yet</h3><p>Add an update or sermon to get started.</p></div>`}`;
 }
@@ -1433,6 +1469,12 @@ document.addEventListener('click', e => {
   switch (d.act) {
     case 'new': openForm(route); break;
     case 'edit': openForm(route, d.id); break;
+    case 'page-edit': {
+      const page = (cache.pages || []).find(item => item.slug === d.slug);
+      if (page) openForm('pages', page.id);
+      else toast('This page has not been configured in Supabase yet.', 'bad');
+      break;
+    }
     case 'del': askDelete(route, d.id); break;
     case 'toggle': togglePub(route, d.id); break;
     case 'chip': ui.f = d.v; drawList(route); break;

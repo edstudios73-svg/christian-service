@@ -343,8 +343,7 @@ const COLLECTIONS = {
       { name: 'category', label: 'Category', type: 'select', options: ['General', 'Service', 'Prayer', 'Event', 'Urgent'], half: true },
       { name: 'date', label: 'Date', type: 'date', required: true, half: true, def: 'today' },
       { name: 'body', label: 'Announcement details', type: 'textarea', required: true, rows: 6 },
-      { name: 'image', label: 'Image (optional)', type: 'image' },
-      { name: 'sendPush', label: 'Send push notification to subscribers', type: 'checkbox', def: true }
+      { name: 'image', label: 'Image (optional)', type: 'image' }
     ]
   },
   leaders: {
@@ -469,7 +468,6 @@ function toRow(key, it) {
   if (it.createdAt) r.created_at = it.createdAt;
   r.updated_at = it.updatedAt || null;
   col.fields.forEach(f => {
-    if (key === 'announcements' && f.name === 'sendPush') return;
     const v = it[f.name];
     r[snake(f.name)] = (f.type === 'date' || f.type === 'time') ? (v || null) : f.type === 'checkbox' ? !!v : (v ?? '');
   });
@@ -1080,7 +1078,7 @@ function openForm(key, id) {
   const dlg = $('#formDlg');
   dlg.innerHTML = `<form id="form" autocomplete="off">
     <div class="dh"><h2 id="formTitle">${it ? 'Edit' : 'Add'} ${esc(col.singular)}</h2><button type="button" class="icon" data-act="closeform" aria-label="Close">${icon('x', 22)}</button></div>
-    <div class="db">${col.fields.map(f => fieldHTML(f, it ? it[f.name] : (f.def === 'today' ? today() : f.def || ''), !!it)).join('')}</div>
+    <div class="db">${col.fields.map(f => fieldHTML(f, it ? it[f.name] : (f.def === 'today' ? today() : f.def || ''), !!it)).join('')}${key === 'announcements' ? fieldHTML({ name: 'sendPush', label: 'Send push notification to subscribers', type: 'checkbox' }, true, !!it) : ''}</div>
     <div class="df">
       <p class="err" id="formErr" role="alert"></p>
       ${col.noPublish ? '' : `<label class="switch"><input type="checkbox" name="published"${(it ? it.published : true) ? ' checked' : ''}><span></span>Show on website</label>`}

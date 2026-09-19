@@ -2695,6 +2695,9 @@ main { position: relative; z-index: 1; }
   color: rgba(255,255,255,0.4);
 }
 .footer__bottom a { color: rgba(255,255,255,0.6); }
+.footer__legal { display: flex; align-items: center; justify-content: center; gap: var(--sp-2); flex-wrap: wrap; }
+.footer__legal a { color: var(--c-accent-light); }
+.footer__legal a:hover { color: #fff; }
 
 /* ---------- Quick link tiles ---------- */
 .quick-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--sp-4); }

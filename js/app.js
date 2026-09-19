@@ -83,6 +83,11 @@
 
         <div class="footer__bottom">
           <p>&copy; ${year} Christian Service Church, East Legon, Accra. All rights reserved.</p>
+          <nav class="footer__legal" aria-label="Legal information">
+            <a href="terms-of-service.html">Terms of Service</a>
+            <span aria-hidden="true">&middot;</span>
+            <a href="privacy-policy.html">Privacy Policy</a>
+          </nav>
         </div>
       </div>
     `;

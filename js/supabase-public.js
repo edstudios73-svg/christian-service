@@ -506,6 +506,10 @@
       const value = get(element.dataset.homeImage);
       if (value) element.src = String(value);
     });
+    document.querySelectorAll('[data-home-href]').forEach((element) => {
+      const value = get(element.dataset.homeHref);
+      if (value) element.href = String(value);
+    });
     const hero = content.hero || {};
     const bg = document.querySelector('.hero__bg');
     if (bg && hero.image) bg.style.backgroundImage = `linear-gradient(135deg, rgba(10,26,63,.18), rgba(10,26,63,.06)), url('${String(hero.image).replace(/'/g, '%27')}')`;
@@ -514,6 +518,18 @@
     if (rowMount && rows.length) rowMount.innerHTML = rows.map((row, index) => `<tr${index === 0 ? ' class="is-main"' : ''}><td class="day">${esc(row.day)}</td><td>${esc(row.meeting)}</td><td class="time">${esc(row.time)}</td></tr>`).join('');
     const phone = document.querySelector('[data-home="info.phoneValue"] a');
     if (phone && content.info?.phoneValue) { phone.textContent = content.info.phoneValue; phone.href = `tel:${String(content.info.phoneValue).replace(/[^+\d]/g, '')}`; }
+    const map = document.querySelector('[data-home-map]');
+    if (map && content.location?.mapEmbed) map.src = content.location.mapEmbed;
+    ['facebook', 'instagram', 'tiktok', 'whatsapp'].forEach((network) => {
+      const link = document.querySelector(`.social-icon--${network}`);
+      if (link && content.social?.[network]) link.href = content.social[network];
+    });
+    const tiles = document.querySelectorAll('.quick-tile');
+    (content.explore?.items || []).forEach((item, index) => { if (tiles[index]?.querySelector('.quick-tile__title')) { tiles[index].href = item.url || tiles[index].href; } });
+    const beliefCards = document.querySelectorAll('.feature-card');
+    (content.beliefsCards?.items || []).forEach((item, index) => { const card = beliefCards[index]; if (!card) return; const title = card.querySelector('.feature-card__title'), body = card.querySelector('.feature-card__desc'); if (title) title.textContent = item.title || ''; if (body) body.textContent = item.body || ''; });
+    const faqItems = document.querySelectorAll('.faq-item');
+    (content.faqs?.items || []).forEach((item, index) => { const faq = faqItems[index]; if (!faq) return; const question = faq.querySelector('.faq-item__q'), answer = faq.querySelector('.faq-item__a > div'); if (question) question.firstChild.textContent = item.question || ''; if (answer) answer.textContent = item.answer || ''; });
   }
 
   async function init() {

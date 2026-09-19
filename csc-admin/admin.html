@@ -96,7 +96,7 @@ label.l i{color:var(--bad);font-style:normal}
 .top{display:none}
 .scrim{display:none}
 .main{padding:32px clamp(16px,4vw,48px) 90px;max-width:1080px;width:100%}
-.home-editor-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(320px,.95fr);gap:18px;align-items:start}.home-editor-section{margin-bottom:16px}.home-image-preview{width:100%;height:120px;margin:0 0 14px;border:1px dashed var(--line);border-radius:10px;display:grid;place-items:center;overflow:hidden;color:var(--mute);background:#f8f9fc}.home-image-preview img{width:100%;height:100%;object-fit:cover;display:block}.home-preview{position:sticky;top:20px;max-height:calc(100vh - 40px);overflow:auto}.home-preview-frame{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;font-size:12px}.home-preview-hero{min-height:220px;padding:26px 18px 20px;display:flex;align-items:end;background-color:var(--navy-d);background-position:center;background-size:cover;color:#fff}.home-preview-hero h2{font-size:26px;margin:6px 0}.home-preview-hero h2 em{color:#f5cf52;font-style:normal}.home-preview-hero p{margin:0 0 8px;color:rgba(255,255,255,.86)}.home-preview-hero span{display:block;color:rgba(255,255,255,.78);line-height:1.45}.home-preview-section{padding:18px;border-top:1px solid var(--line)}.home-preview-section small{color:var(--navy);font-weight:700;text-transform:uppercase;letter-spacing:.12em}.home-preview-section h3{margin:5px 0;font-size:20px}.home-preview-section p{color:var(--mute);margin:0 0 12px}.home-preview-section blockquote{margin:0;padding:12px;background:var(--info-s);border-radius:8px;font-family:Georgia,serif;font-style:italic}.home-preview-row{display:grid;grid-template-columns:58px 1fr auto;gap:6px;padding:7px 0;border-top:1px solid var(--line)}
+.home-editor-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(320px,.95fr);gap:18px;align-items:start}.home-editor-section{margin-bottom:16px}.home-image-preview{width:100%;height:120px;margin:0 0 14px;border:1px dashed var(--line);border-radius:10px;display:grid;place-items:center;overflow:hidden;color:var(--mute);background:#f8f9fc}.home-image-preview img{width:100%;height:100%;object-fit:cover;display:block}.home-preview{position:sticky;top:20px;max-height:calc(100vh - 40px);overflow:auto}.home-preview-frame{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;font-size:12px}.home-preview-hero{min-height:220px;padding:26px 18px 20px;display:flex;align-items:end;background-color:var(--navy-d);background-position:center;background-size:cover;color:#fff}.home-preview-hero h2{font-size:26px;margin:6px 0}.home-preview-hero h2 em{color:#f5cf52;font-style:normal}.home-preview-hero p{margin:0 0 8px;color:rgba(255,255,255,.86)}.home-preview-hero span{display:block;color:rgba(255,255,255,.78);line-height:1.45}.home-preview-section{padding:18px;border-top:1px solid var(--line)}.home-preview-section small{color:var(--navy);font-weight:700;text-transform:uppercase;letter-spacing:.12em}.home-preview-section h3{margin:5px 0;font-size:20px}.home-preview-section p{color:var(--mute);margin:0 0 12px}.home-preview-section blockquote{margin:0;padding:12px;background:var(--info-s);border-radius:8px;font-family:Georgia,serif;font-style:italic}.home-preview-row{display:grid;grid-template-columns:58px 1fr auto;gap:6px;padding:7px 0;border-top:1px solid var(--line)}.home-preview-tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}.home-preview-tiles div{padding:10px;background:var(--info-s);border-radius:8px}.home-preview-tiles span{display:block;color:var(--mute);margin-top:3px}.home-preview-map{min-height:56px;padding:10px;background:#eef1f9;color:var(--mute);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.home-repeat-row{display:grid;grid-template-columns:1fr 1.5fr 1fr auto auto auto;gap:6px;margin-bottom:8px}.home-repeat-row input{min-width:0;padding:8px 9px;min-height:38px;font-size:14px}
 @media(max-width:900px){.home-editor-grid{grid-template-columns:1fr}.home-preview{position:relative;top:auto;max-height:none}}
 .ph{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}
 .ph p{color:var(--mute);margin-top:6px;max-width:56ch}
@@ -447,7 +447,21 @@ const COLLECTIONS = {
     ]
   }
 };
-const KEYS = Object.keys(COLLECTIONS);
+const PAGE_EDITOR_PAGES = [
+  ['about', 'About Us', 'Who We Are'],
+  ['contact', 'Contact and Visit', 'Contact & Visit'],
+  ['events', 'Events', 'Upcoming Events'],
+  ['gallery', 'Gallery', 'Gallery'],
+  ['giving', 'Giving', 'Giving'],
+  ['members', 'Our Leaders', 'Our Leaders & Church Family'],
+  ['ministries', 'Ministries', 'Our Ministries'],
+  ['pastor', 'Our Pastor', 'Our Pastor'],
+  ['prayer', 'Prayer', 'Prayer Request'],
+  ['sermons', 'Sermons', 'Sermons'],
+  ['testimonies', 'Testimonies', 'Testimonies'],
+  ['announcements', 'Announcements', 'Announcements']
+];
+const KEYS = Object.keys(COLLECTIONS).filter(key => key !== 'pages');
 
 /* ============================================================
    data layer: demo (this browser) or Supabase (online)
@@ -501,6 +515,11 @@ const HOMEPAGE_DEFAULTS = {
   serviceTimes: { eyebrow: 'Join Us This Week', title: 'Our Service Times', description: 'All our meetings hold at the church premises on Jungle Avenue Road, East Legon, Accra.', office: 'Church office: Monday to Friday, 9:00 AM – 5:00 PM.', rows: [{ day: 'Sunday', meeting: 'Sunday Worship', time: '9:00 AM – 12:00 noon' }, { day: 'Monday', meeting: 'Prayer Meeting', time: '6:30 – 7:30 PM' }, { day: 'Tuesday', meeting: 'Virtuous Women of Destiny', time: '9:00 AM – 12:00 noon' }, { day: 'Tuesday', meeting: 'Youth Fellowship', time: '6:30 – 7:30 PM' }, { day: 'Wednesday', meeting: 'Bible Studies', time: '6:30 – 7:30 PM' }, { day: 'Thursday', meeting: 'Women Fellowship', time: '6:30 – 7:30 PM' }, { day: 'Saturday', meeting: 'Shiloh Hour', time: '9:00 – 11:00 AM' }] },
   beliefs: { eyebrow: 'What We Believe', title: 'A Church Built on The Word and The Spirit', description: 'Everything we do comes from the Bible and is led by the Holy Spirit.' },
   pastor: { name: 'Rev. Dr. Joseph Payin Ezekiel', role: 'General Overseer', body: 'He is the General Overseer of Christian Service Church and the son of our founder. He preaches, teaches and shepherds the church family here in East Legon.', image: 'gallery/our-pastors-image.png' },
+  explore: { eyebrow: 'EXPLORE CHRISTIAN SERVICE', title: 'Explore Christian Service', items: [{ title: 'About Us', sub: 'Our story and beliefs', url: 'about.html' }, { title: 'Our General Overseer', sub: 'Meet our pastor', url: 'pastor.html' }, { title: 'Sermons', sub: 'Watch and listen', url: 'sermons.html' }, { title: 'Events', sub: 'What is coming up', url: 'events.html' }, { title: 'Prayer', sub: 'Send a request', url: 'prayer.html' }, { title: 'Giving', sub: 'Tithe and offering', url: 'giving.html' }] },
+  location: { mapEmbed: 'https://www.google.com/maps?q=5.636903,-0.1499134&hl=en&z=16&output=embed', address: 'Jungle Avenue Road, East Legon, Accra, Greater Accra Region, Ghana', plusCode: 'JVP2+Q28 Accra', landmark: 'Off the main East Legon road, close to the Jungle Avenue junction', parking: 'Space is available on the church compound' },
+  beliefsCards: [{ title: 'Worship', body: "We gather to praise the name of Jesus through singing, prayer and the preaching of God's Word." }, { title: 'Bible Teaching', body: 'We teach the Bible plainly so that every member can grow strong in faith and live it at home and at work.' }, { title: 'Family', body: 'We are one family. We carry one another\'s burdens, check on one another and help one another.' }, { title: 'Prayer', body: 'We believe prayer works. We pray together every Monday at 6:30 PM and stand with members in every situation.' }],
+  faqs: [{ question: 'What time is Sunday service?', answer: 'Sunday worship starts at 9:00 AM and closes around midday (12:00 noon).' }, { question: 'Where exactly is the church?', answer: 'We are on Jungle Avenue Road, East Legon, Accra. The Plus Code is JVP2+Q28 Accra.' }, { question: 'Who is the pastor?', answer: 'Rev. Dr. Joseph Payin Ezekiel is the General Overseer.' }],
+  social: { facebook: 'https://www.facebook.com/christianservicechurch', instagram: 'https://www.instagram.com/christianservicechurch11', tiktok: 'https://www.tiktok.com/@christianservicechurch', whatsapp: 'https://wa.me/233551172156' },
   footer: { text: 'Jungle Avenue Road, East Legon, Accra, Ghana. Call 0551172156 or email info@christianservicechurch.org.', service: 'Sunday worship: 9:00 AM to 12:00 noon.' }
 };
 const cloneHome = value => JSON.parse(JSON.stringify(value));
@@ -713,7 +732,7 @@ function logout() {
    navigation
    ============================================================ */
 function buildNav() {
-  const items = [['dashboard', 'Dashboard', 'home'], ['homepage', 'Homepage Editor', 'home'], ...KEYS.map(k => [k, COLLECTIONS[k].label, COLLECTIONS[k].icon]), ['analytics', 'Analytics', 'chart'], ['setup', 'Setup and backup', 'cog']];
+  const items = [['dashboard', 'Dashboard', 'home'], ['homepage', 'Homepage Editor', 'home'], ['page-editors', 'Page Editors', 'file'], ...KEYS.map(k => [k, COLLECTIONS[k].label, COLLECTIONS[k].icon]), ['analytics', 'Analytics', 'chart'], ['setup', 'Setup and backup', 'cog']];
   $('#nav').innerHTML = items.map(([k, l, i]) => `<a href="#/${k}" data-r="${k}">${icon(i)}<span>${esc(l)}</span>${COLLECTIONS[k] ? `<em class="badge" data-badge="${k}"></em>` : ''}</a>`).join('');
 }
 function toggleMenu(force) {
@@ -723,15 +742,16 @@ function toggleMenu(force) {
 }
 function go() {
   route = location.hash.replace(/^#\/?/, '') || 'dashboard';
-  if (route !== 'dashboard' && route !== 'homepage' && route !== 'setup' && route !== 'analytics' && !COLLECTIONS[route]) { location.hash = '#/dashboard'; return; }
+  if (route !== 'dashboard' && route !== 'homepage' && route !== 'page-editors' && route !== 'setup' && route !== 'analytics' && !COLLECTIONS[route]) { location.hash = '#/dashboard'; return; }
   ui = { q: '', f: 'all' };
   $$('#nav a').forEach(a => a.classList.toggle('on', a.dataset.r === route));
-  $('#pageTitle').textContent = route === 'homepage' ? 'Homepage Editor' : COLLECTIONS[route] ? COLLECTIONS[route].label : route === 'setup' ? 'Setup and backup' : route === 'analytics' ? 'Analytics' : 'Dashboard';
+  $('#pageTitle').textContent = route === 'homepage' ? 'Homepage Editor' : route === 'page-editors' ? 'Page Editors' : COLLECTIONS[route] ? COLLECTIONS[route].label : route === 'setup' ? 'Setup and backup' : route === 'analytics' ? 'Analytics' : 'Dashboard';
   toggleMenu(false);
   window.scrollTo(0, 0);
   const main = $('#main');
   if (route === 'dashboard') viewDashboard(main);
   else if (route === 'homepage') viewHomepageEditor(main);
+  else if (route === 'page-editors') viewPageEditors(main);
   else if (route === 'setup') viewSetup(main);
   else if (route === 'analytics') viewAnalytics(main);
   else viewCollection(main, route);
@@ -867,22 +887,28 @@ const homeFields = [
   ['welcome', 'Welcome and scripture', [['eyebrow', 'Eyebrow', 'text'], ['title', 'Heading', 'text'], ['description', 'Paragraph', 'textarea'], ['scripture', 'Daily scripture text', 'textarea'], ['reference', 'Bible reference', 'text']]],
   ['stats', 'Homepage statistics', [['0.number', 'Active ministries number', 'text'], ['0.label', 'Active ministries label', 'text'], ['1.number', 'Weekly meetings number', 'text'], ['1.label', 'Weekly meetings label', 'text'], ['2.number', 'Leadership generations number', 'text'], ['2.label', 'Leadership generations label', 'text'], ['3.number', 'Family number', 'text'], ['3.label', 'Family label', 'text']]],
   ['serviceTimes', 'Service times', [['eyebrow', 'Eyebrow', 'text'], ['title', 'Heading', 'text'], ['description', 'Description', 'textarea'], ['office', 'Office hours', 'text'], ['rows', 'Rows JSON', 'json']]],
+  ['explore', 'Explore Christian Service', [['eyebrow', 'Eyebrow', 'text'], ['title', 'Heading', 'text'], ['items', 'Explore links JSON', 'json']]],
+  ['location', 'Map and location', [['mapEmbed', 'Google Maps embed URL', 'text'], ['address', 'Address', 'textarea'], ['plusCode', 'Plus code', 'text'], ['landmark', 'Landmark', 'text'], ['parking', 'Parking details', 'text']]],
   ['beliefs', 'Beliefs section', [['eyebrow', 'Eyebrow', 'text'], ['title', 'Heading', 'text'], ['description', 'Description', 'textarea']]],
+  ['beliefsCards', 'Belief cards', [['items', 'Belief cards JSON', 'json']]],
   ['pastor', 'Pastor feature', [['name', 'Name', 'text'], ['role', 'Role', 'text'], ['body', 'Biography', 'textarea']]],
+  ['faqs', 'Frequently asked questions', [['items', 'FAQ items JSON', 'json']]],
+  ['social', 'Social links', [['facebook', 'Facebook URL', 'text'], ['instagram', 'Instagram URL', 'text'], ['tiktok', 'TikTok URL', 'text'], ['whatsapp', 'WhatsApp URL', 'text']]],
   ['footer', 'Footer', [['text', 'Footer address and contact', 'textarea'], ['service', 'Footer service line', 'text']]]
 ];
 function homeGet(section, field) { return field.split('.').reduce((value, key) => value?.[key], homepageEditor.draft[section]) ?? ''; }
 function homeField(section, field, label, type) {
   const value = type === 'json' ? JSON.stringify(homeGet(section, field), null, 2) : homeGet(section, field);
   const id = `home_${section}_${field}`;
-  if (type === 'json') return `<div class="fld"><label class="l">${esc(label)}</label><div id="${id}" data-home-repeater="${section}.${field}"></div><button class="btn sm" type="button" data-act="home-add-row" data-home-repeater-add="${section}.${field}">${icon('plus', 16)}<span>Add service time</span></button></div>`;
+  if (type === 'json' && section === 'serviceTimes' && field === 'rows') return `<div class="fld"><label class="l">${esc(label)}</label><div id="${id}" data-home-repeater="${section}.${field}"></div><button class="btn sm" type="button" data-act="home-add-row" data-home-repeater-add="${section}.${field}">${icon('plus', 16)}<span>Add service time</span></button></div>`;
+  if (type === 'json') return `<div class="fld"><label class="l" for="${id}">${esc(label)}</label><textarea id="${id}" data-home-field="${section}.${field}" rows="8">${esc(value)}</textarea><p class="hint">Edit this repeatable list as JSON. Changes appear in the preview immediately.</p></div>`;
   if (type === 'textarea') return `<div class="fld"><label class="l" for="${id}">${esc(label)}</label><textarea id="${id}" data-home-field="${section}.${field}" rows="4">${esc(value)}</textarea></div>`;
   return `<div class="fld half"><label class="l" for="${id}">${esc(label)}</label><input id="${id}" type="text" value="${esc(value)}" data-home-field="${section}.${field}"></div>`;
 }
 function homepagePreview() {
-  const h = homepageEditor.draft.hero, w = homepageEditor.draft.welcome, s = homepageEditor.draft.serviceTimes;
+  const c = homepageEditor.draft, h = c.hero, w = c.welcome, s = c.serviceTimes, ex = c.explore, loc = c.location, beliefs = c.beliefs, cards = c.beliefsCards?.items || [], faqs = c.faqs?.items || [];
   const safeRows = Array.isArray(s.rows) ? s.rows : [];
-  return `<div class="home-preview-frame"><div class="home-preview-hero" style="background-image:linear-gradient(135deg,rgba(10,26,63,.25),rgba(10,26,63,.1)),url('${esc(h.image)}')"><div><small>${esc(h.welcome)}</small><h2>${esc(h.title)} <em>${esc(h.accent)}</em></h2><p>${esc(h.tagline)}</p><span>${esc(h.description)}</span></div></div><div class="home-preview-section"><small>${esc(w.eyebrow)}</small><h3>${esc(w.title)}</h3><p>${esc(w.description)}</p><blockquote>${esc(w.scripture)}<br><b>— ${esc(w.reference)}</b></blockquote></div><div class="home-preview-section"><small>${esc(s.eyebrow)}</small><h3>${esc(s.title)}</h3><p>${esc(s.description)}</p>${safeRows.map(row => `<div class="home-preview-row"><b>${esc(row.day)}</b><span>${esc(row.meeting)}</span><strong>${esc(row.time)}</strong></div>`).join('')}</div></div>`;
+  return `<div class="home-preview-frame"><div class="home-preview-hero" style="background-image:linear-gradient(135deg,rgba(10,26,63,.25),rgba(10,26,63,.1)),url('${esc(h.image)}')"><div><small>${esc(h.welcome)}</small><h2>${esc(h.title)} <em>${esc(h.accent)}</em></h2><p>${esc(h.tagline)}</p><span>${esc(h.description)}</span></div></div><div class="home-preview-section"><small>Key information</small><div class="home-preview-row"><b>${esc(c.info.serviceLabel)}</b><span>${esc(c.info.serviceValue)}</span></div><div class="home-preview-row"><b>${esc(c.info.locationLabel)}</b><span>${esc(c.info.locationValue)}</span></div><div class="home-preview-row"><b>${esc(c.info.leaderLabel)}</b><span>${esc(c.info.leaderValue)}</span></div><div class="home-preview-row"><b>${esc(c.info.phoneLabel)}</b><span>${esc(c.info.phoneValue)}</span></div></div><div class="home-preview-section"><small>${esc(w.eyebrow)}</small><h3>${esc(w.title)}</h3><p>${esc(w.description)}</p><blockquote>${esc(w.scripture)}<br><b>— ${esc(w.reference)}</b></blockquote></div><div class="home-preview-section"><small>${esc(ex.eyebrow)}</small><h3>${esc(ex.title)}</h3><div class="home-preview-tiles">${(ex.items || []).map(item => `<div><b>${esc(item.title)}</b><span>${esc(item.sub)}</span></div>`).join('')}</div></div><div class="home-preview-section"><small>${esc(s.eyebrow)}</small><h3>${esc(s.title)}</h3><p>${esc(s.description)}</p>${safeRows.map(row => `<div class="home-preview-row"><b>${esc(row.day)}</b><span>${esc(row.meeting)}</span><strong>${esc(row.time)}</strong></div>`).join('')}</div><div class="home-preview-section"><small>Map and location</small><p>${esc(loc.address)}</p><p>${esc(loc.plusCode)} · ${esc(loc.landmark)}</p><div class="home-preview-map">${esc(loc.mapEmbed)}</div></div><div class="home-preview-section"><small>${esc(beliefs.eyebrow)}</small><h3>${esc(beliefs.title)}</h3><p>${esc(beliefs.description)}</p>${cards.map(item => `<div class="home-preview-row"><b>${esc(item.title)}</b><span>${esc(item.body)}</span></div>`).join('')}</div><div class="home-preview-section"><small>FAQs</small>${faqs.map(item => `<div class="home-preview-row"><b>${esc(item.question)}</b><span>${esc(item.answer)}</span></div>`).join('')}</div><div class="home-preview-section"><small>Social links</small><p>${Object.values(c.social || {}).map(value => esc(value)).join(' · ')}</p><small>Footer</small><p>${esc(c.footer.text)}<br>${esc(c.footer.service)}</p></div></div>`;
 }
 async function viewHomepageEditor(main) {
   try { homepageEditor = await Store.getHomepage(); } catch (error) { toast('Could not load homepage content. ' + (error.message || ''), 'bad'); homepageEditor = { draft: cloneHome(HOMEPAGE_DEFAULTS), published: null }; }
@@ -1430,7 +1456,13 @@ document.addEventListener('click', e => {
 document.addEventListener('input', e => {
   if (e.target.id === 'q') { ui.q = e.target.value; drawList(route); }
   const homeField = e.target.closest && e.target.closest('[data-home-field]');
-  if (homeField && route === 'homepage') { setHomeValue(homeField.dataset.homeField, homeField.value); refreshHomepagePreview(); }
+  if (homeField && route === 'homepage') {
+    try {
+      const path = homeField.dataset.homeField;
+      setHomeValue(path, /\.items$/.test(path) ? JSON.parse(homeField.value || '[]') : homeField.value);
+      refreshHomepagePreview();
+    } catch (_) { toast('Repeatable content must be valid JSON before it can preview.', 'bad'); }
+  }
   const rowField = e.target.closest && e.target.closest('[data-home-row-field]');
   if (rowField && route === 'homepage') { homepageEditor.draft.serviceTimes.rows[+rowField.dataset.homeRowIndex][rowField.dataset.homeRowField] = rowField.value; refreshHomepagePreview(); }
 });

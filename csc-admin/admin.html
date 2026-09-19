@@ -469,6 +469,7 @@ function toRow(key, it) {
   if (it.createdAt) r.created_at = it.createdAt;
   r.updated_at = it.updatedAt || null;
   col.fields.forEach(f => {
+    if (key === 'announcements' && f.name === 'sendPush') return;
     const v = it[f.name];
     r[snake(f.name)] = (f.type === 'date' || f.type === 'time') ? (v || null) : f.type === 'checkbox' ? !!v : (v ?? '');
   });
@@ -479,6 +480,10 @@ function fromRow(key, row) {
   const col = COLLECTIONS[key];
   const it = { id: row.id, createdAt: row.created_at || '', updatedAt: row.updated_at || '' };
   col.fields.forEach(f => {
+    if (key === 'announcements' && f.name === 'sendPush') {
+      it[f.name] = row.send_push ?? true;
+      return;
+    }
     let v = row[snake(f.name)];
     if (v == null) v = f.type === 'checkbox' ? false : '';
     if (f.type === 'time' && v) v = String(v).slice(0, 5);

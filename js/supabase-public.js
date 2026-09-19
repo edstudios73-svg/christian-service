@@ -474,6 +474,18 @@
     }
     if (title) title.textContent = data.title || '';
     if (subtitle) subtitle.textContent = data.subtitle || '';
+    const applyContentOverrides = () => {
+      const overrides = data.content_overrides || {};
+      Object.entries(overrides).forEach(([selector, override]) => {
+        document.querySelectorAll(selector).forEach((element) => {
+          if (override.type === 'src' && override.value) element.setAttribute('src', override.value);
+          else if (override.value != null && element.children.length === 0) element.textContent = override.value;
+          if (override.href != null && element.tagName.toLowerCase() === 'a') element.setAttribute('href', override.href);
+        });
+      });
+    };
+    applyContentOverrides();
+    document.addEventListener('csc-footer-ready', applyContentOverrides, { once: true });
     let copy = header.nextElementSibling?.matches('.page-managed-copy') ? header.nextElementSibling : null;
     if (data.body) {
       if (!copy) {

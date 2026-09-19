@@ -341,7 +341,8 @@ const COLLECTIONS = {
       { name: 'title', label: 'Page title', type: 'text', required: true },
       { name: 'subtitle', label: 'Page subtitle', type: 'textarea', rows: 3 },
       { name: 'body', label: 'Page content', type: 'textarea', rows: 8 },
-      { name: 'heroImage', label: 'Hero background image', type: 'image' }
+      { name: 'heroImage', label: 'Hero background image', type: 'image' },
+      { name: 'contentOverrides', label: 'Full page content overrides', type: 'json', rows: 10 }
     ]
   },
   announcements: {
@@ -820,9 +821,72 @@ async function viewPageEditors(main) {
         <p>${esc(title)}</p>
         <small>${item?.body ? 'Content ready to edit' : 'Add page content, subtitle and hero settings'}</small>
       </div>
-      <button class="btn pri" type="button" data-act="page-edit" data-slug="${esc(slug)}">${icon('edit', 16)}<span>Edit page</span></button>
+      <button class="btn pri" type="button" data-act="page-edit-content" data-slug="${esc(slug)}">${icon('edit', 16)}<span>Edit all page content</span></button>
     </article>`;
   }).join('');
+}
+
+let fullPageEditor = null;
+function pageEditorSelector(element) {
+  if (element.id) return '#' + CSS.escape(element.id);
+  const parts = [];
+  let current = element;
+  while (current && current.nodeType === 1 && current.tagName.toLowerCase() !== 'main') {
+    let part = current.tagName.toLowerCase();
+    if (current.classList.length) part += '.' + [...current.classList].slice(0, 2).map(name => CSS.escape(name)).join('.');
+    const siblings = current.parentElement ? [...current.parentElement.children].filter(child => child.tagName === current.tagName) : [];
+    if (siblings.length > 1) part += `:nth-of-type(${siblings.indexOf(current) + 1})`;
+    parts.unshift(part);
+    current = current.parentElement;
+  }
+  return 'main ' + parts.join(' > ');
+}
+function collectPageEditorFields(document) {
+  const fields = [];
+  document.querySelectorAll('main h1, main h2, main h3, main h4, main p, main a, main button, main li, main label, main img').forEach((element) => {
+    if (element.closest('script,style,noscript')) return;
+    const selector = pageEditorSelector(element);
+    if (!selector || fields.some(field => field.selector === selector)) return;
+    const isImage = element.tagName.toLowerCase() === 'img';
+    const text = isImage ? '' : element.textContent.trim().replace(/\s+/g, ' ');
+    if (!isImage && !text) return;
+    fields.push({ selector, label: text.slice(0, 90) || 'Image', type: isImage ? 'src' : 'text', value: isImage ? element.getAttribute('src') || '' : text, href: element.tagName.toLowerCase() === 'a' ? element.getAttribute('href') || '' : '' });
+  });
+  return fields;
+}
+async function openFullPageEditor(slug) {
+  const page = (cache.pages || []).find(item => item.slug === slug);
+  if (!page) return toast('This page has not been configured in Supabase yet.', 'bad');
+  try {
+    const response = await fetch('../' + slug + '.html', { cache: 'no-store' });
+    if (!response.ok) throw new Error('Could not load the page template.');
+    const html = await response.text();
+    const parsed = new DOMParser().parseFromString(html, 'text/html');
+    const fields = collectPageEditorFields(parsed);
+    const overrides = page.contentOverrides || {};
+    fullPageEditor = { page, fields, overrides };
+    const dlg = $('#formDlg');
+    dlg.innerHTML = `<form id="pageContentForm" autocomplete="off"><div class="dh"><h2>Edit ${esc(PAGE_EDITOR_PAGES.find(item => item[0] === slug)?.[1] || slug)}</h2><button type="button" class="icon" data-act="closeform" aria-label="Close">${icon('x', 22)}</button></div><div class="db page-content-fields">${fields.map((field, index) => { const current = overrides[field.selector] || {}; const value = current.value ?? field.value; const link = field.type === 'text' && field.href ? `<input type="url" value="${esc(current.href ?? field.href)}" data-page-href="${index}" placeholder="Link URL (optional)">` : ''; return `<div class="fld"><label class="l" for="page_content_${index}">${esc(field.label)}</label>${field.type === 'src' ? `<input id="page_content_${index}" type="text" value="${esc(value)}" data-page-value="${index}"><p class="hint">Image source URL or path</p>` : `<textarea id="page_content_${index}" rows="3" data-page-value="${index}">${esc(value)}</textarea>${link}`}</div>`; }).join('')}</div><div class="df"><p class="err" id="formErr" role="alert"></p><div class="sp"></div><button class="btn" type="button" data-act="closeform">Cancel</button><button class="btn pri" type="submit">Save page content</button></div></form>`;
+    dlg.showModal();
+  } catch (error) { toast(error.message || 'Could not open page content editor.', 'bad'); }
+}
+async function saveFullPageEditor() {
+  if (!fullPageEditor) return;
+  const form = $('#pageContentForm'), err = $('#formErr'), button = $('button[type=submit]', form);
+  button.disabled = true; button.textContent = 'Saving...'; err.textContent = '';
+  const overrides = {};
+  fullPageEditor.fields.forEach((field, index) => {
+    const value = form.querySelector(`[data-page-value="${index}"]`)?.value ?? '';
+    const href = form.querySelector(`[data-page-href="${index}"]`)?.value;
+    overrides[field.selector] = { value: value.trim(), ...(href != null ? { href: href.trim() } : {}), type: field.type };
+  });
+  try {
+    await Store.save('pages', { ...fullPageEditor.page, contentOverrides: overrides, updatedAt: new Date().toISOString() });
+    const cached = cache.pages.find(item => item.id === fullPageEditor.page.id);
+    if (cached) cached.contentOverrides = overrides;
+    $('#formDlg').close();
+    toast('Page content saved. Publish the page to make it live.');
+  } catch (error) { err.textContent = error.message || 'Could not save page content.'; button.disabled = false; button.textContent = 'Save page content'; }
 }
 
 async function viewCollection(main, key) {
@@ -1250,6 +1314,7 @@ function fieldHTML(f, v, isEdit) {
   const lab = `<label class="l" for="${id}">${esc(f.label)}${f.required ? ' <i aria-hidden="true">*</i>' : ''}</label>`;
   const req = f.required ? 'required' : '';
   switch (f.type) {
+    case 'json': return `<div class="${cls}"><label class="l" for="${id}">${esc(f.label)}</label><textarea id="${id}" name="${f.name}" rows="${f.rows || 8}">${esc(typeof v === 'string' ? v : JSON.stringify(v || {}, null, 2))}</textarea><p class="hint">This stores the editable text, links and images from the page.</p></div>`;
     case 'textarea': return `<div class="${cls}">${lab}<textarea id="${id}" name="${f.name}" rows="${f.rows || 5}" ${req}>${esc(v)}</textarea></div>`;
     case 'select': return `<div class="${cls}">${lab}<select id="${id}" name="${f.name}">${f.options.map(o => `<option${o === v ? ' selected' : ''}>${esc(o)}</option>`).join('')}</select></div>`;
     case 'checkbox': return `<div class="${cls}"><label class="switch"><input type="checkbox" name="${f.name}"${v ? ' checked' : ''}><span></span>${esc(f.label)}</label></div>`;
@@ -1332,7 +1397,10 @@ document.addEventListener('change', async e => {
     $('#formErr').textContent = '';
   } catch (err) { $('#formErr').textContent = 'That file could not be read as an image. Try a JPG or PNG.'; }
 });
-document.addEventListener('submit', e => { if (e.target.id === 'form') { e.preventDefault(); saveForm(); } });
+document.addEventListener('submit', e => {
+  if (e.target.id === 'form') { e.preventDefault(); saveForm(); }
+  if (e.target.id === 'pageContentForm') { e.preventDefault(); saveFullPageEditor(); }
+});
 
 async function saveForm() {
   const { key, id, item } = editing, col = COLLECTIONS[key], form = $('#form'), err = $('#formErr');
@@ -1351,7 +1419,11 @@ async function saveForm() {
   for (const f of col.fields) {
     if (f.type === 'image' || f.type === 'file' || f.name === 'sendPush') continue;
     const el = form.elements[f.name];
-    data[f.name] = f.type === 'checkbox' ? !!el.checked : (el ? (el.value || '').trim() : '');
+    if (f.type === 'checkbox') data[f.name] = !!el.checked;
+    else if (f.type === 'json') {
+      try { data[f.name] = JSON.parse(el?.value || '{}'); }
+      catch (_) { err.textContent = `${f.label} must be valid JSON.`; btn.disabled = false; btn.textContent = label; return; }
+    } else data[f.name] = el ? (el.value || '').trim() : '';
   }
   if (!col.noPublish) data.published = form.elements.published.checked;
   const btn = $('button[type=submit]', form), label = btn.textContent;
@@ -1484,6 +1556,7 @@ document.addEventListener('click', e => {
       else toast('This page has not been configured in Supabase yet.', 'bad');
       break;
     }
+    case 'page-edit-content': openFullPageEditor(d.slug); break;
     case 'del': askDelete(route, d.id); break;
     case 'toggle': togglePub(route, d.id); break;
     case 'chip': ui.f = d.v; drawList(route); break;

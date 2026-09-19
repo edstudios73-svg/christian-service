@@ -70,6 +70,7 @@ create table if not exists public.pages (
   subtitle text,
   body text,
   hero_image text,
+  content_overrides jsonb not null default '{}'::jsonb,
   published boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()

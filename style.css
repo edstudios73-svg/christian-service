@@ -651,6 +651,11 @@ main { position: relative; z-index: 1; }
     padding-top: 84px;
   }
 
+  .page-header {
+    height: 420px;
+    max-height: 420px;
+  }
+
   .nav,
   .nav__logo,
   .nav__logo-mark,

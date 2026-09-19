@@ -826,10 +826,16 @@ function drawList(key) {
 
 async function viewDashboard(main) {
   main.innerHTML = `<header class="ph"><div><h1>Welcome back</h1><p>Manage what people see on the Christian Service Church website.</p></div></header><div id="dash" class="loading">Loading…</div>`;
-  await Promise.all(KEYS.map(k => load(k)));
+  await Promise.all([ ...KEYS.map(k => load(k)), Store.getHomepage().then(value => { homepageEditor = value; }).catch(() => {}) ]);
   const dash = $('#dash');
   if (!dash || route !== 'dashboard') return;
-  const ledger = KEYS.map(k => {
+  const homepageRow = `<div class="lrow">
+      <div class="ic">${icon('home')}</div>
+      <div><a class="nm" href="#/homepage">Homepage Editor</a><small>Edit hero, scripture, service times, images and footer</small></div>
+      <div class="num" style="font-size:16px">${homepageEditor.published ? 'Published' : 'Ready'}</div>
+      <a class="btn sm" href="#/homepage">Edit</a>
+    </div>`;
+  const ledger = homepageRow + KEYS.map(k => {
     const c = COLLECTIONS[k], list = cache[k] || [];
     const sub = c.statusField ? `${list.filter(i => (i[c.statusField] || 'New') === 'New').length} new` : `${list.filter(i => !i.published).length} in drafts`;
     return `<div class="lrow">
@@ -893,7 +899,17 @@ function refreshHomepagePreview() {
   const el = $('#home-preview'); if (el) el.innerHTML = homepagePreview();
   [['hero', 'home-hero-image-preview'], ['pastor', 'home-pastor-image-preview']].forEach(([section, id]) => { const preview = $('#' + id); if (preview) preview.innerHTML = homepageEditor.draft[section]?.image ? `<img src="${esc(homepageEditor.draft[section].image)}" alt="${section} preview">` : '<span>No image selected</span>'; });
 }
-function setHomeValue(path, value) { const parts = path.split('.'), section = parts.shift(); let target = homepageEditor.draft[section]; if (!target) target = homepageEditor.draft[section] = {}; parts.slice(0, -1).forEach(key => { target = target[key] || (Number.isInteger(+parts[parts.indexOf(key) + 1]) ? [] : {}); }); const field = parts[parts.length - 1]; target[field] = value; }
+function setHomeValue(path, value) {
+  const parts = path.split('.'), section = parts.shift();
+  if (!homepageEditor.draft[section]) homepageEditor.draft[section] = {};
+  let target = homepageEditor.draft[section];
+  parts.slice(0, -1).forEach((key, index) => {
+    const nextKey = parts[index + 1];
+    if (target[key] == null) target[key] = /^\d+$/.test(nextKey) ? [] : {};
+    target = target[key];
+  });
+  target[parts[parts.length - 1]] = value;
+}
 async function saveHomepageEditor(publish) {
   try {
     const content = cloneHome(homepageEditor.draft);

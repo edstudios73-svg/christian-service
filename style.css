@@ -651,40 +651,6 @@ main { position: relative; z-index: 1; }
     padding-top: 84px;
   }
 
-  .page-header {
-    min-height: 0;
-    width: min(calc(100% - 64px), 1180px);
-    height: 180px;
-    max-height: 180px;
-    margin-left: auto;
-    margin-right: auto;
-    background: transparent;
-  }
-
-  .page-header__bg,
-  .page-header__overlay {
-    display: none;
-  }
-
-  .page-header__content {
-    max-width: 900px;
-    padding-top: 32px;
-    padding-bottom: 32px;
-  }
-
-  .page-header__title {
-    color: var(--c-primary);
-  }
-
-  .page-header__sub,
-  .breadcrumb {
-    color: var(--c-text-muted);
-  }
-
-  .page-header__title {
-    text-shadow: none;
-  }
-
   .nav,
   .nav__logo,
   .nav__logo-mark,
@@ -1434,6 +1400,28 @@ main { position: relative; z-index: 1; }
   margin-bottom: var(--sp-3);
 }
 .breadcrumb a { color: var(--c-accent-light); }
+
+/* Desktop inner pages use a compact text banner; the homepage .hero is unchanged. */
+@media (min-width: 1024px) {
+  .page-header {
+    width: min(calc(100% - 64px), 1180px);
+    height: 190px;
+    max-height: 190px;
+    margin-left: auto;
+    margin-right: auto;
+    background: transparent;
+  }
+  .page-header__bg,
+  .page-header__overlay { display: none; }
+  .page-header__content {
+    max-width: 760px;
+    padding-top: 18px;
+    padding-bottom: 18px;
+  }
+  .page-header__title { color: var(--c-primary); text-shadow: none; }
+  .page-header__sub,
+  .breadcrumb { color: var(--c-text-muted); }
+}
 
 /* ---------- Cards ---------- */
 .card {

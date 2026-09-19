@@ -2687,6 +2687,28 @@ main { position: relative; z-index: 1; }
 .footer__legal a { color: var(--c-accent-light); }
 .footer__legal a:hover { color: #fff; }
 
+@media (min-width: 1024px) {
+  .footer {
+    padding: 28px 0 24px;
+  }
+  .footer__brand,
+  .footer__about,
+  .footer__block,
+  .footer__bottom > p,
+  .footer__top--single .footer__col-title {
+    display: none;
+  }
+  .footer__top--single {
+    padding-bottom: 22px;
+  }
+  .footer__social {
+    margin-bottom: 0;
+  }
+  .footer__bottom {
+    padding-top: 18px;
+  }
+}
+
 /* ---------- Quick link tiles ---------- */
 .quick-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--sp-4); }
 .feature-grid {

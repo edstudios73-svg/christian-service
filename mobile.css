@@ -627,10 +627,29 @@ img, video, iframe { max-width: 100%; }
 
 @media (max-width: 767px) {
   .footer {
-    padding: var(--sp-3) 0 calc(76px + var(--safe-bottom));
+    padding: var(--sp-3) 0 calc(var(--sp-3) + var(--safe-bottom));
   }
 
-  .footer > .container > :not(.footer__top--single) {
+  .footer > .container > :not(.footer__brand):not(.footer__top--single):not(.footer__bottom) {
+    display: none;
+  }
+
+  .footer__brand {
+    gap: var(--sp-2);
+    margin-bottom: var(--sp-3);
+  }
+
+  .footer__brand img {
+    width: 36px;
+    height: 36px;
+  }
+
+  .footer__brand-text {
+    font-size: var(--fs-sm);
+  }
+
+  .footer__brand-text small,
+  .footer__bottom > p {
     display: none;
   }
 
@@ -647,14 +666,23 @@ img, video, iframe { max-width: 100%; }
 
   .footer__social {
     width: 100%;
-    margin: 0;
+    margin: 0 0 var(--sp-3);
     gap: var(--sp-2);
   }
 
   .footer__social .social-icon {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     color: #fff;
+  }
+
+  .footer__bottom {
+    padding-top: 0;
+    gap: 0;
+  }
+
+  .footer__legal {
+    font-size: var(--fs-xxs);
   }
 
   .footer__social .social-icon--facebook { background: #1877f2; }

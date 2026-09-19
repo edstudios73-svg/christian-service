@@ -1,4 +1,4 @@
-﻿# Christian Service Church — Website SEO & GEO Handover
+# Christian Service Church — Website SEO & GEO Handover
 
 Prepared 19 September 2026. Read this once before you put the site live.
 
@@ -10,7 +10,7 @@ These are the only places where I could not be 100% sure. Fix them and the site 
 
 ### a) The service times
 
-Your own photo `gallery/building.jpg` is a picture of the church signboard. The times on the
+The public search and social image is the church logo at `assets/church-logo.png`. The times on the
 signboard did **not** match the times the website was showing. I used the **signboard** times,
 because a signboard in front of the church is more likely to be correct than a website.
 

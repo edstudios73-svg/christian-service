@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Navigation � sticky transparent-to-solid, hamburger, full-screen menu
+   Navigation sticky transparent-to-solid, hamburger, full-screen menu
    ========================================================================== */
 (function () {
   'use strict';
@@ -199,7 +199,7 @@
       </div>
       <div class="mobile-menu__verse">
         "For where two or three gather in my name, there am I with them."
-        <br><strong>� Matthew 18:20</strong>
+        <br><strong>Matthew 18:20</strong>
       </div>
     `;
     return menu;

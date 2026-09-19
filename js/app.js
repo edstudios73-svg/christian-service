@@ -1,5 +1,5 @@
 /* ==========================================================================
-   App — shared footer, forms (prayer, contact, newsletter), countdown,
+   App shared footer, forms (prayer, contact, newsletter), countdown,
    giving amount selector, chip selectors, accordions.
    ========================================================================== */
 (function () {

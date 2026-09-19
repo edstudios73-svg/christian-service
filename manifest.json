@@ -16,16 +16,16 @@
   ],
   "screenshots": [
     {
-      "src": "/gallery/building.jpg",
-      "sizes": "1280x720",
-      "type": "image/jpeg",
+      "src": "/assets/church-logo.png",
+      "sizes": "828x828",
+      "type": "image/png",
       "form_factor": "wide",
       "label": "Christian Service Church homepage"
     },
     {
-      "src": "/gallery/building.jpg",
-      "sizes": "750x1334",
-      "type": "image/jpeg",
+      "src": "/assets/church-logo.png",
+      "sizes": "828x828",
+      "type": "image/png",
       "form_factor": "narrow",
       "label": "CSC app on mobile"
     }

@@ -207,6 +207,8 @@
 
   function initInstallPrompt() {
     let installEvent = null;
+    let showTimer = null;
+    const INSTALL_DELAY_MS = 60000;
     const installed = () => window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
     const prompt = document.createElement('aside');
     prompt.className = 'install-prompt';
@@ -230,6 +232,14 @@
       try { sessionStorage.setItem('csc-install-dismissed', '1'); } catch (_) {}
     };
 
+    const scheduleShow = () => {
+      if (showTimer || installed()) return;
+      showTimer = window.setTimeout(() => {
+        showTimer = null;
+        show();
+      }, INSTALL_DELAY_MS);
+    };
+
     prompt.querySelector('.install-prompt__close').addEventListener('click', close);
     prompt.querySelector('.install-prompt__install').addEventListener('click', async () => {
       if (!installEvent) return close();
@@ -242,12 +252,15 @@
     window.addEventListener('beforeinstallprompt', (event) => {
       event.preventDefault();
       installEvent = event;
-      show();
+      scheduleShow();
     });
-    window.addEventListener('appinstalled', () => { installEvent = null; close(); });
-    setTimeout(() => {
-      if (!installed()) show();
-    }, 350);
+    window.addEventListener('appinstalled', () => {
+      installEvent = null;
+      if (showTimer) window.clearTimeout(showTimer);
+      showTimer = null;
+      close();
+    });
+    scheduleShow();
   }
 
   function registerApp() {

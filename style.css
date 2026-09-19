@@ -651,39 +651,31 @@ main { position: relative; z-index: 1; }
     padding-top: 84px;
   }
 
-  .hero,
   .page-header {
     min-height: 0;
-    height: auto;
-    max-height: none;
+    width: min(calc(100% - 64px), 1280px);
+    height: 250px;
+    max-height: 250px;
+    margin-left: auto;
+    margin-right: auto;
     background: transparent;
   }
 
-  .hero::before,
-  .hero__bg,
-  .hero__overlay,
-  .hero__glow,
-  .particles,
   .page-header__bg,
   .page-header__overlay {
     display: none;
   }
 
-  .hero__content,
   .page-header__content {
-    max-width: 1100px;
-    padding-top: 42px;
-    padding-bottom: 42px;
+    max-width: 900px;
+    padding-top: 32px;
+    padding-bottom: 32px;
   }
 
-  .hero__welcome,
-  .hero__tagline,
-  .hero__title,
   .page-header__title {
     color: var(--c-primary);
   }
 
-  .hero__desc,
   .page-header__sub,
   .breadcrumb {
     color: var(--c-text-muted);

@@ -535,6 +535,13 @@ const HOMEPAGE_DEFAULTS = {
   footer: { text: 'Jungle Avenue Road, East Legon, Accra, Ghana. Call 0551172156 or email info@christianservicechurch.org.', service: 'Sunday worship: 9:00 AM to 12:00 noon.' }
 };
 const cloneHome = value => JSON.parse(JSON.stringify(value));
+function mergeHome(base, value) {
+  if (Array.isArray(base)) return Array.isArray(value) ? value : cloneHome(base);
+  if (!base || typeof base !== 'object') return value ?? base;
+  const result = { ...base };
+  Object.keys(value || {}).forEach((key) => { result[key] = base[key] && typeof base[key] === 'object' && !Array.isArray(base[key]) ? mergeHome(base[key], value[key]) : (value[key] ?? base[key]); });
+  return result;
+}
 const sessionExpired = ex => !!ex && (/jwt expired|token is expired|refresh token/i.test(ex.message || '') || ex.code === 'PGRST301' || ex.status === 401);
 const Store = {
   mode: 'demo', sb: null, notice: '',
@@ -613,11 +620,11 @@ const Store = {
       const raw = lsGet(LS + 'homepage');
       if (!raw) return { id: 'home', draft: cloneHome(HOMEPAGE_DEFAULTS), published: null };
       const saved = JSON.parse(raw);
-      return { id: 'home', draft: saved.draft || cloneHome(HOMEPAGE_DEFAULTS), published: saved.published || null };
+      return { id: 'home', draft: mergeHome(HOMEPAGE_DEFAULTS, saved.draft), published: saved.published ? mergeHome(HOMEPAGE_DEFAULTS, saved.published) : null };
     }
     const { data, error } = await this.sb.from('homepage_content').select('*').eq('id', 'home').maybeSingle();
     if (error) throw error;
-    return { id: 'home', draft: data?.draft_content && Object.keys(data.draft_content).length ? data.draft_content : cloneHome(HOMEPAGE_DEFAULTS), published: data?.published_content && Object.keys(data.published_content).length ? data.published_content : null, publishedUpdatedAt: data?.published_updated_at || null };
+    return { id: 'home', draft: mergeHome(HOMEPAGE_DEFAULTS, data?.draft_content), published: data?.published_content && Object.keys(data.published_content).length ? mergeHome(HOMEPAGE_DEFAULTS, data.published_content) : null, publishedUpdatedAt: data?.published_updated_at || null };
   },
   async saveHomepage(content, publish) {
     const now = new Date().toISOString();

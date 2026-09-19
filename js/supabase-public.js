@@ -498,6 +498,15 @@
     } else if (copy) {
       copy.remove();
     }
+    const overrides = data.content_overrides || {};
+    Object.keys(overrides).forEach((selector) => {
+      const element = document.querySelector(selector);
+      const override = overrides[selector];
+      if (!element || !override) return;
+      if (override.type === 'src') element.setAttribute('src', override.value || '');
+      else if (override.value != null) element.textContent = override.value;
+      if (element.matches('a') && override.href != null) element.setAttribute('href', override.href);
+    });
     revealPageSettings();
   }
 

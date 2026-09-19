@@ -497,6 +497,7 @@ function toRow(key, it) {
     const v = it[f.name];
     r[snake(f.name)] = (f.type === 'date' || f.type === 'time') ? (v || null) : f.type === 'checkbox' ? !!v : (v ?? '');
   });
+  if (key === 'pages') r.content_overrides = it.contentOverrides || {};
   if (!col.noPublish) r.published = !!it.published;
   return r;
 }
@@ -513,6 +514,7 @@ function fromRow(key, row) {
     if (f.type === 'time' && v) v = String(v).slice(0, 5);
     it[f.name] = v;
   });
+  if (key === 'pages') it.contentOverrides = row.content_overrides || {};
   if (!col.noPublish) it.published = !!row.published;
   return it;
 }

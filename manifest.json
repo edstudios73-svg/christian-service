@@ -11,8 +11,7 @@
   "background_color": "#091b3f",
   "theme_color": "#1B3A8B",
   "icons": [
-    { "src": "/assets/church-logo.png", "sizes": "828x828", "type": "image/png", "purpose": "any maskable" },
-    { "src": "/favicon.ico", "sizes": "any", "type": "image/x-icon", "purpose": "any" }
+    { "src": "/assets/church-logo.png", "sizes": "828x828", "type": "image/png", "purpose": "any maskable" }
   ],
   "screenshots": [
     {

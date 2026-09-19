@@ -1,4 +1,4 @@
-const CACHE_NAME = 'csc-app-shell-v8';
+const CACHE_NAME = 'csc-app-shell-v9';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(self.skipWaiting());
@@ -21,8 +21,8 @@ self.addEventListener('push', (event) => {
   event.waitUntil((async () => {
     await self.registration.showNotification('Christian Service Church', {
       body: `${title}\n${body}`,
-      icon: '/favicon.ico',
-      badge: '/favicon.ico',
+      icon: '/assets/church-logo.png',
+      badge: '/assets/church-logo.png',
       tag: `announcement-${payload.announcementId || Date.now()}`,
       data: { url, announcementId: payload.announcementId }
     });

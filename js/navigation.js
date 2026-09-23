@@ -9,7 +9,7 @@
   window.CSC_GA_MEASUREMENT_ID = window.CSC_GA_MEASUREMENT_ID || '';
 
   const NAV_LINKS = [
-    { href: 'index.html', label: 'Home', icon: 'home' },
+    { href: '/', label: 'Home', icon: 'home' },
     { href: 'ministries.html', label: 'Ministries', icon: 'heart' },
     { href: 'gallery.html', label: 'Gallery', icon: 'image' },
     { href: 'members.html', label: 'Our Leaders', icon: 'user' },
@@ -42,13 +42,13 @@
   }
 
   function getCurrentPage() {
-    const path = window.location.pathname.split('/').pop() || 'index.html';
-    return path === '' ? 'index.html' : path;
+    const path = window.location.pathname.split('/').pop() || '/';
+    return path === '' || path === 'index.html' ? '/' : path;
   }
 
   function buildDesktopHeader(currentPage) {
     const desktopPages = [
-      { href: 'index.html', label: 'Home' },
+      { href: '/', label: 'Home' },
       { href: 'ministries.html', label: 'Ministries' },
       { href: 'gallery.html', label: 'Gallery' },
       { href: 'members.html', label: 'Leaders' },
@@ -105,7 +105,7 @@
     nav.setAttribute('aria-label', 'Main navigation');
     nav.innerHTML = `
       <div class="nav__inner">
-        <a href="index.html" class="nav__logo" aria-label="Christian Service Church home">
+        <a href="/" class="nav__logo" aria-label="Christian Service Church home">
           <span class="nav__logo-mark">
             <img src="assets/church-logo.png" alt="Christian Service Church logo" loading="eager">
           </span>
@@ -116,7 +116,7 @@
         </a>
         <div class="nav__actions">
           <div class="nav__links" aria-label="Quick links">
-            <a href="index.html" class="nav__link is-active">Home</a>
+            <a href="/" class="nav__link is-active">Home</a>
             <a href="contact.html" class="nav__link">Visit</a>
             <a href="giving.html" class="nav__link">Give</a>
             <a href="sermons.html" class="nav__link">Sermons</a>
@@ -141,7 +141,7 @@
     bar.className = 'mobile-quickbar';
     bar.innerHTML = `
       <div class="mobile-quickbar__inner">
-        <a href="index.html" class="mobile-quickbar__link${current === 'index.html' ? ' is-active' : ''}">
+        <a href="/" class="mobile-quickbar__link${current === '/' ? ' is-active' : ''}">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           <span>Home</span>
         </a>

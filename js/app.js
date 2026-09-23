@@ -55,7 +55,7 @@
         <div class="footer__block">
           <h4 class="footer__col-title">Quick Links</h4>
           <ul class="footer__list footer__links-grid">
-            <li><a href="index.html">Home</a></li>
+            <li><a href="/">Home</a></li>
             <li><a href="about.html">About Us</a></li>
             <li><a href="pastor.html">Our Pastor</a></li>
             <li><a href="ministries.html">Ministries</a></li>

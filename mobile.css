@@ -150,7 +150,7 @@ img, video, iframe { max-width: 100%; }
     max-width: 32rem;
   }
   .hero__tagline {
-    font-size: var(--fs-sm);
+    font-size: var(--fs-base);
   }
 }
 

@@ -1466,6 +1466,13 @@ main { position: relative; z-index: 1; }
   color: #fff;
   transform: scale(1.08) rotate(-4deg);
 }
+.feature-card__image {
+  display: block;
+  width: calc(100% + (var(--sp-5) * 2));
+  height: 180px;
+  margin: calc(var(--sp-5) * -1) calc(var(--sp-5) * -1) var(--sp-4);
+  object-fit: cover;
+}
 .feature-card__title {
   font-family: var(--font-display);
   font-weight: 700;

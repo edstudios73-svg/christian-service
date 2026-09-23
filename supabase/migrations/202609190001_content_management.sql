@@ -1,6 +1,7 @@
 alter table public.announcements add column if not exists sender_name text;
 alter table public.announcements add column if not exists sender_role text;
 alter table public.sermons add column if not exists video_file text;
+alter table public.sermons add column if not exists download_url text;
 
 create table if not exists public.ministries (
   id text primary key default gen_random_uuid()::text,

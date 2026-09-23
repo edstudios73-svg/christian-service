@@ -264,7 +264,16 @@
   }
 
   function registerApp() {
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js').catch(() => {});
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (window.__CSC_SW_REFRESHED) return;
+        window.__CSC_SW_REFRESHED = true;
+        window.location.reload();
+      });
+      navigator.serviceWorker.register('service-worker.js?v=20260923', { updateViaCache: 'none' })
+        .then((registration) => registration.update())
+        .catch(() => {});
+    }
 
     const gaScript = document.createElement('script');
     gaScript.src = 'js/ga4.js';

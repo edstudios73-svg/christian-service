@@ -2656,6 +2656,10 @@ main { position: relative; z-index: 1; }
 }
 .home-main .beliefs-section {
   padding-top: var(--sp-4);
+  padding-bottom: var(--sp-4);
+}
+.home-main .pastor-feature {
+  padding-top: var(--sp-4);
 }
 .home-main .service-times-after-pastor {
   padding-top: var(--sp-4);

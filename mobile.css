@@ -588,6 +588,16 @@ img, video, iframe { max-width: 100%; }
   .home-main .pastor-feature {
     padding-top: var(--sp-3);
   }
+  .featured-sermon-section {
+    padding-top: var(--sp-3);
+    padding-bottom: var(--sp-3);
+  }
+  .featured-sermon-card__body {
+    padding: var(--sp-4);
+  }
+  .featured-sermon-card__body .btn {
+    max-width: none;
+  }
   .home-main .service-times-after-pastor {
     padding-top: var(--sp-3);
   }

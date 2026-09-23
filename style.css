@@ -2651,6 +2651,43 @@ main { position: relative; z-index: 1; }
 .home-main .pastor-feature {
   padding-bottom: var(--sp-4);
 }
+.featured-sermon-section {
+  padding-top: var(--sp-4);
+  padding-bottom: var(--sp-4);
+  background: var(--c-bg-soft);
+}
+.featured-sermon-card {
+  overflow: hidden;
+  background: var(--c-secondary);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--r-xl);
+  box-shadow: var(--sh-lg);
+}
+.featured-sermon-card__media {
+  aspect-ratio: 16 / 9;
+  background: var(--c-secondary);
+}
+.featured-sermon-card__media video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.featured-sermon-card__body {
+  padding: var(--sp-5);
+  color: #fff;
+}
+.featured-sermon-card__body .h2 {
+  margin-top: var(--sp-2);
+  color: #fff;
+}
+.featured-sermon-card__body p {
+  margin: var(--sp-2) 0 var(--sp-4);
+  color: rgba(255,255,255,0.75);
+}
+.featured-sermon-card__body .btn {
+  max-width: 340px;
+}
 .home-main .key-information-section {
   padding-bottom: var(--sp-4);
 }

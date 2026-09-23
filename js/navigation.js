@@ -49,30 +49,17 @@
   function buildDesktopHeader(currentPage) {
     const desktopPages = [
       { href: 'index.html', label: 'Home' },
-      { href: 'about.html', label: 'About' },
-      { href: 'sermons.html', label: 'Sermons' },
       { href: 'ministries.html', label: 'Ministries' },
-      { href: 'gallery.html', label: 'Gallery' }
+      { href: 'gallery.html', label: 'Gallery' },
+      { href: 'members.html', label: 'Leaders' },
+      { href: 'announcements.html', label: 'News' },
+      { href: 'contact.html', label: 'Visit' },
+      { href: 'testimonies.html', label: 'Testimonies' }
     ];
     const desktopLinks = desktopPages.map((link) => {
       const active = currentPage === link.href ? ' is-active' : '';
       return `<a href="${link.href}" class="csc-dh__link${active}">${link.label}</a>`;
     }).join('');
-    const explorePages = [
-      { href: 'contact.html', label: 'Plan Your Visit' },
-      { href: 'members.html', label: 'Our Leaders' },
-      { href: 'events.html', label: 'Events' },
-      { href: 'giving.html', label: 'Giving' },
-      { href: 'prayer.html', label: 'Prayer' },
-      { href: 'testimonies.html', label: 'Testimonies' },
-      { href: 'announcements.html', label: 'Announcements' }
-    ];
-    const exploreLinks = explorePages.map((link) => {
-      const active = currentPage === link.href ? ' is-active' : '';
-      return `<a href="${link.href}" class="csc-dh__menu-link${active}">${link.label}</a>`;
-    }).join('');
-    const exploreActive = explorePages.some((link) => link.href === currentPage) ? ' is-active' : '';
-
     const header = document.createElement('header');
     header.className = 'csc-dh';
     header.id = 'cscDesktopHeader';
@@ -93,18 +80,14 @@
 
         <nav class="csc-dh__nav" aria-label="Primary navigation">
           ${desktopLinks}
-          <div class="csc-dh__menu">
-            <button class="csc-dh__menu-toggle${exploreActive}" type="button" aria-haspopup="true">Explore <span aria-hidden="true">+</span></button>
-            <div class="csc-dh__menu-panel">${exploreLinks}</div>
-          </div>
         </nav>
 
         <div class="csc-dh__actions" aria-label="Quick actions">
           <a href="announcements.html" class="csc-dh__bell" aria-label="Announcements" title="Announcements">
-              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="m4 14 10-8 6-2-2 6-8 8-6-1z"/>
-                <path d="m8 17 3 3-2 1-3-3"/>
-                <path d="m19 5 2-2M20 9h3M18 2l1-2"/>
+              <svg viewBox="0 0 32 24" width="26" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 10 18 4v16L3 14z" fill="currentColor" stroke="none"/>
+                <path d="M8 15v5l3 2 2-1-2-6M18 7l4-2v14l-4-2"/>
+                <path d="m25 7 3-2M25 12h5M25 17l3 2"/>
               </svg>
             <span class="csc-dh__badge nav__announcement-count" aria-live="polite" aria-atomic="true" hidden>0</span>
           </a>
@@ -140,7 +123,7 @@
             <a href="testimonies.html" class="nav__link">Testimonies</a>
           </div>
           <a href="announcements.html" class="nav__icon-button nav__announcement-link${getCurrentPage() === 'announcements.html' ? ' is-active' : ''}" aria-label="Announcements" title="Announcements">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m4 14 10-8 6-2-2 6-8 8-6-1z"/><path d="m8 17 3 3-2 1-3-3"/><path d="m19 5 2-2M20 9h3M18 2l1-2"/></svg>
+            <svg viewBox="0 0 32 24" width="22" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 18 4v16L3 14z" fill="currentColor" stroke="none"/><path d="M8 15v5l3 2 2-1-2-6M18 7l4-2v14l-4-2"/><path d="m25 7 3-2M25 12h5M25 17l3 2"/></svg>
             <span class="nav__announcement-count" aria-live="polite" aria-atomic="true" hidden>0</span>
           </a>
           <a href="giving.html" class="nav__cta" data-nav-give>Give</a>

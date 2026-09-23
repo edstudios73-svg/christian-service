@@ -698,15 +698,15 @@ main { position: relative; z-index: 1; }
   .csc-dh__brand {
     display: flex;
     align-items: center;
-    gap: 18px;
+    gap: 10px;
     flex: none;
     min-width: 0;
     white-space: nowrap;
   }
 
   .csc-dh__logo {
-    width: 42px;
-    height: 42px;
+    width: 34px;
+    height: 34px;
     display: grid;
     place-items: center;
     border-radius: 12px;
@@ -726,7 +726,7 @@ main { position: relative; z-index: 1; }
 
   .csc-dh__divider {
     width: 1px;
-    height: 34px;
+    height: 26px;
     background: rgba(255,255,255,0.25);
     flex: none;
   }
@@ -742,7 +742,7 @@ main { position: relative; z-index: 1; }
 
   .csc-dh__name span {
     font-family: var(--font-display);
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 700;
     letter-spacing: -0.04em;
     color: #fff;
@@ -750,9 +750,9 @@ main { position: relative; z-index: 1; }
 
   .csc-dh__name small {
     display: block;
-    margin-top: 4px;
+    margin-top: 3px;
     font-family: var(--font-body);
-    font-size: 10px;
+    font-size: 8px;
     font-weight: 700;
     letter-spacing: 0.35em;
     color: rgba(255,255,255,0.88);
@@ -762,7 +762,7 @@ main { position: relative; z-index: 1; }
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: clamp(10px, 1.4vw, 20px);
+    gap: clamp(8px, 1vw, 14px);
     flex: 1 1 auto;
     min-width: 0;
   }
@@ -774,9 +774,9 @@ main { position: relative; z-index: 1; }
     justify-content: center;
     padding: 16px 0 13px;
     font-family: var(--font-body);
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
-    letter-spacing: 0.045em;
+    letter-spacing: 0.025em;
     text-transform: uppercase;
     color: rgba(255,255,255,0.96);
     transition: color 180ms ease;
@@ -894,7 +894,7 @@ main { position: relative; z-index: 1; }
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 12px;
+    gap: 8px;
     flex: none;
   }
 
@@ -903,26 +903,27 @@ main { position: relative; z-index: 1; }
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    border: 2px solid rgba(255,255,255,0.95);
+    width: 40px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.3);
     color: #fff;
-    background: rgba(255,255,255,0.05);
+    background: rgba(255,255,255,0.08);
     transition: transform 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
     flex: none;
   }
 
   .csc-dh__bell svg {
-    width: 19px;
-    height: 19px;
+    width: 26px;
+    height: 20px;
   }
 
   .csc-dh__bell:hover,
   .csc-dh__bell:focus-visible {
-    transform: translateY(-1px) rotate(-8deg);
-    background: rgba(255,255,255,0.12);
-    box-shadow: 0 0 0 4px rgba(255,255,255,0.06);
+    transform: translateY(-2px);
+    background: rgba(227,190,107,0.18);
+    border-color: rgba(227,190,107,0.8);
+    box-shadow: 0 8px 18px rgba(5,16,42,0.2);
   }
 
   .csc-dh__badge {
@@ -1016,19 +1017,19 @@ main { position: relative; z-index: 1; }
       gap: 14px;
     }
     .csc-dh__nav {
-      gap: 14px;
+      gap: 9px;
     }
     .csc-dh__link {
-      font-size: 11px;
-      letter-spacing: 0.025em;
+      font-size: 10px;
+      letter-spacing: 0.01em;
     }
     .csc-dh__menu-toggle { font-size: 12px; padding: 0 10px; }
     .csc-dh__name span {
-      font-size: 19px;
+      font-size: 16px;
     }
     .csc-dh__name small {
-      font-size: 10px;
-      letter-spacing: 0.2em;
+      font-size: 8px;
+      letter-spacing: 0.18em;
     }
     .csc-dh__give { min-width: 70px; padding: 0 14px; }
   }
@@ -2849,29 +2850,42 @@ main { position: relative; z-index: 1; }
   text-align: center;
 }
 .home-main .leaders-gallery-card {
+  position: relative;
   max-width: 760px;
+  aspect-ratio: 16 / 8;
   margin: var(--sp-5) auto 0;
   overflow: hidden;
-  background: var(--c-white);
+  background: var(--c-primary-dark);
   border: 1px solid var(--c-line);
   border-radius: var(--r-lg);
   box-shadow: var(--sh-md);
 }
 .leaders-gallery-card > img {
+  display: block;
   width: 100%;
-  aspect-ratio: 16 / 7;
+  height: 100%;
   object-fit: cover;
+  object-position: center center;
+  transition: transform .6s ease, filter .6s ease;
+}
+.leaders-gallery-card:hover > img {
+  transform: scale(1.035);
+  filter: saturate(1.08) contrast(1.04);
 }
 .leaders-gallery-card__body {
+  position: absolute;
+  inset: auto 0 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--sp-4);
-  padding: var(--sp-4);
+  padding: 5rem var(--sp-5) var(--sp-5);
+  background: linear-gradient(180deg, transparent, rgba(5, 16, 45, .78) 72%);
 }
 .leaders-gallery-card__body .btn {
   width: auto;
   min-width: 150px;
+  margin-left: auto;
 }
 .leaders-gallery-card .btn-gallery-white {
   background: #fff;

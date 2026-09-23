@@ -2637,7 +2637,11 @@ main { position: relative; z-index: 1; }
   padding-bottom: var(--sp-4);
 }
 .home-main .event-teaser {
+  padding-top: var(--sp-4);
   padding-bottom: var(--sp-5);
+}
+.home-main #location {
+  padding-bottom: var(--sp-4);
 }
 .home-main .final-cta {
   padding-top: var(--sp-3);

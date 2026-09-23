@@ -190,6 +190,36 @@ img, video, iframe { max-width: 100%; }
   }
   .feature-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sp-3);
+    align-items: stretch;
+  }
+  .feature-card {
+    padding: 0;
+    overflow: hidden;
+    border-radius: var(--r-lg);
+    background: #fff;
+    box-shadow: var(--sh-sm);
+    display: flex;
+    flex-direction: column;
+  }
+  .feature-card:active {
+    transform: translateY(-2px);
+  }
+  .feature-card__image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1.2;
+    margin: 0;
+    object-fit: cover;
+  }
+  .feature-card__title {
+    display: flex;
+    align-items: center;
+    min-height: 52px;
+    margin: 0;
+    padding: var(--sp-3) var(--sp-3.5);
+    font-size: var(--fs-sm);
+    line-height: 1.2;
   }
   .value-row {
     gap: var(--sp-3);

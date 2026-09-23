@@ -16,16 +16,37 @@
     { src: 'gallery/11.jpg',                  caption: 'Christian Service Church, House of Testimonies — Our Year of Building, Psalm 127:1' },
   ];
 
-  function initGallery() {
+  const highlightCandidates = Array.from({ length: 700 }, (_, index) => `assets/Highlights/831A${index + 2577}.jpg`)
+    .concat('assets/Highlights/831A3139-Edit-2.jpg');
+
+  function imageExists(src) {
+    return new Promise((resolve) => {
+      const image = new Image();
+      image.onload = () => resolve(src);
+      image.onerror = () => resolve(null);
+      image.src = src;
+    });
+  }
+
+  async function loadHighlightImages() {
+    const existing = await Promise.all(highlightCandidates.map(imageExists));
+    return existing.filter(Boolean).map((src) => ({
+      src,
+      caption: 'Christian Service Church highlight, House of Testimonies'
+    }));
+  }
+
+  async function initGallery() {
     const mount = document.querySelector('[data-gallery-grid]');
     if (!mount) return;
 
-    if (!galleryImages.length) {
+    const images = galleryImages.concat(await loadHighlightImages());
+    if (!images.length) {
       mount.innerHTML = '<div class="gallery-empty">No images are available in the gallery folder yet.</div>';
       return;
     }
 
-    mount.innerHTML = galleryImages.map((item) => `
+    mount.innerHTML = images.map((item) => `
       <article class="gallery-item" data-lightbox="${item.src}" data-caption="${item.caption}">
         <img src="${item.src}" alt="${item.caption}" loading="lazy">
         <div class="gallery-item__overlay">${item.caption}</div>

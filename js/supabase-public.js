@@ -505,6 +505,7 @@
     const content = data.published_content;
     const get = (path) => path.split('.').reduce((value, key) => value?.[key], content);
     document.querySelectorAll('[data-home]').forEach((element) => {
+      if (element.dataset.home.startsWith('explore.items.')) return;
       const value = get(element.dataset.home);
       if (value == null) return;
       element.textContent = String(value);
@@ -532,7 +533,19 @@
       if (link && content.social?.[network]) link.href = content.social[network];
     });
     const tiles = document.querySelectorAll('.quick-tile');
-    (content.explore?.items || []).forEach((item, index) => { if (tiles[index]?.querySelector('.quick-tile__title')) { tiles[index].href = item.url || tiles[index].href; } });
+    const exploreItems = [
+      { title: 'About Us', url: 'about.html' },
+      { title: 'Prayer', url: 'prayer.html' },
+      { title: 'Our Leaders', url: 'members.html' },
+      { title: 'Testimonies', url: 'testimonies.html' },
+      { title: 'Ministries', url: 'ministries.html' },
+      { title: 'Give', url: 'giving.html' }
+    ];
+    exploreItems.forEach((item, index) => {
+      const tile = tiles[index];
+      const title = tile?.querySelector('.quick-tile__title');
+      if (tile && title) { title.textContent = item.title; tile.href = item.url; }
+    });
     const beliefCards = document.querySelectorAll('.feature-card');
     (content.beliefsCards?.items || []).forEach((item, index) => { const card = beliefCards[index]; if (!card) return; const title = card.querySelector('.feature-card__title'), body = card.querySelector('.feature-card__desc'); if (title) title.textContent = item.title || ''; if (body) body.textContent = item.body || ''; });
     const faqItems = document.querySelectorAll('.faq-item');

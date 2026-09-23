@@ -541,6 +541,10 @@ img, video, iframe { max-width: 100%; }
   .home-main #location {
     padding-bottom: var(--sp-3);
   }
+  .home-main .explore-section {
+    padding-top: var(--sp-3);
+    padding-bottom: var(--sp-3);
+  }
   .home-main .final-cta {
     padding-top: var(--sp-2);
     padding-bottom: var(--sp-2);

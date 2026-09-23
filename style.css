@@ -2643,6 +2643,16 @@ main { position: relative; z-index: 1; }
 .home-main #location {
   padding-bottom: var(--sp-4);
 }
+.home-main .explore-section {
+  padding-top: var(--sp-4);
+  padding-bottom: var(--sp-4);
+}
+.explore-section .quick-tile {
+  padding: var(--sp-4);
+}
+.explore-section .quick-tile__icon {
+  margin-bottom: var(--sp-2);
+}
 .home-main .final-cta {
   padding-top: var(--sp-3);
   padding-bottom: var(--sp-3);

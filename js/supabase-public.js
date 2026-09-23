@@ -23,8 +23,8 @@
   const imageStyle = (image) => image ? ` style="background-image: linear-gradient(135deg, rgba(10,26,63,.35), rgba(27,58,139,.5)), url('${esc(image)}')"` : '';
   const revealPageSettings = () => document.querySelector('[data-page-key]')?.classList.add('page-settings-ready');
 
-  async function fetchPublished(sb, table, order = 'created_at') {
-    const { data, error } = await sb.from(table).select('*').eq('published', true).order(order, { ascending: false });
+  async function fetchPublished(sb, table, order = 'created_at', ascending = false) {
+    const { data, error } = await sb.from(table).select('*').eq('published', true).order(order, { ascending });
     if (error) throw error;
     return data || [];
   }
@@ -324,7 +324,7 @@
     const visibleItems = items.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
     mount.innerHTML = visibleItems.length ? visibleItems.map((item, index) => `
       <div class="member-card reveal-scale" data-delay="${(index % 3) + 1}">
-        <div class="member-card__image"${item.image ? imageStyle(item.image) : ''}></div>
+        <div class="member-card__image"${item.image ? ` style="background-image:url('${esc(item.image)}')"` : ''}></div>
         <div class="member-card__content">
           <h3 class="member-card__name">${esc(item.name || '')}</h3>
           <p class="member-card__role">${esc(item.role || '')}</p>
@@ -556,7 +556,7 @@
       if (document.querySelector('[data-supabase-sermons]')) renderSermons(await fetchPublished(sb, 'sermons', 'date'));
       if (document.querySelector('[data-gallery-grid]')) renderGallery(await fetchPublished(sb, 'gallery', 'date'));
       if (document.querySelector('[data-supabase-testimonies]')) renderTestimonies(await fetchPublished(sb, 'testimonies', 'date'));
-      if (document.querySelector('[data-supabase-leaders]')) renderLeaders(await fetchPublished(sb, 'leaders', 'created_at'));
+      if (document.querySelector('[data-supabase-leaders]')) renderLeaders(await fetchPublished(sb, 'leaders', 'created_at', true));
       if (document.querySelector('[data-supabase-ministries]')) renderMinistries(await fetchPublished(sb, 'ministries', 'created_at'));
       await initPrayerForm(sb);
         await initVisitForm(sb);
@@ -577,7 +577,7 @@
         .on('postgres_changes', { event: '*', schema: 'public', table: 'testimonies' }, async () => {
           if (document.querySelector('[data-supabase-testimonies]')) renderTestimonies(await fetchPublished(sb, 'testimonies', 'date'));
         })
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'leaders' }, async () => renderLeaders(await fetchPublished(sb, 'leaders', 'created_at')))
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'leaders' }, async () => renderLeaders(await fetchPublished(sb, 'leaders', 'created_at', true)))
         .on('postgres_changes', { event: '*', schema: 'public', table: 'ministries' }, async () => renderMinistries(await fetchPublished(sb, 'ministries', 'created_at')))
         .on('postgres_changes', { event: '*', schema: 'public', table: 'pages' }, async () => applyPageSettings(sb))
         .on('postgres_changes', { event: '*', schema: 'public', table: 'homepage_content' }, async () => applyHomepageContent(sb))

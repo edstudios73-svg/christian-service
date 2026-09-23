@@ -547,6 +547,12 @@ img, video, iframe { max-width: 100%; }
   .home-main .pastor-feature {
     padding-bottom: var(--sp-3);
   }
+  .home-main .key-information-section {
+    padding-bottom: var(--sp-3);
+  }
+  .home-main .beliefs-section {
+    padding-top: var(--sp-3);
+  }
   .home-main .service-times-after-pastor {
     padding-top: var(--sp-3);
   }

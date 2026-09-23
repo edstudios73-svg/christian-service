@@ -904,6 +904,7 @@ async function viewCollection(main, key) {
   main.innerHTML = `
     <header class="ph">
       <div><h1>${esc(col.label)}</h1><p>${esc(col.hint)}</p></div>
+      ${key === 'gallery' ? `<label class="btn pri">${icon('image', 18)}<span>Bulk upload 1000+ images</span><input class="vh" type="file" accept="image/*" multiple data-bulk-gallery></label>` : ''}
       <button class="btn pri" data-act="new" type="button">${icon('plus', 18)}<span>Add ${esc(col.singular)}</span></button>
     </header>
     <div class="tools">
@@ -1386,6 +1387,13 @@ function compress(file, max = 1000, q = 0.78) {
   });
 }
 document.addEventListener('change', async e => {
+  const bulkGallery = e.target.closest && e.target.closest('[data-bulk-gallery]');
+  if (bulkGallery) {
+    const files = [...bulkGallery.files];
+    bulkGallery.value = '';
+    if (files.length) bulkUploadGallery(files);
+    return;
+  }
   const homeFile = e.target.closest && e.target.closest('[data-home-file]');
   if (homeFile) {
     const file = homeFile.files?.[0];
@@ -1407,6 +1415,54 @@ document.addEventListener('change', async e => {
     $('#formErr').textContent = '';
   } catch (err) { $('#formErr').textContent = 'That file could not be read as an image. Try a JPG or PNG.'; }
 });
+
+async function bulkUploadGallery(files) {
+  if (Store.mode !== 'supabase') {
+    toast('Connect the admin to Supabase before bulk uploading gallery images.', 'bad');
+    return;
+  }
+  const uploadButton = document.querySelector('[data-bulk-gallery]')?.closest('label');
+  const originalLabel = uploadButton?.querySelector('span')?.textContent || 'Bulk upload 1000+ images';
+  const validFiles = files.filter(file => file.type.startsWith('image/'));
+  if (!validFiles.length) { toast('Choose image files to upload.', 'bad'); return; }
+  let completed = 0;
+  let failed = 0;
+  const saved = [];
+  if (uploadButton) uploadButton.classList.add('disabled');
+  const updateProgress = () => {
+    if (uploadButton?.querySelector('span')) uploadButton.querySelector('span').textContent = `Uploading ${completed}/${validFiles.length}`;
+  };
+  updateProgress();
+  try {
+    for (let start = 0; start < validFiles.length; start += 4) {
+      const batch = validFiles.slice(start, start + 4);
+      const results = await Promise.all(batch.map(async file => {
+        try {
+          const imageUrl = await Store.uploadImage(await compress(file, 1400, 0.78));
+          const now = new Date().toISOString();
+          const item = { id: uid(), image: imageUrl, caption: '', album: '', date: today(), published: true, createdAt: now, updatedAt: now };
+          await Store.save('gallery', item);
+          return item;
+        } catch (_) {
+          failed += 1;
+          return null;
+        } finally {
+          completed += 1;
+          updateProgress();
+        }
+      }));
+      saved.push(...results.filter(Boolean));
+    }
+    cache.gallery = [...(cache.gallery || []), ...saved];
+    setBadge('gallery');
+    drawList('gallery');
+    toast(`${saved.length} gallery image${saved.length === 1 ? '' : 's'} uploaded${failed ? `, ${failed} failed` : ''}`);
+  } finally {
+    if (uploadButton) uploadButton.classList.remove('disabled');
+    if (uploadButton?.querySelector('span')) uploadButton.querySelector('span').textContent = originalLabel;
+  }
+}
+
 document.addEventListener('submit', e => {
   if (e.target.id === 'form') { e.preventDefault(); saveForm(); }
   if (e.target.id === 'pageContentForm') { e.preventDefault(); saveFullPageEditor(); }

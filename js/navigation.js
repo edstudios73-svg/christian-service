@@ -13,8 +13,6 @@
     { href: 'ministries.html', label: 'Ministries', icon: 'heart' },
     { href: 'gallery.html', label: 'Gallery', icon: 'image' },
     { href: 'members.html', label: 'Our Leaders', icon: 'user' },
-    { href: 'announcements.html', label: 'Announcements', icon: 'megaphone' },
-    { href: 'contact.html', label: 'Visit', icon: 'phone' },
     { href: 'testimonies.html', label: 'Testimonies', icon: 'quote' },
   ];
 

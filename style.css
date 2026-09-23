@@ -2705,6 +2705,14 @@ main { position: relative; z-index: 1; }
 .footer__legal a { color: var(--c-accent-light); }
 .footer__legal a:hover { color: #fff; }
 
+.service-times--featured {
+  background: linear-gradient(180deg, var(--c-primary-50) 0%, var(--c-bg) 100%);
+}
+.service-times--featured .times-table {
+  border: 1px solid var(--c-line);
+  box-shadow: var(--sh-md);
+}
+
 @media (min-width: 1024px) {
   .footer {
     padding: 34px 0 26px;

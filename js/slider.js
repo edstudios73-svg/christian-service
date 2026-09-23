@@ -44,7 +44,7 @@
     function next() { goTo(index + 1); }
     function prev() { goTo(index - 1); }
 
-    function startAutoplay() { autoplayId = setInterval(next, AUTOPLAY_MS); }
+    function startAutoplay() { /* Manual controls remain available; autoplay is disabled. */ }
     function stopAutoplay() { if (autoplayId) clearInterval(autoplayId); }
     function restartAutoplay() { stopAutoplay(); startAutoplay(); }
 

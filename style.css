@@ -3244,3 +3244,10 @@ main { position: relative; z-index: 1; }
 /* Lazy load fade */
 img.lazy { opacity: 0; transition: opacity 0.4s; }
 img.lazy.loaded { opacity: 1; }
+
+/* Keep every public page instant and motion-free. */
+*, *::before, *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}

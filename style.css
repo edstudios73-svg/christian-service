@@ -2648,9 +2648,14 @@ main { position: relative; z-index: 1; }
   padding-bottom: var(--sp-4);
 }
 .explore-section .quick-tile {
-  padding: var(--sp-4);
+  padding: var(--sp-3);
+}
+.explore-section .quick-tiles {
+  gap: var(--sp-2);
 }
 .explore-section .quick-tile__icon {
+  width: 44px;
+  height: 44px;
   margin-bottom: var(--sp-2);
 }
 .home-main .final-cta {

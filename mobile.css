@@ -547,6 +547,17 @@ img, video, iframe { max-width: 100%; }
     padding-top: var(--sp-3);
     padding-bottom: var(--sp-4);
   }
+  .event-teaser-card {
+    grid-template-columns: 1fr;
+  }
+  .event-teaser-card__media,
+  .event-teaser-card__media img {
+    min-height: 0;
+    aspect-ratio: 4 / 3;
+  }
+  .event-teaser-card__body {
+    padding: var(--sp-5) var(--sp-4);
+  }
   .home-main #location {
     padding-bottom: var(--sp-3);
   }

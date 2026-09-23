@@ -31,11 +31,11 @@
         <div class="footer__block">
           <h4 class="footer__col-title">Visit Us</h4>
           <ul class="footer__list">
-            <li>Jungle Avenue Road, East Legon<br>Accra, Greater Accra, Ghana</li>
-            <li>GPS / Plus Code: JVP2+Q28 Accra</li>
-            <li><a href="tel:+233551172156">0551172156</a></li>
-            <li><a href="mailto:info@christianservicechurch.org">info@christianservicechurch.org</a></li>
-            <li><a href="https://maps.app.goo.gl/z1w5Gh8bt6yHNZiZA" target="_blank" rel="noopener">Open in Google Maps</a></li>
+            <li><span data-home="location.address">Jungle Avenue Road, East Legon, Accra, Greater Accra, Ghana</span></li>
+            <li>GPS / Plus Code: <span data-home="location.plusCode">JVP2+Q28 Accra</span></li>
+            <li><a href="tel:+233551172156" data-home="location.phone" data-home-href="location.phoneUrl">0551172156</a></li>
+            <li><a href="mailto:info@christianservicechurch.org" data-home="location.email" data-home-href="location.emailUrl">info@christianservicechurch.org</a></li>
+            <li><a href="https://maps.app.goo.gl/z1w5Gh8bt6yHNZiZA" data-home-href="location.directionsUrl" target="_blank" rel="noopener">Open in Google Maps</a></li>
           </ul>
         </div>
 

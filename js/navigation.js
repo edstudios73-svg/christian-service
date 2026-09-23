@@ -10,15 +10,9 @@
 
   const NAV_LINKS = [
     { href: 'index.html', label: 'Home', icon: 'home' },
-    { href: 'about.html', label: 'About', icon: 'info' },
-    { href: 'pastor.html', label: 'Our Pastor', icon: 'user' },
     { href: 'ministries.html', label: 'Ministries', icon: 'heart' },
     { href: 'gallery.html', label: 'Gallery', icon: 'image' },
     { href: 'members.html', label: 'Our Leaders', icon: 'user' },
-    { href: 'sermons.html', label: 'Sermons', icon: 'play' },
-    { href: 'events.html', label: 'Events', icon: 'calendar' },
-    { href: 'prayer.html', label: 'Prayer', icon: 'pray' },
-    { href: 'giving.html', label: 'Giving', icon: 'gift' },
     { href: 'announcements.html', label: 'Announcements', icon: 'megaphone' },
     { href: 'contact.html', label: 'Visit', icon: 'phone' },
     { href: 'testimonies.html', label: 'Testimonies', icon: 'quote' },
@@ -56,14 +50,28 @@
     const desktopPages = [
       { href: 'index.html', label: 'Home' },
       { href: 'about.html', label: 'About' },
-      { href: 'contact.html', label: 'Visit' },
       { href: 'sermons.html', label: 'Sermons' },
-      { href: 'testimonies.html', label: 'Testimonies' }
+      { href: 'ministries.html', label: 'Ministries' },
+      { href: 'gallery.html', label: 'Gallery' }
     ];
     const desktopLinks = desktopPages.map((link) => {
       const active = currentPage === link.href ? ' is-active' : '';
       return `<a href="${link.href}" class="csc-dh__link${active}">${link.label}</a>`;
     }).join('');
+    const explorePages = [
+      { href: 'contact.html', label: 'Plan Your Visit' },
+      { href: 'members.html', label: 'Our Leaders' },
+      { href: 'events.html', label: 'Events' },
+      { href: 'giving.html', label: 'Giving' },
+      { href: 'prayer.html', label: 'Prayer' },
+      { href: 'testimonies.html', label: 'Testimonies' },
+      { href: 'announcements.html', label: 'Announcements' }
+    ];
+    const exploreLinks = explorePages.map((link) => {
+      const active = currentPage === link.href ? ' is-active' : '';
+      return `<a href="${link.href}" class="csc-dh__menu-link${active}">${link.label}</a>`;
+    }).join('');
+    const exploreActive = explorePages.some((link) => link.href === currentPage) ? ' is-active' : '';
 
     const header = document.createElement('header');
     header.className = 'csc-dh';
@@ -85,6 +93,10 @@
 
         <nav class="csc-dh__nav" aria-label="Primary navigation">
           ${desktopLinks}
+          <div class="csc-dh__menu">
+            <button class="csc-dh__menu-toggle${exploreActive}" type="button" aria-haspopup="true">Explore <span aria-hidden="true">+</span></button>
+            <div class="csc-dh__menu-panel">${exploreLinks}</div>
+          </div>
         </nav>
 
         <div class="csc-dh__actions" aria-label="Quick actions">
@@ -208,7 +220,9 @@
   function initInstallPrompt() {
     let installEvent = null;
     let showTimer = null;
+    let hideTimer = null;
     const INSTALL_DELAY_MS = 60000;
+    const INSTALL_VISIBLE_MS = 60000;
     const installed = () => window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
     const prompt = document.createElement('aside');
     prompt.className = 'install-prompt';
@@ -225,6 +239,11 @@
       if (installed() || dismissed) return;
       if (!document.body.contains(prompt)) document.body.appendChild(prompt);
       requestAnimationFrame(() => prompt.classList.add('is-visible'));
+      if (hideTimer) window.clearTimeout(hideTimer);
+      hideTimer = window.setTimeout(() => {
+        prompt.classList.remove('is-visible');
+        hideTimer = null;
+      }, INSTALL_VISIBLE_MS);
     };
 
     const close = () => {
@@ -257,7 +276,9 @@
     window.addEventListener('appinstalled', () => {
       installEvent = null;
       if (showTimer) window.clearTimeout(showTimer);
+      if (hideTimer) window.clearTimeout(hideTimer);
       showTimer = null;
+      hideTimer = null;
       close();
     });
     scheduleShow();

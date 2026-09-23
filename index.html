@@ -479,9 +479,9 @@
     <section class="section key-information-section">
       <div class="container">
         <div class="section-head center reveal">
-          <span class="eyebrow eyebrow-center">The Short Answer</span>
-          <h2 class="section-head__title">Everything You Need To Know</h2>
-          <p class="section-head__desc">Where we are, when we meet, and how to reach us.</p>
+          <span class="eyebrow eyebrow-center" data-home="info.eyebrow">The Short Answer</span>
+          <h2 class="section-head__title" data-home="info.title">Everything You Need To Know</h2>
+          <p class="section-head__desc" data-home="info.description">Where we are, when we meet, and how to reach us.</p>
         </div>
 
         <div class="info-bar">
@@ -501,7 +501,7 @@
             <div>
               <div class="info-bar__label" data-home="info.locationLabel">Location</div>
               <div class="info-bar__value" data-home="info.locationValue">Jungle Avenue Road, East Legon, Accra<br>
-                <a href="https://maps.app.goo.gl/z1w5Gh8bt6yHNZiZA" target="_blank" rel="noopener">Get directions</a>
+                <a href="https://maps.app.goo.gl/z1w5Gh8bt6yHNZiZA" data-home-href="info.locationUrl" target="_blank" rel="noopener">Get directions</a>
               </div>
             </div>
           </div>
@@ -512,7 +512,7 @@
             <div>
               <div class="info-bar__label" data-home="info.leaderLabel">Our Leader</div>
               <div class="info-bar__value" data-home="info.leaderValue">Rev. Dr. Joseph Payin Ezekiel<br>
-                <a href="pastor.html">General Overseer</a>
+                <a href="pastor.html" data-home-href="info.leaderUrl">General Overseer</a>
               </div>
             </div>
           </div>
@@ -522,7 +522,7 @@
             </div>
             <div>
               <div class="info-bar__label" data-home="info.phoneLabel">Call or WhatsApp</div>
-              <div class="info-bar__value" data-home="info.phoneValue"><a href="tel:+233551172156">0551172156</a></div>
+              <div class="info-bar__value" data-home="info.phoneValue"><a href="tel:+233551172156" data-home-href="info.phoneUrl">0551172156</a></div>
             </div>
           </div>
         </div>
@@ -540,20 +540,20 @@
 
         <div class="feature-grid">
           <div class="feature-card reveal" data-delay="1">
-            <img class="feature-card__image" src="gallery/WORSHIP.jpg" alt="Worship at Christian Service Church" loading="lazy">
-            <h3 class="feature-card__title">Worship</h3>
+            <img class="feature-card__image" src="gallery/WORSHIP.jpg" data-home-image="beliefsCards.items.0.image" alt="Worship at Christian Service Church" loading="lazy">
+            <h3 class="feature-card__title" data-home="beliefsCards.items.0.title">Worship</h3>
           </div>
           <div class="feature-card reveal" data-delay="2">
-            <img class="feature-card__image" src="gallery/TEACHING.jpg" alt="Bible teaching at Christian Service Church" loading="lazy">
-            <h3 class="feature-card__title">Bible Teaching</h3>
+            <img class="feature-card__image" src="gallery/TEACHING.jpg" data-home-image="beliefsCards.items.1.image" alt="Bible teaching at Christian Service Church" loading="lazy">
+            <h3 class="feature-card__title" data-home="beliefsCards.items.1.title">Bible Teaching</h3>
           </div>
           <div class="feature-card reveal" data-delay="3">
-            <img class="feature-card__image" src="gallery/FAMILY.jpg" alt="The church family at Christian Service Church" loading="lazy">
-            <h3 class="feature-card__title">Family</h3>
+            <img class="feature-card__image" src="gallery/FAMILY.jpg" data-home-image="beliefsCards.items.2.image" alt="The church family at Christian Service Church" loading="lazy">
+            <h3 class="feature-card__title" data-home="beliefsCards.items.2.title">Family</h3>
           </div>
           <div class="feature-card reveal" data-delay="4">
-            <img class="feature-card__image" src="gallery/PRAYER.jpg" alt="Prayer at Christian Service Church" loading="lazy">
-            <h3 class="feature-card__title">Prayer</h3>
+            <img class="feature-card__image" src="gallery/PRAYER.jpg" data-home-image="beliefsCards.items.3.image" alt="Prayer at Christian Service Church" loading="lazy">
+            <h3 class="feature-card__title" data-home="beliefsCards.items.3.title">Prayer</h3>
           </div>
         </div>
       </div>
@@ -567,10 +567,10 @@
             <img src="gallery/our-pastors-image.png" data-home-image="pastor.image" alt="Rev. Dr. Joseph Payin Ezekiel, General Overseer of Christian Service Church">
           </div>
           <div style="padding: var(--sp-6) var(--sp-5);">
-            <span class="eyebrow">Our General Overseer</span>
+            <span class="eyebrow" data-home="pastor.eyebrow">Our General Overseer</span>
             <h3 class="h2 mt-3" data-home="pastor.name">Rev. Dr. Joseph Payin Ezekiel</h3>
             <p class="lead mt-3" data-home="pastor.body">He is the General Overseer of Christian Service Church and the son of our founder, the late Rev. Captain (Rtd) James C. Ocran. He preaches, teaches and shepherds the church family here in East Legon.</p>
-            <a href="pastor.html" class="btn btn-outline mt-5">Read His Story</a>
+            <a href="pastor.html" data-home-href="pastor.url" class="btn btn-outline mt-5" data-home="pastor.label">Read His Story</a>
           </div>
         </div>
       </div>
@@ -581,13 +581,13 @@
       <div class="container">
         <article class="featured-sermon-card reveal">
           <div class="featured-sermon-card__media">
-            <img src="gallery/TEACHING.jpg" alt="Bible teaching at Christian Service Church" loading="lazy">
+            <img src="gallery/TEACHING.jpg" data-home-image="featuredSermon.image" alt="Bible teaching at Christian Service Church" loading="lazy">
           </div>
           <div class="featured-sermon-card__body">
-            <span class="eyebrow">Featured Sermon</span>
-            <h2 class="h2">Grow in the Word</h2>
-            <p>Watch, listen and stay connected to the teaching of Christian Service Church.</p>
-            <a href="sermons.html" class="btn btn-primary btn-block">Watch Live Stream and Sermons</a>
+            <span class="eyebrow" data-home="featuredSermon.eyebrow">Featured Sermon</span>
+            <h2 class="h2" data-home="featuredSermon.title">Grow in the Word</h2>
+            <p data-home="featuredSermon.description">Watch, listen and stay connected to the teaching of Christian Service Church.</p>
+            <a href="sermons.html" data-home-href="featuredSermon.url" class="btn btn-primary btn-block" data-home="featuredSermon.label">Watch Live Stream and Sermons</a>
           </div>
         </article>
       </div>
@@ -622,7 +622,7 @@
 
         <p class="muted mt-4 text-center" style="font-size: var(--fs-sm)" data-home="serviceTimes.office">Church office: Monday to Friday, 9:00 AM &ndash; 5:00 PM.</p>
 
-        <a href="contact.html" class="btn btn-primary btn-lg btn-block mt-5 reveal" data-delay="2">Plan Your Visit</a>
+        <a href="contact.html" class="btn btn-primary btn-lg btn-block mt-5 reveal" data-delay="2" data-home-href="serviceTimes.visitUrl" data-home="serviceTimes.visitLabel">Plan Your Visit</a>
       </div>
     </section>
 
@@ -679,8 +679,8 @@
     <section class="section" id="location">
       <div class="container">
         <div class="section-head center reveal">
-          <span class="eyebrow eyebrow-center">Find Us</span>
-          <h2 class="section-head__title">Where We Are</h2>
+          <span class="eyebrow eyebrow-center" data-home="location.eyebrow">Find Us</span>
+          <h2 class="section-head__title" data-home="location.title">Where We Are</h2>
         </div>
 
         <div class="location-card reveal" data-delay="1">
@@ -699,17 +699,17 @@
               <li><strong>Plus Code:</strong>&nbsp;<span data-home="location.plusCode">JVP2+Q28 Accra</span></li>
               <li><strong>Landmark:</strong>&nbsp;<span data-home="location.landmark">Off the main East Legon road, close to the Jungle Avenue junction</span></li>
               <li><strong>Parking:</strong>&nbsp;<span data-home="location.parking">Space is available on the church compound</span></li>
-              <li><strong>Phone:</strong>&nbsp;<a href="tel:+233551172156">0551172156</a></li>
-              <li><strong>Email:</strong>&nbsp;<a href="mailto:info@christianservicechurch.org">info@christianservicechurch.org</a></li>
+              <li><strong>Phone:</strong>&nbsp;<a href="tel:+233551172156" data-home="location.phone" data-home-href="location.phoneUrl">0551172156</a></li>
+              <li><strong>Email:</strong>&nbsp;<a href="mailto:info@christianservicechurch.org" data-home="location.email" data-home-href="location.emailUrl">info@christianservicechurch.org</a></li>
             </ul>
-            <a href="https://maps.app.goo.gl/z1w5Gh8bt6yHNZiZA" target="_blank" rel="noopener" class="btn btn-outline btn-block mt-5">Get Directions on Google Maps</a>
+            <a href="https://maps.app.goo.gl/z1w5Gh8bt6yHNZiZA" data-home-href="location.directionsUrl" target="_blank" rel="noopener" class="btn btn-outline btn-block mt-5">Get Directions on Google Maps</a>
           </div>
         </div>
 
         <article class="leaders-gallery-card reveal" data-delay="2">
-          <img src="gallery/LEADERS.jpg" alt="Christian Service Church leaders" loading="lazy">
+          <img src="gallery/LEADERS.jpg" data-home-image="leadersGallery.image" alt="Christian Service Church leaders" loading="lazy">
           <div class="leaders-gallery-card__body">
-            <a href="gallery.html" class="btn btn-gallery-white btn-block">View Gallery</a>
+            <a href="gallery.html" data-home-href="leadersGallery.url" class="btn btn-gallery-white btn-block" data-home="leadersGallery.label">View Gallery</a>
           </div>
         </article>
       </div>
@@ -719,10 +719,10 @@
     <section class="section bg-alt event-teaser">
       <div class="container">
         <div class="cta-band reveal">
-          <span class="eyebrow eyebrow-light" style="justify-content:center">Save the Date</span>
-          <h3 class="cta-band__title">At His Feet Conference</h3>
-          <p class="cta-band__desc">Nights of worship, teaching and prayer. Bring your family and your friends.</p>
-          <a href="events.html" class="btn btn-gold btn-lg">View All Events</a>
+          <span class="eyebrow eyebrow-light" style="justify-content:center" data-home="eventTeaser.eyebrow">Save the Date</span>
+          <h3 class="cta-band__title" data-home="eventTeaser.title">At His Feet Conference</h3>
+          <p class="cta-band__desc" data-home="eventTeaser.description">Nights of worship, teaching and prayer. Bring your family and your friends.</p>
+          <a href="events.html" data-home-href="eventTeaser.url" class="btn btn-gold btn-lg" data-home="eventTeaser.label">View All Events</a>
         </div>
       </div>
     </section>
@@ -743,7 +743,7 @@
       <div class="container text-center">
         <div class="reveal">
           <div class="flex flex-col gap-3 mt-6" style="max-width: 320px; margin: 0 auto;">
-            <a href="prayer.html" class="btn btn-primary btn-block">Send a Prayer Request</a>
+            <a href="prayer.html" data-home-href="finalCta.url" class="btn btn-primary btn-block" data-home="finalCta.label">Send a Prayer Request</a>
           </div>
         </div>
       </div>

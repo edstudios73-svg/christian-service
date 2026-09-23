@@ -1319,6 +1319,7 @@ main { position: relative; z-index: 1; }
   font-family: var(--font-accent);
   font-style: italic;
   font-size: var(--fs-lg);
+  white-space: nowrap;
   color: rgba(255,255,255,0.9);
   margin-bottom: var(--sp-3);
 }

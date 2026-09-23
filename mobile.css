@@ -149,6 +149,9 @@ img, video, iframe { max-width: 100%; }
   .hero__desc {
     max-width: 32rem;
   }
+  .hero__tagline {
+    font-size: var(--fs-sm);
+  }
 }
 
 @media (max-width: 767px) {

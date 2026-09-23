@@ -391,18 +391,12 @@
     <section class="section bg-alt">
       <div class="container">
         <div class="sermon-library-controls">
-          <div class="sermon-search-wrap">
-            <label class="sermon-search" for="sermon-search">
-              <input id="sermon-search" type="search" placeholder="Search sermons, preacher, series, date..." inputmode="search" autocomplete="off" aria-label="Search sermons" style="font-size: 16px;">
-            </label>
-            <button id="sermon-search-clear" type="button" class="btn btn-outline btn-small" aria-label="Clear search">Clear</button>
-          </div>
+          <label class="sermon-search" for="sermon-search">
+            <span class="sermon-search__icon" aria-hidden="true">⌕</span>
+            <input id="sermon-search" type="search" placeholder="Search sermons, preacher, series, date..." inputmode="search" autocomplete="off" aria-label="Search sermons" style="font-size: 16px;">
+          </label>
           <div class="sermon-toolbar">
             <div id="sermon-series-title" class="sermon-series-title">Latest Sermons</div>
-            <div class="sermon-toolbar__actions">
-              <button id="sermon-full-library" type="button" class="btn btn-outline btn-small" hidden>View Full Library</button>
-              <button id="sermon-back-to-library" type="button" class="btn btn-outline btn-small" hidden>Back to Full Library</button>
-            </div>
           </div>
           <div id="sermon-results-count" class="sermon-results-count">0 of 0 sermons</div>
         </div>
@@ -410,7 +404,6 @@
         <div id="sermon-empty-state" class="sermon-empty-state compact" hidden>
           <h3>No sermons found</h3>
           <p class="sermon-empty-state__message">No sermons found for this search.</p>
-          <button type="button" class="btn btn-primary btn-small" data-action="clear-search">Clear Search</button>
         </div>
 
         <div class="sermon-grid" data-supabase-sermons></div>

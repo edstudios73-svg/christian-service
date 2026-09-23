@@ -9,7 +9,6 @@
   function buildFooter() {
     const mount = document.querySelector('[data-footer-mount]');
     if (!mount) return;
-    const year = new Date().getFullYear();
     const footer = document.createElement('footer');
     footer.className = 'footer';
     footer.innerHTML = `
@@ -82,7 +81,8 @@
         </div>
 
         <div class="footer__bottom">
-          <p>&copy; ${year} Christian Service Church, East Legon, Accra. All rights reserved.</p>
+          <p>&copy; 2026 Christian Service Church, East Legon, Accra. All rights reserved.</p>
+          <p>Designed by <a href="https://baidenz-studioz-web.vercel.app/login" target="_blank" rel="noopener noreferrer">Baidenz Studioz</a></p>
           <nav class="footer__legal" aria-label="Legal information">
             <a href="terms-of-service.html">Terms of Service</a>
             <span aria-hidden="true">&middot;</span>

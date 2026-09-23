@@ -273,7 +273,7 @@
         window.__CSC_SW_REFRESHED = true;
         window.location.reload();
       });
-      navigator.serviceWorker.register('service-worker.js?v=20260923', { updateViaCache: 'none' })
+      navigator.serviceWorker.register('service-worker.js?v=20260924', { updateViaCache: 'none' })
         .then((registration) => registration.update())
         .catch(() => {});
     }

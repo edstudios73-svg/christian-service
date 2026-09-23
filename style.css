@@ -2659,6 +2659,8 @@ main { position: relative; z-index: 1; }
   padding-bottom: var(--sp-4);
 }
 .home-main .beliefs-section .feature-card__title {
+  width: 100%;
+  justify-content: center;
   text-align: center;
 }
 .home-main .leaders-gallery-card {
@@ -2685,6 +2687,18 @@ main { position: relative; z-index: 1; }
 .leaders-gallery-card__body .btn {
   width: auto;
   min-width: 150px;
+}
+.leaders-gallery-card .btn-gallery-white {
+  background: #fff;
+  color: var(--c-primary);
+  border: 1px solid var(--c-primary);
+  box-shadow: var(--sh-sm);
+}
+.leaders-gallery-card .btn-gallery-white:hover {
+  background: var(--c-primary-50);
+  color: var(--c-primary-dark);
+  border-color: var(--c-primary-dark);
+  transform: translateY(-2px);
 }
 .home-main .pastor-feature {
   padding-top: var(--sp-4);

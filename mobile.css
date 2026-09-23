@@ -555,6 +555,8 @@ img, video, iframe { max-width: 100%; }
     padding-bottom: var(--sp-3);
   }
   .home-main .beliefs-section .feature-card__title {
+    width: 100%;
+    justify-content: center;
     text-align: center;
   }
   .home-main .leaders-gallery-card {

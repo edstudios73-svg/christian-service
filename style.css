@@ -3096,7 +3096,6 @@ main { position: relative; z-index: 1; }
   }
   .footer__about,
   .footer__block,
-  .footer__bottom > p,
   .footer__top--single .footer__col-title {
     display: none;
   }
@@ -3125,6 +3124,14 @@ main { position: relative; z-index: 1; }
   }
   .footer__bottom {
     padding-top: 18px;
+  }
+  .footer__bottom > p {
+    display: block;
+    color: rgba(255,255,255,0.7);
+  }
+  .footer__bottom > p a {
+    color: var(--c-accent-light);
+    font-weight: 700;
   }
 }
 

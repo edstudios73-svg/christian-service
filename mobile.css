@@ -138,6 +138,12 @@ img, video, iframe { max-width: 100%; }
     transform: none;
     animation: none;
   }
+  .home-pastor-image {
+    aspect-ratio: 4 / 3;
+  }
+  .home-pastor-image img {
+    object-position: center 24%;
+  }
   .hero__content {
     max-width: 100%;
     padding-top: calc(var(--sp-8) + var(--safe-top));

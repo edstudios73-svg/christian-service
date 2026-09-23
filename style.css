@@ -1297,13 +1297,13 @@ main { position: relative; z-index: 1; }
 }
 .hero__bg {
   position: absolute;
-  inset: -2%;
+  inset: 0;
   background-size: cover;
-  background-position: center 22%;
+  background-position: center center;
   background-repeat: no-repeat;
   z-index: 0;
-  transform: scale(1.04);
-  animation: hero-pan 20s ease-in-out infinite alternate;
+  transform: none;
+  animation: none;
 }
 .hero__bg.page-settings-image,
 .page-header__bg.page-settings-image {
@@ -2542,8 +2542,7 @@ main { position: relative; z-index: 1; }
 /* ---------- Pastor page ---------- */
 .home-pastor-image {
   position: relative;
-  display: flex;
-  justify-content: center;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
   background: linear-gradient(135deg, #091b3f 0%, #163c68 52%, #c89045 100%);
 }
@@ -2557,9 +2556,14 @@ main { position: relative; z-index: 1; }
 .home-pastor-image img {
   display: block;
   width: 100%;
-  max-height: 680px;
-  object-fit: contain;
+  height: 100%;
+  object-fit: cover;
   object-position: center;
+  transition: transform .6s ease, filter .6s ease;
+}
+.home-pastor-image:hover img {
+  transform: scale(1.025);
+  filter: saturate(1.06) contrast(1.03);
 }
 .pastor-portrait {
   position: relative;

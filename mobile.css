@@ -575,6 +575,16 @@ img, video, iframe { max-width: 100%; }
   .leaders-gallery-card__body .btn {
     width: 100%;
   }
+  .daily-scripture-section {
+    padding-top: var(--sp-3);
+    padding-bottom: var(--sp-3);
+  }
+  .daily-scripture-card {
+    padding: var(--sp-5) var(--sp-4);
+  }
+  .daily-scripture-card__quote {
+    font-size: var(--fs-md);
+  }
   .home-main .pastor-feature {
     padding-top: var(--sp-3);
   }

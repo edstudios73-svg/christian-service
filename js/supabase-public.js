@@ -316,7 +316,13 @@
   function renderLeaders(items) {
     const mount = document.querySelector('[data-supabase-leaders]');
     if (!mount) return;
-    mount.innerHTML = items.length ? items.map((item, index) => `
+    const pageSize = 6;
+    const pageCount = Math.max(1, Math.ceil(items.length / pageSize));
+    const currentPage = Math.min(Math.max(0, Number(window.CSC_LEADERS_PAGE || 0)), pageCount - 1);
+    window.CSC_LEADERS_ITEMS = items;
+    window.CSC_LEADERS_PAGE = currentPage;
+    const visibleItems = items.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
+    mount.innerHTML = visibleItems.length ? visibleItems.map((item, index) => `
       <div class="member-card reveal-scale" data-delay="${(index % 3) + 1}">
         <div class="member-card__image"${item.image ? imageStyle(item.image) : ''}></div>
         <div class="member-card__content">
@@ -326,6 +332,34 @@
           ${item.body ? `<p class="member-card__bio">${esc(item.body)}</p>` : ''}
         </div>
       </div>`).join('') : '<p class="muted">No leaders have been published yet.</p>';
+    const pagination = document.querySelector('[data-leaders-pagination]');
+    if (pagination) {
+      pagination.hidden = items.length <= pageSize;
+      const previous = pagination.querySelector('[data-leaders-page="previous"]');
+      const next = pagination.querySelector('[data-leaders-page="next"]');
+      const info = pagination.querySelector('[data-leaders-page-info]');
+      if (previous) previous.disabled = currentPage === 0;
+      if (next) next.disabled = currentPage >= pageCount - 1;
+      if (info) info.textContent = items.length ? `Showing ${currentPage * pageSize + 1}-${Math.min((currentPage + 1) * pageSize, items.length)} of ${items.length} leaders` : 'No leaders to show';
+    }
+  }
+
+  function initLeadersPagination() {
+    if (window.CSC_LEADERS_PAGINATION_READY) return;
+    window.CSC_LEADERS_PAGINATION_READY = true;
+    document.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-leaders-page]');
+      if (!button || button.disabled) return;
+      const items = window.CSC_LEADERS_ITEMS || [];
+      const pageSize = 6;
+      const pageCount = Math.max(1, Math.ceil(items.length / pageSize));
+      const currentPage = Number(window.CSC_LEADERS_PAGE || 0);
+      const nextPage = button.dataset.leadersPage === 'next' ? currentPage + 1 : currentPage - 1;
+      if (nextPage < 0 || nextPage >= pageCount) return;
+      window.CSC_LEADERS_PAGE = nextPage;
+      renderLeaders(items);
+      document.querySelector('[data-supabase-leaders]')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   }
 
   function renderMinistries(items) {
@@ -506,6 +540,7 @@
   }
 
   async function init() {
+    initLeadersPagination();
     const hasMount = document.querySelector('[data-page-key], [data-supabase-events], [data-supabase-sermons], [data-gallery-grid], [data-supabase-testimonies], [data-supabase-announcements], [data-supabase-leaders], [data-supabase-ministries], [data-prayer-form]');
     if (!hasMount) return;
 

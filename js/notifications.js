@@ -53,12 +53,19 @@
   }
 
   async function ensureSupabase() {
+    if (window.CSC_SUPABASE && !state.sb) state.sb = window.CSC_SUPABASE;
     if (!state.sb) {
       if (!window.supabase) await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2');
       state.sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLIC_KEY);
-      window.CSC_SUPABASE = state.sb;
+      window.CSC_SUPABASE = window.CSC_SUPABASE || state.sb;
     }
     return state.sb;
+  }
+
+  function canCheckAnnouncements() {
+    const isAnnouncementsPage = /announcements\.html$/i.test(window.location.pathname || '');
+    const hasAnnouncementDataMount = !!document.querySelector('[data-supabase-announcements]');
+    return isAnnouncementsPage || hasAnnouncementDataMount;
   }
 
   function getNewestAnnouncementDate(items) {
@@ -73,6 +80,11 @@
   }
 
   async function refreshUnreadBadge() {
+    if (!canCheckAnnouncements()) {
+      setBadge(0, false);
+      return 0;
+    }
+
     const lastRead = getLastReadValue();
     try {
       const client = await ensureSupabase();

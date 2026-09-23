@@ -512,7 +512,7 @@
     document.querySelectorAll('[data-supabase-events], [data-supabase-sermons], [data-supabase-leaders], [data-supabase-ministries], [data-supabase-announcements]').forEach((mount) => { mount.innerHTML = '<p class="muted">Loading...</p>'; });
     try {
       await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2');
-        const sb = window.supabase.createClient(SUPABASE_URL, 'sb_publishable_5T68Teyy88wmJUlckVRneA_Yfh0OKZV');
+      const sb = window.CSC_SUPABASE || window.supabase.createClient(SUPABASE_URL, 'sb_publishable_5T68Teyy88wmJUlckVRneA_Yfh0OKZV');
       window.CSC_SUPABASE = sb;
       await applyPageSettings(sb);
       if (document.querySelector('[data-home]')) await applyHomepageContent(sb);

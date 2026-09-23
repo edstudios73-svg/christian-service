@@ -143,7 +143,7 @@ main { position: relative; z-index: 1; }
 .container-wide { max-width: 640px; }
 .container-narrow { max-width: 400px; }
 
-.section { padding: var(--sp-9) 0; }
+.section { padding: var(--sp-8) 0; }
 .section-sm { padding: var(--sp-7) 0; }
 .section-lg { padding: var(--sp-10) 0; }
 
@@ -1965,7 +1965,7 @@ main { position: relative; z-index: 1; }
 .timeline__desc { font-size: var(--fs-sm); color: var(--c-text-muted); line-height: 1.55; }
 
 /* ---------- Section headers ---------- */
-.section-head { margin-bottom: var(--sp-6); }
+.section-head { margin-bottom: var(--sp-5); }
 .section-head.center { text-align: center; }
 .section-head.center .eyebrow { justify-content: center; }
 .section-head__title {

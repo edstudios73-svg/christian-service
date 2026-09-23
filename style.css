@@ -2633,6 +2633,20 @@ main { position: relative; z-index: 1; }
 .cta-band__desc { color: rgba(255,255,255,0.8); font-size: var(--fs-base); margin-bottom: var(--sp-5); position: relative; }
 .cta-band .btn { position: relative; }
 
+.home-main {
+  padding-bottom: var(--sp-4);
+}
+.home-main .event-teaser {
+  padding-bottom: var(--sp-5);
+}
+.home-main .final-cta {
+  padding-top: var(--sp-3);
+  padding-bottom: var(--sp-3);
+}
+.home-main .final-cta .flex {
+  margin-top: 0 !important;
+}
+
 /* ---------- Footer ---------- */
 .footer {
   background: var(--c-secondary);

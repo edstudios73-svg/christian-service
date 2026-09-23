@@ -528,8 +528,18 @@ img, video, iframe { max-width: 100%; }
     margin-top: var(--sp-1.5);
   }
   .cta-band {
-    padding: var(--sp-6) var(--sp-4);
+    padding: var(--sp-5) var(--sp-4);
     border-radius: var(--r-xl);
+  }
+  .home-main {
+    padding-bottom: var(--sp-3);
+  }
+  .home-main .event-teaser {
+    padding-bottom: var(--sp-4);
+  }
+  .home-main .final-cta {
+    padding-top: var(--sp-2);
+    padding-bottom: var(--sp-2);
   }
   .members-grid {
     grid-template-columns: repeat(2, 1fr);

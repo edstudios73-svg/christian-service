@@ -143,7 +143,7 @@ img, video, iframe { max-width: 100%; }
     padding-top: calc(var(--sp-8) + var(--safe-top));
   }
   .hero__title {
-    max-width: 10ch;
+    max-width: 100%;
     font-size: clamp(2.1rem, 8.8vw, 3rem);
   }
   .hero__desc {

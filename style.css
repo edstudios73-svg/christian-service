@@ -1309,6 +1309,10 @@ main { position: relative; z-index: 1; }
   color: #fff;
   margin-bottom: var(--sp-4);
 }
+.hero__title > span:first-child {
+  display: block;
+  white-space: nowrap;
+}
 .hero__title .accent { color: var(--c-accent-light); display: block; }
 
 .hero__tagline {

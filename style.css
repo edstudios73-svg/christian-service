@@ -2658,6 +2658,9 @@ main { position: relative; z-index: 1; }
   padding-top: var(--sp-4);
   padding-bottom: var(--sp-4);
 }
+.home-main .beliefs-section .feature-card__title {
+  text-align: center;
+}
 .home-main .pastor-feature {
   padding-top: var(--sp-4);
 }

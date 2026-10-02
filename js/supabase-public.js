@@ -518,6 +518,22 @@
   const readHomeCache = () => { try { return JSON.parse(localStorage.getItem(HOME_CACHE_KEY) || 'null'); } catch (_) { return null; } };
   const writeHomeCache = (content) => { try { localStorage.setItem(HOME_CACHE_KEY, JSON.stringify(content)); } catch (_) {} };
 
+  function showPastorPhoto(url) {
+    const img = document.querySelector('[data-pastor-photo]');
+    if (!img || !url) return;
+    if (!img.dataset.loaded) img.addEventListener('load', () => { img.dataset.loaded = '1'; }, { once: true });
+    img.src = String(url);
+  }
+
+  async function applyPastorPhoto(sb) {
+    if (!document.querySelector('[data-pastor-photo]')) return;
+    showPastorPhoto(readHomeCache()?.pastor?.image);
+    try {
+      const { data } = await sb.from('homepage_content').select('published_content').eq('id', 'home').maybeSingle();
+      if (data?.published_content && Object.keys(data.published_content).length) { writeHomeCache(data.published_content); showPastorPhoto(data.published_content.pastor?.image); }
+    } catch (_) {}
+  }
+
   async function applyHomepageContent(sb) {
     if (!document.querySelector('[data-home]')) return;
     let result;
@@ -538,7 +554,9 @@
     });
     document.querySelectorAll('[data-home-image]').forEach((element) => {
       const value = get(element.dataset.homeImage);
-      if (value) element.src = String(value);
+      if (!value) return;
+      if (!element.dataset.loaded) element.addEventListener('load', () => { element.dataset.loaded = '1'; }, { once: true });
+      element.src = String(value);
     });
     document.querySelectorAll('[data-home-href]').forEach((element) => {
       const value = get(element.dataset.homeHref);
@@ -585,6 +603,7 @@
       const cached = readHomeCache();
       if (cached) renderHomepageContent(cached);
     }
+    if (document.querySelector('[data-pastor-photo]')) showPastorPhoto(readHomeCache()?.pastor?.image);
     const hasMount = document.querySelector('[data-page-key], [data-supabase-events], [data-supabase-sermons], [data-gallery-grid], [data-supabase-testimonies], [data-supabase-announcements], [data-supabase-leaders], [data-supabase-ministries], [data-prayer-form]');
     if (!hasMount) return;
 
@@ -593,6 +612,7 @@
       await loadSupabaseLibrary();
       const sb = window.CSC_SUPABASE || window.supabase.createClient(SUPABASE_URL, 'sb_publishable_5T68Teyy88wmJUlckVRneA_Yfh0OKZV');
       window.CSC_SUPABASE = sb;
+      await applyPastorPhoto(sb);
       await applyPageSettings(sb);
       if (document.querySelector('[data-home]')) await applyHomepageContent(sb);
       if (document.querySelector('[data-supabase-announcements]')) renderAnnouncements(await fetchPublished(sb, 'announcements', 'date'));

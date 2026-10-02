@@ -3477,6 +3477,6 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 img { -webkit-user-drag: none; }
 @media print { .nav, .csc-dh, .footer, .btn { display: none !important; } }
 
-/* Hold back built-in placeholder photos until the admin's published images arrive */
-html.home-pending [data-home-image] { visibility: hidden; }
-html.home-pending .hero__bg { background-image: none !important; }
+/* Admin photos only: neutral placeholder until the published image arrives */
+[data-home-image]:not([data-loaded]), [data-pastor-photo]:not([data-loaded]) { background: linear-gradient(135deg, #e8edf8, #d5dcee); }
+.hero__bg { background-color: #0a1a3f; }

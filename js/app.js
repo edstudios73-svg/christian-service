@@ -81,8 +81,13 @@
         </div>
 
         <div class="footer__bottom">
-          <p>&copy; 2026 Christian Service Church, East Legon, Accra. All rights reserved.</p>
-          <p>Designed by <a href="https://baidenz-studioz-web.vercel.app/login" target="_blank" rel="noopener noreferrer">Baidenz Studioz</a></p>
+          <div class="footer__rule" aria-hidden="true"><i></i><b></b><i></i></div>
+          <p class="footer__copy">&copy; 2026 Christian Service Church &middot; East Legon, Accra. All rights reserved.</p>
+          <a class="footer__credit" href="https://baiden-creatives.vercel.app" target="_blank" rel="noopener noreferrer" aria-label="Website designed by Baiden Creatives (opens in a new tab)">
+            <span class="footer__credit-label">Designed by</span>
+            <span class="footer__credit-name">Baiden Creatives</span>
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>
+          </a>
           <nav class="footer__legal" aria-label="Legal information">
             <a href="terms-of-service.html">Terms of Service</a>
             <span aria-hidden="true">&middot;</span>

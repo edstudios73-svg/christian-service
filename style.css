@@ -3464,3 +3464,15 @@ img.lazy.loaded { opacity: 1; }
   transition: none !important;
   scroll-behavior: auto !important;
 }
+
+/* Finishing touches (no motion) */
+html { scroll-padding-top: 84px; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+body { overscroll-behavior-y: none; }
+::selection { background: var(--c-accent); color: #091b3f; }
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, summary:focus-visible {
+  outline: 2px solid var(--c-accent-dark);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+img { -webkit-user-drag: none; }
+@media print { .nav, .csc-dh, .footer, .btn { display: none !important; } }

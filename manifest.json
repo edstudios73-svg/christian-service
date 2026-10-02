@@ -3,30 +3,29 @@
   "short_name": "CSC Church",
   "description": "Christian Service Church (House of Testimonies), Jungle Avenue Road, East Legon, Accra. Sunday worship 9:00 AM.",
   "id": "/",
-  "start_url": "/",
-  "scope": "./",
+  "start_url": "/?source=pwa",
+  "scope": "/",
   "display": "standalone",
-  "orientation": "portrait",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
   "lang": "en-GH",
+  "dir": "ltr",
+  "categories": ["lifestyle", "education", "social"],
   "background_color": "#091b3f",
   "theme_color": "#1B3A8B",
   "icons": [
-    { "src": "/assets/church-logo.png", "sizes": "828x828", "type": "image/png", "purpose": "any maskable" }
+    { "src": "/assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/assets/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Sermons", "short_name": "Sermons", "url": "/sermons.html", "icons": [{ "src": "/assets/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Events", "short_name": "Events", "url": "/events.html", "icons": [{ "src": "/assets/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Give", "short_name": "Give", "url": "/giving.html", "icons": [{ "src": "/assets/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Prayer Request", "short_name": "Prayer", "url": "/prayer.html", "icons": [{ "src": "/assets/icons/icon-192.png", "sizes": "192x192" }] }
   ],
   "screenshots": [
-    {
-      "src": "/assets/church-logo.png",
-      "sizes": "828x828",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Christian Service Church homepage"
-    },
-    {
-      "src": "/assets/church-logo.png",
-      "sizes": "828x828",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "CSC app on mobile"
-    }
+    { "src": "/assets/og-card.jpg", "sizes": "1200x630", "type": "image/jpeg", "form_factor": "wide", "label": "Christian Service Church, East Legon Accra" }
   ]
 }

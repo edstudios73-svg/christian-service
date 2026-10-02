@@ -12,6 +12,23 @@
     script.onerror = reject;
     document.head.appendChild(script);
   });
+  const SUPABASE_LIB_SOURCES = [
+    'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js',
+    'https://unpkg.com/@supabase/supabase-js@2.45.4/dist/umd/supabase.js',
+    'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
+  ];
+  async function loadSupabaseLibrary() {
+    if (window.supabase?.createClient) return;
+    let lastError;
+    for (const src of SUPABASE_LIB_SOURCES) {
+      try {
+        await Promise.race([loadScript(src), new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 7000))]);
+        if (window.supabase?.createClient) return;
+      } catch (error) { lastError = error; }
+    }
+    throw lastError || new Error('Supabase library unavailable');
+  }
+
   const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }[char]));
@@ -496,13 +513,22 @@
     revealPageSettings();
   }
 
+  const HOME_CACHE_KEY = 'csc-home-content-v1';
+  const releaseHomeImages = () => document.documentElement.classList.remove('home-pending');
+  const readHomeCache = () => { try { return JSON.parse(localStorage.getItem(HOME_CACHE_KEY) || 'null'); } catch (_) { return null; } };
+  const writeHomeCache = (content) => { try { localStorage.setItem(HOME_CACHE_KEY, JSON.stringify(content)); } catch (_) {} };
+
   async function applyHomepageContent(sb) {
     if (!document.querySelector('[data-home]')) return;
     let result;
-    try { result = await sb.from('homepage_content').select('published_content').eq('id', 'home').maybeSingle(); } catch (_) { return; }
+    try { result = await sb.from('homepage_content').select('published_content').eq('id', 'home').maybeSingle(); } catch (_) { releaseHomeImages(); return; }
     const { data, error } = result;
-    if (error || !data?.published_content || !Object.keys(data.published_content).length) return;
-    const content = data.published_content;
+    if (error || !data?.published_content || !Object.keys(data.published_content).length) { releaseHomeImages(); return; }
+    writeHomeCache(data.published_content);
+    renderHomepageContent(data.published_content);
+  }
+
+  function renderHomepageContent(content) {
     const get = (path) => path.split('.').reduce((value, key) => value?.[key], content);
     document.querySelectorAll('[data-home]').forEach((element) => {
       if (element.dataset.home.startsWith('explore.items.')) return;
@@ -550,16 +576,21 @@
     (content.beliefsCards?.items || []).forEach((item, index) => { const card = beliefCards[index]; if (!card) return; const title = card.querySelector('.feature-card__title'), body = card.querySelector('.feature-card__desc'); if (title) title.textContent = item.title || ''; if (body) body.textContent = item.body || ''; });
     const faqItems = document.querySelectorAll('.faq-item');
     (content.faqs?.items || []).forEach((item, index) => { const faq = faqItems[index]; if (!faq) return; const question = faq.querySelector('.faq-item__q'), answer = faq.querySelector('.faq-item__a > div'); if (question) question.firstChild.textContent = item.question || ''; if (answer) answer.textContent = item.answer || ''; });
+    releaseHomeImages();
   }
 
   async function init() {
     initLeadersPagination();
+    if (document.querySelector('[data-home]')) {
+      const cached = readHomeCache();
+      if (cached) renderHomepageContent(cached);
+    }
     const hasMount = document.querySelector('[data-page-key], [data-supabase-events], [data-supabase-sermons], [data-gallery-grid], [data-supabase-testimonies], [data-supabase-announcements], [data-supabase-leaders], [data-supabase-ministries], [data-prayer-form]');
     if (!hasMount) return;
 
     document.querySelectorAll('[data-supabase-events], [data-supabase-sermons], [data-supabase-leaders], [data-supabase-ministries], [data-supabase-announcements]').forEach((mount) => { mount.innerHTML = '<p class="muted">Loading...</p>'; });
     try {
-      await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2');
+      await loadSupabaseLibrary();
       const sb = window.CSC_SUPABASE || window.supabase.createClient(SUPABASE_URL, 'sb_publishable_5T68Teyy88wmJUlckVRneA_Yfh0OKZV');
       window.CSC_SUPABASE = sb;
       await applyPageSettings(sb);
@@ -597,6 +628,7 @@
         .subscribe();
     } catch (error) {
       console.warn('Published church content is unavailable.', error);
+      releaseHomeImages();
       revealPageSettings();
     }
   }

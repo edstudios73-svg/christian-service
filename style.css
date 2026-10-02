@@ -3480,3 +3480,21 @@ img { -webkit-user-drag: none; }
 /* Admin photos only: neutral placeholder until the published image arrives */
 [data-home-image]:not([data-loaded]), [data-pastor-photo]:not([data-loaded]) { background: linear-gradient(135deg, #e8edf8, #d5dcee); }
 .hero__bg { background-color: #0a1a3f; }
+
+/* Footer credit */
+.footer__rule { display: flex; align-items: center; gap: 12px; width: 100%; max-width: 360px; margin: 0 auto 4px; }
+.footer__rule i { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(224,200,135,0.7)); }
+.footer__rule i:last-child { transform: scaleX(-1); }
+.footer__rule b { width: 7px; height: 7px; background: var(--c-accent-light); transform: rotate(45deg); }
+.footer__bottom .footer__copy { display: block; text-align: center; font-size: 0.74rem; letter-spacing: 0.02em; color: rgba(255,255,255,0.72); }
+.footer__bottom .footer__credit {
+  display: inline-flex; align-self: center; align-items: center; gap: 8px; margin: 6px 0 2px; padding: 9px 20px;
+  border-radius: 999px; border: 1px solid rgba(224,200,135,0.45);
+  background: linear-gradient(135deg, rgba(224,200,135,0.14), rgba(255,255,255,0.04));
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.08);
+  color: #fff; font-size: 0.78rem; letter-spacing: 0.04em; text-decoration: none;
+}
+.footer__credit-label { color: rgba(255,255,255,0.6); font-style: italic; font-family: var(--font-display); }
+.footer__credit-name { font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--c-accent-light); }
+.footer__credit svg { color: var(--c-accent-light); }
+.footer__bottom .footer__credit:hover { border-color: var(--c-accent-light); background: linear-gradient(135deg, rgba(224,200,135,0.26), rgba(255,255,255,0.06)); color: #fff; }

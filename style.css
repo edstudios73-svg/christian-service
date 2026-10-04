@@ -117,7 +117,6 @@ body {
   min-height: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
   text-rendering: optimizeLegibility;
 }
 
@@ -3467,7 +3466,6 @@ img.lazy.loaded { opacity: 1; }
 
 /* Finishing touches (no motion) */
 html { scroll-padding-top: 84px; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
-body { overscroll-behavior-y: none; }
 ::selection { background: var(--c-accent); color: #091b3f; }
 a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, summary:focus-visible {
   outline: 2px solid var(--c-accent-dark);

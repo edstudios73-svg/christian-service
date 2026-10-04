@@ -362,6 +362,19 @@
       a.addEventListener('click', () => setMenu(false));
     });
 
+    // Safety net: never leave the page scroll-locked (menu closed, no photo viewer open)
+    function unlockIfStuck() {
+      if (menuOpen) return;
+      if (document.querySelector('.lightbox.is-open')) return;
+      if (document.body.style.overflow === 'hidden') document.body.style.overflow = '';
+    }
+    window.addEventListener('pageshow', (e) => { if (e.persisted) setMenu(false); unlockIfStuck(); });
+    document.addEventListener('visibilitychange', unlockIfStuck);
+    window.addEventListener('resize', unlockIfStuck);
+    window.addEventListener('orientationchange', unlockIfStuck);
+    document.addEventListener('touchstart', unlockIfStuck, { passive: true });
+    document.addEventListener('wheel', unlockIfStuck, { passive: true });
+
     // Close on Escape
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && menuOpen) setMenu(false);

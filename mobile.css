@@ -47,11 +47,12 @@
 }
 
 /* ---------- Prevent horizontal scroll everywhere ---------- */
-html, body {
-  overflow-x: hidden;
-  width: 100%;
+html { width: 100%; }
+/* Only ONE element may clip horizontal overflow (html + body both hidden breaks touch scrolling on iOS/in-app browsers) */
+body { position: relative; width: 100%; overflow-x: hidden; }
+@supports (overflow-x: clip) {
+  body { overflow-x: clip; }
 }
-body { position: relative; }
 
 img, video, iframe { max-width: 100%; }
 

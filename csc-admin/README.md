@@ -61,9 +61,7 @@ Testing
 SMS is sent by the Supabase Edge Function `send-sms-announcement`. The SasuSync API key lives only in Supabase as a secret. Never put it in this repository, `admin.html` or any browser file.
 
 1. Run `sms-setup.sql` in the Supabase SQL Editor (creates `sms_subscribers` and `sms_messages`; the last query is a health check).
-2. Save the secrets (Supabase Dashboard > Edge Functions > Secrets, or the CLI):
-   `supabase secrets set SMS_API_KEY=<your SasuSync key> SMS_SENDER_ID=CSC-UPDATES --project-ref <project-ref>`
-   Optional: `SMS_MODE=sandbox` delivers nothing and costs nothing (use it for testing); remove it or set `live` to send for real.
-3. Deploy: `supabase functions deploy send-sms-announcement --project-ref <project-ref>`
+2. Deploy the function. Easiest: Supabase Dashboard > Edge Functions > Deploy a new function > Via Editor, name it `send-sms-announcement`, paste the whole of `send-sms-announcement.single-file.ts`, and deploy. Then open the function's settings and switch **Verify JWT OFF** (the function checks that you are the admin itself; with it ON the browser is blocked and the admin shows "Failed to send a request to the Edge Function"). With the CLI instead: `supabase functions deploy send-sms-announcement --project-ref <project-ref>`.
+3. Save the secrets (Dashboard > Edge Functions > Secrets): `SMS_API_KEY` = your SasuSync key and `SMS_SENDER_ID` = `CSC-UPDATES`. Do not set `SMS_MODE` (or set it to `live`). `SMS_MODE=sandbox` is only for testing: nothing is delivered and nothing is charged.
 4. In SasuSync, make sure the sender ID `CSC-UPDATES` is approved and the account has SMS credits (1 credit per message part, per recipient).
 5. In the admin: add numbers under **SMS Subscribers** (visitors can also subscribe from the website footer), then tick **Also send as SMS to subscribers** when publishing an announcement.

@@ -597,22 +597,14 @@ const Store = {
     if (this.mode !== 'supabase') throw new Error('Connect Supabase to use SMS.');
     await this.ensureSession();
     const { data, error } = await this.sb.functions.invoke('send-sms-announcement', { body });
-    if (error) {
-      let detail = error.message;
-      try { const res = await error.context.json(); if (res && res.error) detail = res.error; } catch (_) {}
-      throw new Error(detail);
-    }
+    if (error) throw new Error(await smsErrorText(error));
     return data;
   },
   async sendAnnouncementSms(id) {
     if (this.mode !== 'supabase' || !id) return null;
     await this.ensureSession();
     const { data, error } = await this.sb.functions.invoke('send-sms-announcement', { body: { announcement_id: id } });
-    if (error) {
-      let detail = error.message;
-      try { const body = await error.context.json(); if (body && body.error) detail = body.error; } catch (_) {}
-      throw new Error(detail);
-    }
+    if (error) throw new Error(await smsErrorText(error));
     return data;
   },
   async save(col, item) {
@@ -1389,6 +1381,16 @@ function fieldHTML(f, v, isEdit) {
 /* ============================================================
    SMS contacts: bulk import, status, test
    ============================================================ */
+/* Turns an Edge Function error into a sentence that says what to do */
+async function smsErrorText(error) {
+  let detail = '';
+  try { const res = await error.context.json(); if (res && res.error) detail = res.error; if (res && res.message && !detail) detail = res.message; } catch (_) {}
+  if (detail) return detail;
+  if (/failed to send a request|failed to fetch|networkerror/i.test(error.message || '')) {
+    return 'The SMS function is not reachable. In Supabase, deploy the function "send-sms-announcement" and switch its "Verify JWT" setting OFF (see the SMS setup steps), then try again.';
+  }
+  return error.message || 'The SMS function returned an error.';
+}
 const normPhone = v => {
   let d = String(v || '').replace(/\D/g, '');
   if (d.length === 14 && d.startsWith('00233')) d = d.slice(2);

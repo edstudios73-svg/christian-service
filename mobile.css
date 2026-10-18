@@ -554,7 +554,6 @@ img, video, iframe { max-width: 100%; }
   .event-teaser-card__media,
   .event-teaser-card__media img {
     min-height: 0;
-    aspect-ratio: 3 / 4;
   }
   .event-teaser-card__body {
     padding: var(--sp-5) var(--sp-4);

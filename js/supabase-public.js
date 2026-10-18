@@ -534,6 +534,19 @@
     } catch (_) {}
   }
 
+  // Event thumbnail: let the box take the uploaded image's own shape so it fills the space (no empty bands, no cropping)
+  function fitEventMedia(img) {
+    const box = img.closest('.event-teaser-card__media');
+    if (!box) return;
+    img.addEventListener('load', () => {
+      if (!img.naturalWidth || !img.naturalHeight || img.naturalWidth < 8) return;
+      const ratio = Math.min(1.8, Math.max(0.6, img.naturalWidth / img.naturalHeight));
+      box.style.setProperty('--media-ratio', ratio.toFixed(4));
+      box.style.setProperty('--media-bg', `url("${String(img.currentSrc || img.src).replace(/"/g, '%22')}")`);
+      box.classList.add('is-fitted');
+    });
+  }
+
   async function applyHomepageContent(sb) {
     if (!document.querySelector('[data-home]')) return;
     let result;
@@ -556,6 +569,7 @@
       const value = get(element.dataset.homeImage);
       if (!value) return;
       if (!element.dataset.loaded) element.addEventListener('load', () => { element.dataset.loaded = '1'; }, { once: true });
+      fitEventMedia(element);
       element.src = String(value);
     });
     document.querySelectorAll('[data-home-href]').forEach((element) => {

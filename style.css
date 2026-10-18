@@ -2797,10 +2797,28 @@ main { position: relative; z-index: 1; }
   box-shadow: var(--sh-lg);
 }
 .event-teaser-card__media {
-  aspect-ratio: 3 / 4;
+  /* Takes the shape of whatever image the admin uploads (see supabase-public.js); 3:4 until it loads */
+  position: relative;
+  align-self: start;
+  width: 100%;
+  aspect-ratio: var(--media-ratio, 3 / 4);
   min-height: 0;
+  overflow: hidden;
+  isolation: isolate;
+  max-height: 760px;
   background: var(--c-primary-50);
 }
+/* Soft blurred copy of the same image fills any leftover space for very tall or very wide uploads */
+.event-teaser-card__media::before {
+  content: "";
+  position: absolute;
+  inset: -30px;
+  z-index: -1;
+  background: var(--media-bg, none) center / cover no-repeat;
+  filter: blur(26px) saturate(1.15);
+  opacity: 0;
+}
+.event-teaser-card__media.is-fitted::before { opacity: 1; }
 .event-teaser-card__media img {
   display: block;
   width: 100%;

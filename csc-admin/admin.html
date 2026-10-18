@@ -1483,6 +1483,7 @@ async function runContactsImport() {
 async function showSmsStatus() {
   try {
     const s = await Store.smsCall({ action: 'status' });
+    if (!s || s.mode === undefined) { toast('The deployed function is not the church SMS code. In Supabase open send-sms-announcement, replace its code with the supplied file, and deploy again.', 'bad'); return; }
     const sender = s.sender_status === 'approved' ? 'approved' : `${s.sender_status} (live sending works once approved)`;
     toast(`Mode: ${s.mode} · Sender ${s.sender_id}: ${sender} · Credits: ${s.sms_credits ?? '?'} · Active contacts: ${s.active_subscribers}`);
   } catch (ex) { toast(`SMS status: ${ex.message}`, 'bad'); }
@@ -1697,12 +1698,17 @@ async function saveForm() {
       }
       catch (notificationError) { toast('Announcement saved, but push delivery needs configuration.', 'bad'); }
       if (sendSms) {
-        for (const o of saved.filter(o => o.published && !item?.published)) {
-          try {
-            const result = await Store.sendAnnouncementSms(o.id);
-            toast(result && result.skipped ? `SMS skipped: ${result.skipped}` : `SMS sent to ${result && result.recipients != null ? result.recipients : 'subscribers'}`);
-          } catch (smsError) { toast(`SMS not sent: ${smsError.message || 'delivery needs configuration.'}`, 'bad'); }
-        }
+        // Runs in the background so saving is instant; the result shows as a message when it finishes.
+        const toText = saved.filter(o => o.published && !item?.published);
+        toast('Sending SMS in the background…');
+        (async () => {
+          for (const o of toText) {
+            try {
+              const result = await Store.sendAnnouncementSms(o.id);
+              toast(result && result.skipped ? `SMS skipped: ${result.skipped}` : `SMS sent to ${result && result.recipients != null ? result.recipients : 'subscribers'}`);
+            } catch (smsError) { toast(`SMS not sent: ${smsError.message || 'delivery needs configuration.'}`, 'bad'); }
+          }
+        })();
       }
     }
     if (item) imgFields.forEach(f => { if (item[f.name] && item[f.name] !== saved[0][f.name]) Store.removeFile(item[f.name]); });

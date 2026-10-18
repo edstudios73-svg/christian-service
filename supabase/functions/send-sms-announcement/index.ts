@@ -38,6 +38,7 @@ Deno.serve(async (request) => {
       ]);
       const { count } = await admin.from('sms_subscribers').select('id', { count: 'exact', head: true }).eq('status', 'active');
       return json({
+        version: 'csc-sms-2',
         mode: sandbox ? 'sandbox' : 'live',
         sender_id: senderId,
         sender_status: sender?.status ?? 'unknown',
@@ -86,9 +87,13 @@ Deno.serve(async (request) => {
     let delivered = 0, credits = 0;
     const jobIds: string[] = [];
     const errors: string[] = [];
-    for (const batch of chunk(recipients)) {
-      const result = await sendBatch({ apiKey, sender: senderId, recipients: batch, message, sandbox });
-      if (result.ok) { delivered += result.recipients; credits += result.credits; jobIds.push(...result.jobIds); } else errors.push(result.error || 'Send failed');
+    // Batches go out in parallel (4 at a time) so a big list is handed to the provider quickly.
+    const batches = chunk(recipients);
+    for (let i = 0; i < batches.length; i += 4) {
+      const results = await Promise.all(batches.slice(i, i + 4).map((batch) => sendBatch({ apiKey, sender: senderId, recipients: batch, message, sandbox })));
+      for (const result of results) {
+        if (result.ok) { delivered += result.recipients; credits += result.credits; jobIds.push(...result.jobIds); } else errors.push(result.error || 'Send failed');
+      }
     }
     const status = errors.length === 0 ? 'sent' : delivered > 0 ? 'partial' : 'failed';
     await admin.from('sms_messages').update({

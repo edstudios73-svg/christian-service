@@ -323,12 +323,14 @@
     if (!mount) return;
     const sorted = [...items].sort((a, b) => new Date(b.created_at || b.date || 0).getTime() - new Date(a.created_at || a.date || 0).getTime());
     mount.innerHTML = sorted.length ? sorted.map((item) => `
-      <article class="feature-card reveal" data-announcement-id="${esc(item.id)}" data-created-at="${esc(item.created_at || item.date || '')}" data-announcement-date="${esc(item.date || item.created_at || '')}">
-        ${item.image ? `<img src="${esc(item.image)}" alt="${esc(item.title || 'Church announcement')}" decoding="async" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:var(--r-md);margin-bottom:var(--sp-4)">` : ''}
-        <span class="eyebrow">${esc(item.category || 'Announcement')}</span>
-        <h2 class="feature-card__title">${esc(item.title)}</h2>
-        <p class="feature-card__desc">${esc(item.body)}</p>
-        <small class="muted">${formatDate(item.date)}</small>
+      <article class="feature-card ann-card reveal" data-announcement-id="${esc(item.id)}" data-created-at="${esc(item.created_at || item.date || '')}" data-announcement-date="${esc(item.date || item.created_at || '')}">
+        ${item.image ? `<div class="ann-card__media"><img src="${esc(item.image)}" alt="${esc(item.title || 'Church announcement')}" decoding="async" loading="eager"></div>` : ''}
+        <div class="ann-card__body">
+          <span class="ann-card__tag">${esc(item.category || 'Announcement')}</span>
+          <h2 class="ann-card__title">${esc(item.title)}</h2>
+          <p class="ann-card__text">${esc(item.body)}</p>
+          <time class="ann-card__date">${formatDate(item.date)}</time>
+        </div>
       </article>`).join('') : '<p class="muted">There are no announcements right now.</p>';
     window.dispatchEvent(new CustomEvent('csc-announcements-rendered', { detail: { items: sorted } }));
   }
@@ -538,6 +540,7 @@
   async function applyPageSettings(sb) {
     const header = document.querySelector('[data-page-key]');
     if (!header) return;
+    if (header.dataset.pageKey === 'home') { revealPageSettings(); return; }
     const { data, error } = await sb.from('pages').select('*').eq('slug', header.dataset.pageKey).eq('published', true).maybeSingle();
     if (error || !data) {
       revealPageSettings();
@@ -766,7 +769,7 @@
     // Show what the visitor saw last time straight away; fresh data replaces it a moment later
     const header = document.querySelector('[data-page-key]');
     const cachedPage = header && readCache(PAGE_CACHE_PREFIX + header.dataset.pageKey);
-    if (cachedPage) applyPageData(header, cachedPage);
+    if (cachedPage && header.dataset.pageKey !== 'home') applyPageData(header, cachedPage);
     [
       ['[data-supabase-announcements]', 'announcements', renderAnnouncements],
       ['[data-supabase-events]', 'events', renderEvents],

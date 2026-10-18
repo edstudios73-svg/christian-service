@@ -502,7 +502,7 @@ function toRow(key, it) {
   const col = COLLECTIONS[key];
   const r = { id: it.id };
   if (it.createdAt) r.created_at = it.createdAt;
-  r.updated_at = it.updatedAt || null;
+  r.updated_at = it.updatedAt || new Date().toISOString();
   col.fields.forEach(f => {
     const v = it[f.name];
     r[snake(f.name)] = (f.type === 'date' || f.type === 'time') ? (v || null) : f.type === 'checkbox' ? !!v : (v ?? '');

@@ -28,7 +28,7 @@
     pray:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6m0 14V8m-4 0a4 4 0 0 1 8 0M8 8v8m8-8v8"/></svg>',
     gift:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>',
     phone:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
-      megaphone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m4 14 10-8 6-2-2 6-8 8-6-1z"/><path d="m8 17 3 3-2 1-3-3"/><path d="m19 5 2-2M20 9h3M18 2l1-2"/></svg>',
+      megaphone: '<svg class="mega-icon" viewBox="0 0 28 24" fill="none" aria-hidden="true"><path d="M3.2 9.1h3.7l8.5-4.6a1 1 0 0 1 1.5.9v13.2a1 1 0 0 1-1.5.9L6.9 14.9H3.2a1.6 1.6 0 0 1-1.6-1.6v-2.6a1.6 1.6 0 0 1 1.6-1.6z" fill="currentColor"/><path d="M7.3 15.3l1.5 4.5a1.2 1.2 0 0 0 1.1.8h1.8a.9.9 0 0 0 .9-1.2l-1.1-4" fill="currentColor" opacity=".78"/><path d="M6.9 9.1v5.8" stroke="#0a1a3f" stroke-opacity=".28" stroke-width="1.2"/><path d="M20 8.6a5 5 0 0 1 0 6.8" stroke="#E3BE6B" stroke-width="1.9" stroke-linecap="round"/><path d="M23.2 6a8.7 8.7 0 0 1 0 12" stroke="#E3BE6B" stroke-width="1.9" stroke-linecap="round"/></svg>',
       file:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3h11l5 5v13H4z"/><path d="M15 3v6h5M8 13h8M8 17h6"/></svg>',
   };
 
@@ -82,11 +82,7 @@
 
         <div class="csc-dh__actions" aria-label="Quick actions">
           <a href="announcements.html" class="csc-dh__bell" aria-label="Announcements" title="Announcements">
-              <svg viewBox="0 0 32 24" width="26" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M3 10 18 4v16L3 14z" fill="currentColor" stroke="none"/>
-                <path d="M8 15v5l3 2 2-1-2-6M18 7l4-2v14l-4-2"/>
-                <path d="m25 7 3-2M25 12h5M25 17l3 2"/>
-              </svg>
+              <svg class="mega-icon" viewBox="0 0 28 24" fill="none" aria-hidden="true"><path d="M3.2 9.1h3.7l8.5-4.6a1 1 0 0 1 1.5.9v13.2a1 1 0 0 1-1.5.9L6.9 14.9H3.2a1.6 1.6 0 0 1-1.6-1.6v-2.6a1.6 1.6 0 0 1 1.6-1.6z" fill="currentColor"/><path d="M7.3 15.3l1.5 4.5a1.2 1.2 0 0 0 1.1.8h1.8a.9.9 0 0 0 .9-1.2l-1.1-4" fill="currentColor" opacity=".78"/><path d="M6.9 9.1v5.8" stroke="#0a1a3f" stroke-opacity=".28" stroke-width="1.2"/><path d="M20 8.6a5 5 0 0 1 0 6.8" stroke="#E3BE6B" stroke-width="1.9" stroke-linecap="round"/><path d="M23.2 6a8.7 8.7 0 0 1 0 12" stroke="#E3BE6B" stroke-width="1.9" stroke-linecap="round"/></svg>
             <span class="csc-dh__badge nav__announcement-count" aria-live="polite" aria-atomic="true" hidden>0</span>
           </a>
           <span class="csc-dh__divider csc-dh__divider--action" aria-hidden="true"></span>
@@ -121,7 +117,7 @@
             <a href="testimonies.html" class="nav__link">Testimonies</a>
           </div>
           <a href="announcements.html" class="nav__icon-button nav__announcement-link${getCurrentPage() === 'announcements.html' ? ' is-active' : ''}" aria-label="Announcements" title="Announcements">
-            <svg viewBox="0 0 32 24" width="22" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10 18 4v16L3 14z" fill="currentColor" stroke="none"/><path d="M8 15v5l3 2 2-1-2-6M18 7l4-2v14l-4-2"/><path d="m25 7 3-2M25 12h5M25 17l3 2"/></svg>
+            <svg class="mega-icon" viewBox="0 0 28 24" fill="none" aria-hidden="true"><path d="M3.2 9.1h3.7l8.5-4.6a1 1 0 0 1 1.5.9v13.2a1 1 0 0 1-1.5.9L6.9 14.9H3.2a1.6 1.6 0 0 1-1.6-1.6v-2.6a1.6 1.6 0 0 1 1.6-1.6z" fill="currentColor"/><path d="M7.3 15.3l1.5 4.5a1.2 1.2 0 0 0 1.1.8h1.8a.9.9 0 0 0 .9-1.2l-1.1-4" fill="currentColor" opacity=".78"/><path d="M6.9 9.1v5.8" stroke="#0a1a3f" stroke-opacity=".28" stroke-width="1.2"/><path d="M20 8.6a5 5 0 0 1 0 6.8" stroke="#E3BE6B" stroke-width="1.9" stroke-linecap="round"/><path d="M23.2 6a8.7 8.7 0 0 1 0 12" stroke="#E3BE6B" stroke-width="1.9" stroke-linecap="round"/></svg>
             <span class="nav__announcement-count" aria-live="polite" aria-atomic="true" hidden>0</span>
           </a>
           <a href="giving.html" class="nav__cta" data-nav-give>Give</a>

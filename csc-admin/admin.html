@@ -178,6 +178,7 @@ dialog form{display:flex;flex-direction:column;min-height:0;flex:1}
 .dh{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 14px 22px;border-bottom:1px solid var(--line)}
 .db{overflow:auto;padding:18px 22px;display:grid;grid-template-columns:1fr 1fr;gap:16px;flex:1;min-height:0;-webkit-overflow-scrolling:touch}
 .fld{grid-column:1/-1}
+.tplrow{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0}
 .fld.half{grid-column:span 1}
 .df{display:flex;align-items:center;gap:10px;padding:14px 22px calc(14px + env(safe-area-inset-bottom));border-top:1px solid var(--line);flex-wrap:wrap}
 .df .sp{flex:1}
@@ -351,8 +352,6 @@ const COLLECTIONS = {
     hint: 'Publish notices that members can view from the announcement icon.',
     fields: [
       { name: 'title', label: 'Headline', type: 'text', required: true },
-      { name: 'senderName', label: 'Sender name', type: 'text', required: true, half: true, ph: 'e.g. Rev. Dr. Joseph Payin Ezekiel' },
-      { name: 'senderRole', label: 'Sender role or position', type: 'text', required: true, half: true, ph: 'e.g. General Overseer' },
       { name: 'category', label: 'Category', type: 'select', options: ['General', 'Service', 'Prayer', 'Event', 'Urgent'], half: true },
       { name: 'date', label: 'Date', type: 'date', required: true, half: true, def: 'today' },
       { name: 'body', label: 'Announcement details', type: 'textarea', required: true, rows: 6 },
@@ -1498,6 +1497,33 @@ async function sendSmsTest() {
   } catch (ex) { toast(`Test not sent: ${ex.message}`, 'bad'); }
 }
 
+/* One-tap announcement templates. {when} becomes "today" or "on Sunday 18 Oct" from the Date field. */
+const ANNOUNCEMENT_TEMPLATES = [
+  { name: 'Sunday Service', category: 'Service', title: 'Sunday Service {when}', body: 'Happy Sunday! Join us for Sunday Service {when} at 9:00 AM. Come with expectation and bring someone along. God has something special for you.' },
+  { name: 'Midweek Service', category: 'Service', title: 'Midweek Service {when}', body: 'Join us for our Midweek Service {when}. Come ready to be refreshed in the Word and be encouraged.' },
+  { name: 'Prayer Meeting', category: 'Prayer', title: 'Prayer Meeting {when}', body: 'Join us for prayer {when}. Come, let us seek the Lord together. The prayer of the righteous is powerful.' },
+  { name: 'Youth Service', category: 'Service', title: 'Youth Service {when}', body: 'Calling all youth! Join us for Youth Service {when}. Come to worship, grow in the Word and bring a friend.' },
+  { name: 'New Sermon', category: 'General', title: 'New Sermon Available', body: 'A new sermon has been uploaded. Visit our website to watch or listen and be blessed.' },
+  { name: 'Youth Sermon', category: 'General', title: 'New Youth Sermon Available', body: 'A new youth sermon is now on our website. Watch or listen and share with a friend.' }
+];
+function templateWhen(dateStr) {
+  const d = dateStr ? new Date(dateStr + 'T12:00:00') : new Date();
+  if (isNaN(d)) return 'today';
+  if (dateStr === today()) return 'today';
+  return 'on ' + d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' }).replace(',', '');
+}
+function applyAnnouncementTemplate(i) {
+  const t = ANNOUNCEMENT_TEMPLATES[i], form = $('#form');
+  if (!t || !form) return;
+  const when = templateWhen(form.elements.date && form.elements.date.value);
+  const set = (n, v) => { if (form.elements[n]) form.elements[n].value = v; };
+  set('title', t.title.replace('{when}', when));
+  set('category', t.category);
+  set('body', t.body.replace(/{when}/g, when));
+  if (form.elements.sendSms) form.elements.sendSms.checked = true;
+  toast(`${t.name} message ready. Press Save announcement to send it.`);
+}
+
 function openForm(key, id) {
   const col = COLLECTIONS[key];
   const it = id ? (cache[key] || []).find(x => x.id === id) : null;
@@ -1508,7 +1534,7 @@ function openForm(key, id) {
   const dlg = $('#formDlg');
   dlg.innerHTML = `<form id="form" autocomplete="off">
     <div class="dh"><h2 id="formTitle">${it ? 'Edit' : 'Add'} ${esc(col.singular)}</h2><button type="button" class="icon" data-act="closeform" aria-label="Close">${icon('x', 22)}</button></div>
-    <div class="db">${col.fields.map(f => fieldHTML(f, it ? it[f.name] : (f.def === 'today' ? today() : f.def || ''), !!it)).join('')}${key === 'announcements' ? fieldHTML({ name: 'sendPush', label: 'Send push notification to subscribers', type: 'checkbox' }, true, !!it) + fieldHTML({ name: 'sendSms', label: 'Also send as SMS to subscribers (uses SMS credits)', type: 'checkbox' }, false, !!it) : ''}</div>
+    <div class="db">${key === 'announcements' && !it ? `<div class="fld" style="grid-column:1/-1"><span class="l">Quick message templates</span><div class="tplrow">${ANNOUNCEMENT_TEMPLATES.map((t, i) => `<button type="button" class="btn" data-act="tpl" data-i="${i}">${esc(t.name)}</button>`).join('')}</div><p class="hint">Tap a template to fill the message with today's date, then press Save announcement. SMS is switched on for you; untick it to skip the SMS.</p></div>` : ''}${col.fields.map(f => fieldHTML(f, it ? it[f.name] : (f.def === 'today' ? today() : f.def || ''), !!it)).join('')}${key === 'announcements' ? fieldHTML({ name: 'sendPush', label: 'Send push notification to subscribers', type: 'checkbox' }, true, !!it) + fieldHTML({ name: 'sendSms', label: 'Also send as SMS to subscribers (uses SMS credits)', type: 'checkbox' }, false, !!it) : ''}</div>
     <div class="df">
       <p class="err" id="formErr" role="alert"></p>
       ${col.noPublish ? '' : `<label class="switch"><input type="checkbox" name="published"${(it ? it.published : true) ? ' checked' : ''}><span></span>Show on website</label>`}
@@ -1799,6 +1825,7 @@ document.addEventListener('click', e => {
     case 'importContacts': openContactsImport(); break;
     case 'smsStatus': showSmsStatus(); break;
     case 'smsTest': sendSmsTest(); break;
+    case 'tpl': applyAnnouncementTemplate(+d.i); break;
     case 'edit': openForm(route, d.id); break;
     case 'page-edit': {
       const page = (cache.pages || []).find(item => item.slug === d.slug);

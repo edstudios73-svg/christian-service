@@ -422,19 +422,19 @@
 
   // ---- Ministries: the church's core ministries always appear (in this order); admin entries with the same name take over ----
   const CORE_MINISTRIES = [
-    { match: /child/i, title: "Children's Ministry", image: 'assets/ministries/children.jpg',
+    { match: /child/i, title: "Children's Ministry", image: 'assets/ministries/children-art.jpg',
       body: 'Raising the next generation of believers. Through Bible stories, songs, games and loving mentors, our children discover that Jesus loves them and build a faith that lasts a lifetime.' },
-    { match: /youth|vibrant/i, title: 'Vibrant Youth', image: 'assets/ministries/vibrant-youth.jpg',
+    { match: /youth|vibrant/i, title: 'Vibrant Youth', image: 'assets/ministries/vibrant-youth-art.jpg',
       body: 'Young, bold and on fire for God. Vibrant Youth brings teens and young adults together for powerful worship, real conversations, purpose and lasting friendships, equipping a generation to stand out for Christ.' },
-    { match: /prayer/i, title: 'Prayer Department', image: 'assets/ministries/prayer-department.jpg',
+    { match: /prayer/i, title: 'Prayer Department', image: 'assets/ministries/prayer-department-art.jpg',
       body: 'The engine room of the church. Our intercessors stand in the gap for the church, the city and the nation, believing God for breakthroughs, healing and answered prayers.' },
-    { match: /usher|protocol/i, title: 'Ushers and Protocol', image: 'assets/ministries/ushers-and-protocol.jpg',
+    { match: /usher|protocol/i, title: 'Ushers and Protocol', image: 'assets/ministries/ushers-and-protocol-art.jpg',
       body: 'The warm face of our hospitality. Our well-trained team welcomes every guest, keeps every service orderly and makes sure everyone feels at home from the gate to the seat.' },
-    { match: /choir|ezekiel/i, title: 'Ezekiel Choir', image: 'assets/ministries/ezekiel-choir.jpg',
+    { match: /choir|ezekiel/i, title: 'Ezekiel Choir', image: 'assets/ministries/ezekiel-choir-art.jpg',
       body: 'Our voices lifted in worship. The Ezekiel Choir ushers the church into the presence of God with anointed songs, rich harmony and excellence every Sunday and at special services.' },
-    { match: /media/i, title: 'Media Ministry', image: 'assets/ministries/media-ministry.jpg',
+    { match: /media/i, title: 'Media Ministry', image: 'assets/ministries/media-ministry-art.jpg',
       body: 'Taking the Word further. From cameras and sound to live streaming, photos and graphics, our creative team captures every moment so the message reaches far beyond our walls.' },
-    { match: /evangel/i, title: 'Evangelism Team', image: 'assets/ministries/evangelism-team.jpg',
+    { match: /evangel/i, title: 'Evangelism Team', image: 'assets/ministries/evangelism-team-art.jpg',
       body: 'Taking the Gospel to every street. Our evangelists share the Good News through outreach, visits and everyday conversations, leading souls to Christ and welcoming them home.' }
   ];
 
@@ -444,7 +444,7 @@
       const found = pool.find((entry) => !entry.used && base.match.test(String(entry.item.title || '')));
       if (found) found.used = true;
       const item = found ? found.item : {};
-      return { ...base, ...item, title: item.title || base.title, body: item.body || base.body, image: item.image || base.image, _core: true };
+      return { ...base, ...item, title: item.title || base.title, body: item.body || base.body, image: (item.image && !/^\/?assets\/ministries\//.test(item.image)) ? item.image : base.image, _core: true };
     });
     return core.concat(pool.filter((entry) => !entry.used).map((entry) => entry.item));
   }

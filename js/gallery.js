@@ -49,7 +49,7 @@
       return /\/(thumbs)\//.test(src) ? src : `gallery/thumbs/${stem}.jpg`;
     };
     mount.innerHTML = images.map((item) => `
-      <article class="gallery-item" data-lightbox="${item.src}" data-caption="${item.caption}">
+      <article class="gallery-item" data-lightbox="${item.src}" data-caption="${item.caption}" tabindex="0" role="button" aria-label="View photo: ${item.caption}">
         <img src="${thumbOf(item.src)}" alt="${item.caption}" decoding="async" onerror="if(!this.dataset.full){this.dataset.full=1;this.src='${item.src}';}else{this.closest('.gallery-item').remove();}">
         <div class="gallery-item__overlay">${item.caption}</div>
       </article>

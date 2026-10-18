@@ -361,7 +361,7 @@
     // Safety net: never leave the page scroll-locked (menu closed, no photo viewer open)
     function unlockIfStuck() {
       if (menuOpen) return;
-      if (document.querySelector('.lightbox.is-open')) return;
+      if (document.querySelector('.lightbox.is-open, .viewer.is-open')) return;
       if (document.body.style.overflow === 'hidden') document.body.style.overflow = '';
     }
     window.addEventListener('pageshow', (e) => { if (e.persisted) setMenu(false); unlockIfStuck(); });

@@ -298,7 +298,7 @@
     if (!mount) return;
     // The first screens of photos load immediately; only photos far down a very long gallery wait (they start loading well before you scroll to them)
     mount.innerHTML = items.length ? items.map((item, index) => `
-      <article class="gallery-item" data-lightbox="${esc(item.image)}" data-caption="${esc(item.caption || '')}">
+      <article class="gallery-item" data-lightbox="${esc(item.image)}" data-caption="${esc(item.caption || '')}" tabindex="0" role="button" aria-label="View photo: ${esc(item.caption || 'Christian Service Church gallery photo')}">
         <img src="${esc(item.image)}" alt="${esc(item.caption || 'Christian Service Church gallery photo')}" decoding="async"${index >= 24 ? ' loading="lazy"' : ''}>
         <div class="gallery-item__overlay">${esc(item.caption || '')}</div>
       </article>`).join('') : '<div class="gallery-empty">No published photos yet.</div>';

@@ -330,25 +330,64 @@
     window.dispatchEvent(new CustomEvent('csc-announcements-rendered', { detail: { items: sorted } }));
   }
 
-  function renderLeaders(items) {
+  // ---- Leadership hierarchy: General Overseer first, then Co-General Overseer, then everyone else in admin order ----
+  const LEADER_TITLE_WORDS = /^(rev|reverend|dr|prof|prophetess|prophet|pastor|apostle|bishop|elder|deacon|deaconess|evangelist|mr|mrs|ms|sis|bro)\.?$/i;
+  const DEFAULT_TOP_LEADERS = [
+    { name: 'Rev. Dr. Joseph Payin Ezekiel', role: 'General Overseer' },
+    { name: 'Dr. Prophetess Gifty Ezekiel', role: 'Co-General Overseer' }
+  ];
+  const leaderInitials = (name) => {
+    const words = String(name || '').split(/\s+/).filter((word) => word && !LEADER_TITLE_WORDS.test(word));
+    return ((words[0] || '')[0] || '') + ((words[1] || '')[0] || '');
+  };
+  function leaderRank(item) {
+    const role = String(item.role || '').toLowerCase();
+    const name = String(item.name || '').toLowerCase();
+    if (/co[\s-]*general\s+overseer/.test(role) || /gifty/.test(name)) return 1;
+    if (/general\s+overseer/.test(role) || /payin/.test(name)) return 0;
+    return 2;
+  }
+  function orderLeaders(items) {
+    const entries = (items || []).map((item, index) => ({ item, index, rank: leaderRank(item) }));
+    const used = new Set();
+    const top = [0, 1].map((rank) => {
+      const found = entries.find((entry) => entry.rank === rank && !used.has(entry.index));
+      if (found) used.add(found.index);
+      return { ...(found ? found.item : DEFAULT_TOP_LEADERS[rank]), _tier: rank };
+    });
+    const rest = entries.filter((entry) => !used.has(entry.index)).map((entry) => ({ ...entry.item, _tier: 2 }));
+    return top.concat(rest);
+  }
+
+  function renderLeaders(rawItems) {
     const mount = document.querySelector('[data-supabase-leaders]');
     if (!mount) return;
+    const items = orderLeaders(rawItems);
     const pageSize = 6;
     const pageCount = Math.max(1, Math.ceil(items.length / pageSize));
     const currentPage = Math.min(Math.max(0, Number(window.CSC_LEADERS_PAGE || 0)), pageCount - 1);
     window.CSC_LEADERS_ITEMS = items;
     window.CSC_LEADERS_PAGE = currentPage;
     const visibleItems = items.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
-    mount.innerHTML = visibleItems.length ? visibleItems.map((item, index) => `
-      <div class="member-card reveal-scale" data-delay="${(index % 3) + 1}">
-        <div class="member-card__image"${item.image ? ` style="background-image:url('${esc(item.image)}')"` : ''}></div>
+    mount.innerHTML = visibleItems.length ? visibleItems.map((item, index) => {
+      const featured = item._tier < 2;
+      // The General Overseer's photo comes from the pastor image published in the admin Homepage editor
+      const photo = item.image || (item._tier === 0 ? (readHomeCache()?.pastor?.image || 'gallery/our-pastors-image.png') : '');
+      const imageBlock = photo
+        ? `<div class="member-card__image" role="img" aria-label="${esc(item.name || 'Leader')}" style="background-image:url('${esc(photo)}')"></div>`
+        : `<div class="member-card__image member-card__image--empty" aria-hidden="true"><span>${esc(leaderInitials(item.name).toUpperCase())}</span></div>`;
+      return `
+      <div class="member-card reveal-scale${featured ? ' member-card--featured' : ''}" data-delay="${(index % 3) + 1}">
+        ${imageBlock}
         <div class="member-card__content">
+          ${featured ? `<span class="member-card__tier">${item._tier === 0 ? 'Leading Our Church' : 'Serving Alongside'}</span>` : ''}
           <h3 class="member-card__name">${esc(item.name || '')}</h3>
           <p class="member-card__role">${esc(item.role || '')}</p>
           ${item.location ? `<p class="member-card__location"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-13-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${esc(item.location)}</p>` : ''}
           ${item.body ? `<p class="member-card__bio">${esc(item.body)}</p>` : ''}
         </div>
-      </div>`).join('') : '<p class="muted">No leaders have been published yet.</p>';
+      </div>`;
+    }).join('') : '<p class="muted">No leaders have been published yet.</p>';
     const pagination = document.querySelector('[data-leaders-pagination]');
     if (pagination) {
       pagination.hidden = items.length <= pageSize;
@@ -518,6 +557,14 @@
   const readHomeCache = () => { try { return JSON.parse(localStorage.getItem(HOME_CACHE_KEY) || 'null'); } catch (_) { return null; } };
   const writeHomeCache = (content) => { try { localStorage.setItem(HOME_CACHE_KEY, JSON.stringify(content)); } catch (_) {} };
 
+  // Keep the admin's published pastor image handy (used for the General Overseer card on the leaders page)
+  async function warmPastorImage(sb) {
+    try {
+      const { data } = await sb.from('homepage_content').select('published_content').eq('id', 'home').maybeSingle();
+      if (data?.published_content && Object.keys(data.published_content).length) writeHomeCache(data.published_content);
+    } catch (_) {}
+  }
+
   function showPastorPhoto(url) {
     const img = document.querySelector('[data-pastor-photo]');
     if (!img || !url) return;
@@ -538,13 +585,15 @@
   function fitEventMedia(img) {
     const box = img.closest('.event-teaser-card__media');
     if (!box) return;
-    img.addEventListener('load', () => {
+    const apply = () => {
       if (!img.naturalWidth || !img.naturalHeight || img.naturalWidth < 8) return;
       const ratio = Math.min(1.8, Math.max(0.6, img.naturalWidth / img.naturalHeight));
       box.style.setProperty('--media-ratio', ratio.toFixed(4));
       box.style.setProperty('--media-bg', `url("${String(img.currentSrc || img.src).replace(/"/g, '%22')}")`);
       box.classList.add('is-fitted');
-    });
+    };
+    img.addEventListener('load', apply);
+    if (img.complete) apply();
   }
 
   async function applyHomepageContent(sb) {
@@ -613,6 +662,7 @@
 
   async function init() {
     initLeadersPagination();
+    document.querySelectorAll('.event-teaser-card__media img').forEach(fitEventMedia);
     if (document.querySelector('[data-home]')) {
       const cached = readHomeCache();
       if (cached) renderHomepageContent(cached);
@@ -634,7 +684,7 @@
       if (document.querySelector('[data-supabase-sermons]')) renderSermons(await fetchPublished(sb, 'sermons', 'date'));
       if (document.querySelector('[data-gallery-grid]')) renderGallery(await fetchPublished(sb, 'gallery', 'date'));
       if (document.querySelector('[data-supabase-testimonies]')) renderTestimonies(await fetchPublished(sb, 'testimonies', 'date'));
-      if (document.querySelector('[data-supabase-leaders]')) renderLeaders(await fetchPublished(sb, 'leaders', 'created_at', true));
+      if (document.querySelector('[data-supabase-leaders]')) { await warmPastorImage(sb); renderLeaders(await fetchPublished(sb, 'leaders', 'created_at', true)); }
       if (document.querySelector('[data-supabase-ministries]')) renderMinistries(await fetchPublished(sb, 'ministries', 'created_at'));
       await initPrayerForm(sb);
         await initVisitForm(sb);

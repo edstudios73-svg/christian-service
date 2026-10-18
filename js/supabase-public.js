@@ -327,7 +327,6 @@
         ${item.image ? `<img src="${esc(item.image)}" alt="${esc(item.title || 'Church announcement')}" decoding="async" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:var(--r-md);margin-bottom:var(--sp-4)">` : ''}
         <span class="eyebrow">${esc(item.category || 'Announcement')}</span>
         <h2 class="feature-card__title">${esc(item.title)}</h2>
-        <p class="feature-card__sender">Posted by ${esc(item.sender_name || 'Church office')}${item.sender_role ? `, ${esc(item.sender_role)}` : ''}</p>
         <p class="feature-card__desc">${esc(item.body)}</p>
         <small class="muted">${formatDate(item.date)}</small>
       </article>`).join('') : '<p class="muted">There are no announcements right now.</p>';

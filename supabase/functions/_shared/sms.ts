@@ -92,8 +92,8 @@ export async function sendBatch(
         return {
           ok: true,
           recipients: Number(payload?.data?.recipients_count ?? opts.recipients.length),
-          credits: Number(payload?.balance?.deducted ?? 0),
-          jobIds: payload?.data?.job_id != null ? [String(payload.data.job_id)] : [],
+          credits: Number(payload?.charged?.units ?? payload?.balance?.deducted ?? payload?.data?.total_credits_used ?? 0),
+          jobIds: (payload?.data?.task_id ?? payload?.data?.job_id) != null ? [String(payload?.data?.task_id ?? payload?.data?.job_id)] : [],
         };
       }
       lastError = explainSmsError(response.status, payload?.detail ?? payload?.message);

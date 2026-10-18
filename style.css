@@ -3701,3 +3701,45 @@ img { -webkit-user-drag: none; }
   .explore-section .quick-tile__icon.qt-icon { width: 54px; height: 54px; border-radius: 18px; }
   .explore-section .qt-svg { width: 30px; height: 30px; }
 }
+
+/* ---------- Ministries: illustrated thumbnails, two columns on larger screens ---------- */
+.ministry-card--art .ministry-card__media { height: auto; aspect-ratio: 3 / 2; background-size: cover; background-position: center; }
+.ministry-card--art .ministry-card__media::after { background: linear-gradient(180deg, rgba(10,26,63,0) 60%, rgba(10,26,63,.18)); }
+.ministry-card--art .ministry-card__title { font-size: var(--fs-lg); }
+.ministry-card--art .ministry-card__desc { font-size: var(--fs-sm); line-height: 1.65; margin-bottom: 0; }
+.ministry-card--art { border: 1px solid rgba(27,58,139,.10); }
+@media (min-width: 768px) {
+  [data-supabase-ministries] { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: var(--sp-5) !important; }
+}
+
+/* ---------- Announcements megaphone button ---------- */
+.csc-dh .csc-dh__bell,
+.nav__icon-button.nav__announcement-link {
+  color: #fff;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.38);
+  background: linear-gradient(145deg, #3f74ff 0%, #1b3a8b 58%, #0a1a3f 100%);
+  box-shadow: 0 8px 18px rgba(10,26,63,.35), inset 0 1px 0 rgba(255,255,255,.45), inset 0 -4px 8px rgba(0,0,0,.18);
+}
+.csc-dh .csc-dh__bell { width: 42px; height: 42px; }
+.csc-dh .csc-dh__bell .mega-icon { width: 27px; height: 23px; filter: drop-shadow(0 2px 3px rgba(0,0,0,.3)); }
+.csc-dh .csc-dh__bell:hover,
+.csc-dh .csc-dh__bell:focus-visible,
+.nav__icon-button.nav__announcement-link:hover,
+.nav__icon-button.nav__announcement-link:active,
+.nav__icon-button.nav__announcement-link.is-active {
+  background: linear-gradient(145deg, #5b8cff 0%, #2a50b8 58%, #0f2563 100%);
+  border-color: rgba(227,190,107,.9);
+  box-shadow: 0 10px 22px rgba(10,26,63,.4), 0 0 0 3px rgba(227,190,107,.28), inset 0 1px 0 rgba(255,255,255,.5);
+}
+.nav__icon-button.nav__announcement-link { width: 38px; height: 38px; }
+.nav__icon-button.nav__announcement-link .mega-icon { width: 23px; height: 20px; filter: drop-shadow(0 2px 3px rgba(0,0,0,.3)); }
+.csc-dh .csc-dh__badge,
+.nav__icon-button .nav__announcement-count {
+  background: linear-gradient(135deg, #ffe29a, #e0b44a);
+  border: 2px solid #fff;
+  color: #10275b;
+  box-shadow: 0 3px 8px rgba(0,0,0,.3);
+}
+.nav__icon-button.nav__announcement-link { position: relative; overflow: visible; }
+.nav__icon-button .nav__announcement-count { top: -5px; right: -5px; }

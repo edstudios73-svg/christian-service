@@ -187,7 +187,7 @@
           card.style.display = 'none';
           success.classList.add('is-shown');
         }
-        form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        form.scrollIntoView({ behavior: 'auto', block: 'center' });
       });
     });
 

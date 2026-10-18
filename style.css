@@ -3820,3 +3820,9 @@ img { -webkit-user-drag: none; }
 .ann-card__title { margin: 0; font-size: 1.25rem; line-height: 1.25; color: var(--c-text, #14213d); overflow-wrap: anywhere; }
 .ann-card__text { margin: 0; line-height: 1.6; color: var(--c-text-muted, #59627a); white-space: pre-line; overflow-wrap: anywhere; }
 .ann-card__date { margin-top: auto; padding-top: 6px; font-size: 13px; font-weight: 700; color: var(--c-text-muted, #59627a); }
+
+/* Scrolling stays light: no decorative glows or particles, and no blur filters on fixed or sticky bars (they repaint on every scroll frame) */
+.hero__glow, .particles { display: none !important; }
+.btn-ghost-light, .countdown > *, .pastor-portrait__badge, .site-header, header { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+.mobile-quickbar { background: #fff !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+html { scroll-behavior: auto !important; }

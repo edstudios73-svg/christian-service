@@ -418,7 +418,7 @@
       if (nextPage < 0 || nextPage >= pageCount) return;
       window.CSC_LEADERS_PAGE = nextPage;
       renderLeaders(items);
-      document.querySelector('[data-supabase-leaders]')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.querySelector('[data-supabase-leaders]')?.scrollIntoView({ behavior: 'auto', block: 'start' });
     });
   }
 

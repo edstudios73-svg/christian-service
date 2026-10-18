@@ -20,7 +20,7 @@ select 'Ushers and Protocol', 'The warm face of our hospitality. Our well-traine
 where not exists (select 1 from public.ministries where title ilike '%usher%');
 
 insert into public.ministries (title, body, image, published, created_at)
-select 'Ezekiel Choir', 'Our voices lifted in worship. The Ezekiel Choir ushers the church into the presence of God with anointed songs, rich harmony and excellence every Sunday and at special services.', 'assets/ministries/ezekiel-choir-art.jpg', true, now() + interval '4 seconds'
+select 'Ezekiel Choir', 'Our voices lifted in worship. The Ezekiel Choir ushers the church into the presence of God with anointed songs, rich harmony and excellence every Sunday and at special services.', 'assets/ministries/ezekiel-choir-photo.jpg', true, now() + interval '4 seconds'
 where not exists (select 1 from public.ministries where title ilike '%choir%');
 
 insert into public.ministries (title, body, image, published, created_at)

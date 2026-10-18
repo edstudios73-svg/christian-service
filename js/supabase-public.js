@@ -377,9 +377,9 @@
     mount.innerHTML = visibleItems.length ? visibleItems.map((item, index) => {
       const featured = item._tier < 2;
       // The General Overseer's photo comes from the pastor image published in the admin Homepage editor
-      const photo = item.image || (item._tier === 0 ? (readHomeCache()?.pastor?.image || 'gallery/our-pastors-image.jpg') : '');
+      const photo = item.image || (item._tier === 0 ? (readHomeCache()?.pastor?.image || 'gallery/our-pastors-image.jpg') : item._tier === 1 ? 'assets/leaders/co-general-overseer.jpg' : '');
       const imageBlock = photo
-        ? `<div class="member-card__image" role="img" aria-label="${esc(item.name || 'Leader')}" style="background-image:url('${esc(photo)}')"></div>`
+        ? `<div class="member-card__image" role="img" aria-label="${esc(item.name || 'Leader')}" style="background-image:url('${esc(photo)}')${photo === 'assets/leaders/co-general-overseer.jpg' ? ';background-position:center 14%' : ''}"></div>`
         : `<div class="member-card__image member-card__image--empty" aria-hidden="true"><span>${esc(leaderInitials(item.name).toUpperCase())}</span></div>`;
       return `
       <div class="member-card reveal-scale${featured ? ' member-card--featured' : ''}" data-delay="${(index % 3) + 1}">
@@ -432,7 +432,7 @@
       body: 'The engine room of the church. Our intercessors stand in the gap for the church, the city and the nation, believing God for breakthroughs, healing and answered prayers.' },
     { match: /usher|protocol/i, title: 'Ushers and Protocol', image: 'assets/ministries/ushers-and-protocol-art.jpg',
       body: 'The warm face of our hospitality. Our well-trained team welcomes every guest, keeps every service orderly and makes sure everyone feels at home from the gate to the seat.' },
-    { match: /choir|ezekiel/i, title: 'Ezekiel Choir', image: 'assets/ministries/ezekiel-choir-art.jpg',
+    { match: /choir|ezekiel/i, title: 'Ezekiel Choir', image: 'assets/ministries/ezekiel-choir-photo.jpg',
       body: 'Our voices lifted in worship. The Ezekiel Choir ushers the church into the presence of God with anointed songs, rich harmony and excellence every Sunday and at special services.' },
     { match: /media/i, title: 'Media Ministry', image: 'assets/ministries/media-ministry-art.jpg',
       body: 'Taking the Word further. From cameras and sound to live streaming, photos and graphics, our creative team captures every moment so the message reaches far beyond our walls.' },

@@ -67,7 +67,7 @@
       <div class="csc-dh__inner">
         <div class="csc-dh__brand" aria-label="Christian Service Church home">
           <span class="csc-dh__logo">
-            <img src="assets/church-logo.png" alt="Christian Service Church logo" loading="eager">
+            <img src="assets/icons/logo-128.png" alt="Christian Service Church logo" width="44" height="44" decoding="async">
           </span>
           <span class="csc-dh__divider" aria-hidden="true"></span>
           <span class="csc-dh__name">
@@ -101,7 +101,7 @@
       <div class="nav__inner">
         <a href="/" class="nav__logo" aria-label="Christian Service Church home">
           <span class="nav__logo-mark">
-            <img src="assets/church-logo.png" alt="Christian Service Church logo" loading="eager">
+            <img src="assets/icons/logo-128.png" alt="Christian Service Church logo" width="44" height="44" decoding="async">
           </span>
           <span class="nav__logo-text">
             Christian Service
@@ -206,7 +206,7 @@
     prompt.className = 'install-prompt';
     prompt.setAttribute('aria-label', 'Install Christian Service Church app');
     prompt.innerHTML = `
-      <div class="install-prompt__icon"><img src="assets/church-logo.png" alt=""></div>
+      <div class="install-prompt__icon"><img src="assets/icons/logo-96.png" alt="" width="42" height="42"></div>
       <div class="install-prompt__copy"><strong>Install as app</strong><span>Install Christian Service Church as a classic app on your device.</span></div>
       <button class="install-prompt__close" type="button" aria-label="Dismiss install prompt">&times;</button>
       <button class="btn btn-gold btn-sm install-prompt__install" type="button">Install</button>`;
@@ -269,7 +269,7 @@
         window.__CSC_SW_REFRESHED = true;
         window.location.reload();
       });
-      navigator.serviceWorker.register('service-worker.js?v=20260924', { updateViaCache: 'none' })
+      navigator.serviceWorker.register('service-worker.js?v=20261025', { updateViaCache: 'none' })
         .then((registration) => registration.update())
         .catch(() => {});
     }

@@ -14,6 +14,7 @@
     document.head.appendChild(script);
   });
   const SUPABASE_LIB_SOURCES = [
+    'js/vendor/supabase.js',
     'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js',
     'https://unpkg.com/@supabase/supabase-js@2.45.4/dist/umd/supabase.js',
     'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
@@ -44,6 +45,7 @@
   async function fetchPublished(sb, table, order = 'created_at', ascending = false) {
     const { data, error } = await sb.from(table).select('*').eq('published', true).order(order, { ascending });
     if (error) throw error;
+    try { const text = JSON.stringify(data || []); if (text.length < 900000) localStorage.setItem(LIST_CACHE_PREFIX + table, text); } catch (_) {}
     return data || [];
   }
 
@@ -54,7 +56,7 @@
       <article class="event-card reveal">
         <div class="event-card__date"><div class="day">${esc(item.date ? item.date.slice(8, 10) : '')}</div><div class="month">${esc(item.date ? new Date(`${item.date}T00:00:00`).toLocaleDateString('en-US', { month: 'short' }) : '')}</div></div>
         <div class="event-card__body">
-          ${item.image ? `<img class="event-card__image" src="${esc(item.image)}" alt="${esc(item.title || 'Church event')}" loading="lazy" decoding="async">` : ''}
+          ${item.image ? `<img class="event-card__image" src="${esc(item.image)}" alt="${esc(item.title || 'Church event')}" decoding="async">` : ''}
           <h3 class="event-card__title">${esc(item.title)}</h3>
           <div class="event-card__meta"><span>${esc(item.time || '')}</span><span>${esc(item.location || '')}</span></div>
           <p class="event-card__desc">${esc(item.body || '')}</p>
@@ -204,7 +206,7 @@
       return `
         <article class="sermon-card ${isFeatured ? 'sermon-card--featured' : 'sermon-card--compact'} reveal">
           <div class="sermon-card__media ${isFeatured ? 'sermon-card__media--featured' : ''}">
-            <img src="${esc(image)}" alt="${esc(titleText)}" loading="lazy" decoding="async">
+            <img src="${esc(image)}" alt="${esc(titleText)}" decoding="async">
             ${normalizeSermonText(item.duration) ? `<span class="sermon-card__duration">${esc(item.duration)}</span>` : ''}
           </div>
 
@@ -294,9 +296,10 @@
   function renderGallery(items) {
     const mount = document.querySelector('[data-gallery-grid]');
     if (!mount) return;
-    mount.innerHTML = items.length ? items.map((item) => `
+    // The first screens of photos load immediately; only photos far down a very long gallery wait (they start loading well before you scroll to them)
+    mount.innerHTML = items.length ? items.map((item, index) => `
       <article class="gallery-item" data-lightbox="${esc(item.image)}" data-caption="${esc(item.caption || '')}">
-        <img src="${esc(item.image)}" alt="${esc(item.caption || 'Christian Service Church gallery photo')}" loading="lazy" decoding="async">
+        <img src="${esc(item.image)}" alt="${esc(item.caption || 'Christian Service Church gallery photo')}" decoding="async"${index >= 24 ? ' loading="lazy"' : ''}>
         <div class="gallery-item__overlay">${esc(item.caption || '')}</div>
       </article>`).join('') : '<div class="gallery-empty">No published photos yet.</div>';
     mount.classList.add('is-ready');
@@ -321,7 +324,7 @@
     const sorted = [...items].sort((a, b) => new Date(b.created_at || b.date || 0).getTime() - new Date(a.created_at || a.date || 0).getTime());
     mount.innerHTML = sorted.length ? sorted.map((item) => `
       <article class="feature-card reveal" data-announcement-id="${esc(item.id)}" data-created-at="${esc(item.created_at || item.date || '')}" data-announcement-date="${esc(item.date || item.created_at || '')}">
-        ${item.image ? `<img src="${esc(item.image)}" alt="${esc(item.title || 'Church announcement')}" loading="lazy" decoding="async" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:var(--r-md);margin-bottom:var(--sp-4)">` : ''}
+        ${item.image ? `<img src="${esc(item.image)}" alt="${esc(item.title || 'Church announcement')}" decoding="async" style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:var(--r-md);margin-bottom:var(--sp-4)">` : ''}
         <span class="eyebrow">${esc(item.category || 'Announcement')}</span>
         <h2 class="feature-card__title">${esc(item.title)}</h2>
         <p class="feature-card__sender">Posted by ${esc(item.sender_name || 'Church office')}${item.sender_role ? `, ${esc(item.sender_role)}` : ''}</p>
@@ -373,7 +376,7 @@
     mount.innerHTML = visibleItems.length ? visibleItems.map((item, index) => {
       const featured = item._tier < 2;
       // The General Overseer's photo comes from the pastor image published in the admin Homepage editor
-      const photo = item.image || (item._tier === 0 ? (readHomeCache()?.pastor?.image || 'gallery/our-pastors-image.png') : '');
+      const photo = item.image || (item._tier === 0 ? (readHomeCache()?.pastor?.image || 'gallery/our-pastors-image.jpg') : '');
       const imageBlock = photo
         ? `<div class="member-card__image" role="img" aria-label="${esc(item.name || 'Leader')}" style="background-image:url('${esc(photo)}')"></div>`
         : `<div class="member-card__image member-card__image--empty" aria-hidden="true"><span>${esc(leaderInitials(item.name).toUpperCase())}</span></div>`;
@@ -541,6 +544,11 @@
       revealPageSettings();
       return;
     }
+    try { localStorage.setItem(PAGE_CACHE_PREFIX + header.dataset.pageKey, JSON.stringify(data)); } catch (_) {}
+    applyPageData(header, data);
+  }
+
+  function applyPageData(header, data) {
     const bg = header.querySelector('.page-header__bg, .hero__bg') || header;
     const title = header.querySelector('.page-header__title, .hero__title, h1');
     const subtitle = header.querySelector('.page-header__sub, .hero__tagline, h1 + p');
@@ -588,6 +596,9 @@
     revealPageSettings();
   }
 
+  const PAGE_CACHE_PREFIX = 'csc-page-v1-';
+  const LIST_CACHE_PREFIX = 'csc-list-v1-';
+  const readCache = (key) => { try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch (_) { return null; } };
   const HOME_CACHE_KEY = 'csc-home-content-v1';
   const releaseHomeImages = () => document.documentElement.classList.remove('home-pending');
   const readHomeCache = () => { try { return JSON.parse(localStorage.getItem(HOME_CACHE_KEY) || 'null'); } catch (_) { return null; } };
@@ -753,20 +764,42 @@
 
     document.querySelectorAll('[data-supabase-events], [data-supabase-sermons], [data-supabase-leaders], [data-supabase-ministries], [data-supabase-announcements]').forEach((mount) => { mount.innerHTML = '<p class="muted">Loading...</p>'; });
     if (document.querySelector('[data-supabase-ministries]')) renderMinistries([]);
+    // Show what the visitor saw last time straight away; fresh data replaces it a moment later
+    const header = document.querySelector('[data-page-key]');
+    const cachedPage = header && readCache(PAGE_CACHE_PREFIX + header.dataset.pageKey);
+    if (cachedPage) applyPageData(header, cachedPage);
+    [
+      ['[data-supabase-announcements]', 'announcements', renderAnnouncements],
+      ['[data-supabase-events]', 'events', renderEvents],
+      ['[data-supabase-sermons]', 'sermons', renderSermons],
+      ['[data-gallery-grid]', 'gallery', renderGallery],
+      ['[data-supabase-testimonies]', 'testimonies', renderTestimonies],
+      ['[data-supabase-leaders]', 'leaders', renderLeaders],
+      ['[data-supabase-ministries]', 'ministries', renderMinistries]
+    ].forEach(([selector, table, render]) => {
+      const rows = document.querySelector(selector) && readCache(LIST_CACHE_PREFIX + table);
+      if (Array.isArray(rows) && rows.length) { try { render(rows); } catch (_) {} }
+    });
     try {
       await loadSupabaseLibrary();
       const sb = window.CSC_SUPABASE || window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
       window.CSC_SUPABASE = sb;
-      await applyPastorPhoto(sb);
-      await applyPageSettings(sb);
-      if (document.querySelector('[data-home]')) await applyHomepageContent(sb);
-      if (document.querySelector('[data-supabase-announcements]')) renderAnnouncements(await fetchPublished(sb, 'announcements', 'date'));
-      if (document.querySelector('[data-supabase-events]')) renderEvents(await fetchPublished(sb, 'events', 'date'));
-      if (document.querySelector('[data-supabase-sermons]')) renderSermons(await fetchPublished(sb, 'sermons', 'date'));
-      if (document.querySelector('[data-gallery-grid]')) renderGallery(await fetchPublished(sb, 'gallery', 'date'));
-      if (document.querySelector('[data-supabase-testimonies]')) renderTestimonies(await fetchPublished(sb, 'testimonies', 'date'));
-      if (document.querySelector('[data-supabase-leaders]')) { await warmPastorImage(sb); renderLeaders(await fetchPublished(sb, 'leaders', 'created_at', true)); }
-      if (document.querySelector('[data-supabase-ministries]')) renderMinistries(await fetchPublished(sb, 'ministries', 'created_at'));
+      const pick = (selector) => document.querySelector(selector);
+      const jobs = [
+        // the pastor photo is applied first so a page-level override can still win
+        applyPastorPhoto(sb).then(() => applyPageSettings(sb)),
+        pick('[data-home]') && applyHomepageContent(sb),
+        pick('[data-supabase-announcements]') && fetchPublished(sb, 'announcements', 'date').then(renderAnnouncements),
+        pick('[data-supabase-events]') && fetchPublished(sb, 'events', 'date').then(renderEvents),
+        pick('[data-supabase-sermons]') && fetchPublished(sb, 'sermons', 'date').then(renderSermons),
+        pick('[data-gallery-grid]') && fetchPublished(sb, 'gallery', 'date').then(renderGallery),
+        pick('[data-supabase-testimonies]') && fetchPublished(sb, 'testimonies', 'date').then(renderTestimonies),
+        pick('[data-supabase-leaders]') && warmPastorImage(sb).then(() => fetchPublished(sb, 'leaders', 'created_at', true)).then(renderLeaders),
+        pick('[data-supabase-ministries]') && fetchPublished(sb, 'ministries', 'created_at').then(renderMinistries)
+      ].filter(Boolean);
+      const results = await Promise.allSettled(jobs);
+      const failed = results.find((result) => result.status === 'rejected');
+      if (failed) { console.warn('Some published content could not be refreshed.', failed.reason); revealPageSettings(); releaseHomeImages(); }
       await initPrayerForm(sb);
         await initVisitForm(sb);
       sb.channel('public-site-live')

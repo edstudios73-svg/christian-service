@@ -1,4 +1,4 @@
-const CACHE_NAME = 'csc-app-shell-v12';
+const CACHE_NAME = 'csc-app-shell-v13';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(self.skipWaiting());
@@ -64,26 +64,41 @@ self.addEventListener('pushsubscriptionchange', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const request = event.request;
-  if (request.method !== 'GET' || new URL(request.url).origin !== self.location.origin) return;
-
+  if (request.method !== 'GET' || request.headers.has('range')) return;
   const url = new URL(request.url);
-  const isNavigate = request.mode === 'navigate' || /\.(html|htm)$/i.test(url.pathname) || url.pathname.endsWith('/');
-  const isAsset = /\.(css|js|png|jpg|jpeg|gif|svg|ico|webp|woff2?|pdf|mp4)$/i.test(url.pathname);
+  if (url.origin !== self.location.origin) return;
+  if (url.pathname.startsWith('/csc-admin/')) return;        // the admin always goes to the network
+  if (/\.(pdf|mp4|mp3|zip)$/i.test(url.pathname)) return;     // large downloads are not cached here
 
-  if (!isNavigate && !isAsset) return;
+  const isPage = request.mode === 'navigate' || /\.html?$/i.test(url.pathname) || url.pathname.endsWith('/');
+  const isAsset = /\.(css|js|png|jpe?g|gif|svg|ico|webp|avif|woff2?|json)$/i.test(url.pathname);
+  if (!isPage && !isAsset) return;
 
+  // Pages: always try the network first so visitors see fresh content, but never wait more than 2.5s if we have a saved copy.
+  if (isPage) {
+    event.respondWith((async () => {
+      const cache = await caches.open(CACHE_NAME);
+      const cached = await cache.match(request, { ignoreSearch: false });
+      const network = fetch(request).then((response) => {
+        if (response && response.ok) cache.put(request, response.clone());
+        return response;
+      });
+      if (!cached) return network.catch(() => caches.match('/404.html'));
+      event.waitUntil(network.catch(() => {}));
+      return Promise.race([network.catch(() => cached), new Promise((resolve) => setTimeout(() => resolve(cached), 2500))]);
+    })());
+    return;
+  }
+
+  // Styles, scripts, images, fonts: answer instantly from the saved copy and refresh it quietly in the background.
   event.respondWith((async () => {
-    try {
-      const network = await fetch(request, { cache: 'no-store', credentials: 'same-origin' });
-      if (network && network.ok) {
-        const cache = await caches.open(CACHE_NAME);
-        await cache.put(request, network.clone());
-      }
-      return network;
-    } catch (error) {
-      const cached = await caches.match(request);
-      if (cached) return cached;
-      throw error;
-    }
+    const cache = await caches.open(CACHE_NAME);
+    const cached = await cache.match(request);
+    const refresh = fetch(request, { cache: 'no-cache' }).then((response) => {
+      if (response && response.ok) cache.put(request, response.clone());
+      return response;
+    });
+    if (cached) { event.waitUntil(refresh.catch(() => {})); return cached; }
+    return refresh;
   })());
 });

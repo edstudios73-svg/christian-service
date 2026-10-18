@@ -1319,8 +1319,7 @@ main { position: relative; z-index: 1; }
   background-repeat: no-repeat;
   background-color: var(--c-secondary);
 }
-.hero[data-page-key], .page-header[data-page-key] { visibility: hidden; }
-.hero[data-page-key].page-settings-ready, .page-header[data-page-key].page-settings-ready { visibility: visible; }
+.hero[data-page-key], .page-header[data-page-key] { visibility: visible; }
 .hero__overlay {
   position: absolute;
   inset: 0;
@@ -3743,3 +3742,8 @@ img { -webkit-user-drag: none; }
 }
 .nav__icon-button.nav__announcement-link { position: relative; overflow: visible; }
 .nav__icon-button .nav__announcement-count { top: -5px; right: -5px; }
+
+/* ---------- Instant, smooth page-to-page navigation ---------- */
+@view-transition { navigation: auto; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .16s; }
+@media (prefers-reduced-motion: reduce) { @view-transition { navigation: none; } }

@@ -17,7 +17,7 @@
         <div class="site-footer__top">
           <div class="site-footer__brand">
             <a class="site-footer__logo" href="/" aria-label="Christian Service Church home">
-              <img src="assets/icons/icon-192.png" alt="" width="52" height="52" loading="lazy">
+              <img src="assets/icons/icon-192.png" alt="" width="52" height="52" decoding="async">
               <span>Christian Service Church<small>House of Testimonies</small></span>
             </a>
             <p class="site-footer__about" data-home="footer.text">

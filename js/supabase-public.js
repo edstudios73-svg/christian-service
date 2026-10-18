@@ -364,7 +364,7 @@
     const mount = document.querySelector('[data-supabase-leaders]');
     if (!mount) return;
     const items = orderLeaders(rawItems);
-    const pageSize = 6;
+    const pageSize = 4;
     const pageCount = Math.max(1, Math.ceil(items.length / pageSize));
     const currentPage = Math.min(Math.max(0, Number(window.CSC_LEADERS_PAGE || 0)), pageCount - 1);
     window.CSC_LEADERS_ITEMS = items;
@@ -381,7 +381,6 @@
       <div class="member-card reveal-scale${featured ? ' member-card--featured' : ''}" data-delay="${(index % 3) + 1}">
         ${imageBlock}
         <div class="member-card__content">
-          ${featured ? `<span class="member-card__tier">${item._tier === 0 ? 'Leading Our Church' : 'Serving Alongside'}</span>` : ''}
           <h3 class="member-card__name">${esc(item.name || '')}</h3>
           <p class="member-card__role">${esc(item.role || '')}</p>
           ${item.location ? `<p class="member-card__location"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-13-9-13a9 9 0 1 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${esc(item.location)}</p>` : ''}
@@ -408,7 +407,7 @@
       const button = event.target.closest('[data-leaders-page]');
       if (!button || button.disabled) return;
       const items = window.CSC_LEADERS_ITEMS || [];
-      const pageSize = 6;
+      const pageSize = 4;
       const pageCount = Math.max(1, Math.ceil(items.length / pageSize));
       const currentPage = Number(window.CSC_LEADERS_PAGE || 0);
       const nextPage = button.dataset.leadersPage === 'next' ? currentPage + 1 : currentPage - 1;

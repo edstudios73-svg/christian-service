@@ -1,2 +1,5 @@
 [functions.send-announcement-notification]
 verify_jwt = false
+
+[functions.send-sms-announcement]
+verify_jwt = false

@@ -55,3 +55,15 @@ Testing
 - Test once with the PWA open and once after closing it. Click the notification and confirm it opens `announcements.html#<announcement-id>` and reduces the unread count.
 - Use a second browser/device to confirm subscriptions and read state are independent.
 - In DevTools, disable notifications or clear permission and confirm the public announcements page still loads without errors.
+
+## SMS announcements and updates (SasuSync)
+
+SMS is sent by the Supabase Edge Function `send-sms-announcement`. The SasuSync API key lives only in Supabase as a secret. Never put it in this repository, `admin.html` or any browser file.
+
+1. Run `sms-setup.sql` in the Supabase SQL Editor (creates `sms_subscribers` and `sms_messages`; the last query is a health check).
+2. Save the secrets (Supabase Dashboard > Edge Functions > Secrets, or the CLI):
+   `supabase secrets set SMS_API_KEY=<your SasuSync key> SMS_SENDER_ID=CSC-UPDATES --project-ref <project-ref>`
+   Optional: `SMS_MODE=sandbox` delivers nothing and costs nothing (use it for testing); remove it or set `live` to send for real.
+3. Deploy: `supabase functions deploy send-sms-announcement --project-ref <project-ref>`
+4. In SasuSync, make sure the sender ID `CSC-UPDATES` is approved and the account has SMS credits (1 credit per message part, per recipient).
+5. In the admin: add numbers under **SMS Subscribers** (visitors can also subscribe from the website footer), then tick **Also send as SMS to subscribers** when publishing an announcement.

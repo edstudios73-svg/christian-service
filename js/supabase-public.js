@@ -3,6 +3,7 @@
   'use strict';
 
   const SUPABASE_URL = 'https://uysfgupzlxfhplwqcttp.supabase.co';
+  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_5T68Teyy88wmJUlckVRneA_Yfh0OKZV';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5c2ZndXB6bHhmaHBsd3FjdHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk4MTUxNTEsImV4cCI6MjEwNTM5MTE1MX0.uAh-0SFwbLVGKA4J62f2blR_18PCUfquJZs0k9pY1Gs';
   const loadScript = (src) => new Promise((resolve, reject) => {
     const script = document.createElement('script');
@@ -660,8 +661,52 @@
     releaseHomeImages();
   }
 
+  // ---- SMS updates sign-up (footer form) ----
+  function normalizeGhanaPhone(value) {
+    const digits = String(value || '').replace(/[^\d+]/g, '').replace(/^\+/, '');
+    if (/^233\d{9}$/.test(digits)) return digits;
+    if (/^0\d{9}$/.test(digits)) return '233' + digits.slice(1);
+    if (/^\d{9}$/.test(digits)) return '233' + digits;
+    return '';
+  }
+
+  async function getSupabaseClient() {
+    if (window.CSC_SUPABASE) return window.CSC_SUPABASE;
+    await loadSupabaseLibrary();
+    window.CSC_SUPABASE = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+    return window.CSC_SUPABASE;
+  }
+
+  function initSmsSignup() {
+    const form = document.querySelector('[data-sms-signup]');
+    if (!form || form.dataset.ready) return;
+    form.dataset.ready = '1';
+    const note = form.querySelector('[data-sms-note]');
+    const button = form.querySelector('button[type="submit"]');
+    const say = (text, kind) => { note.textContent = text; note.className = 'site-footer__sms-note' + (kind ? ` is-${kind}` : ''); };
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const phone = normalizeGhanaPhone(form.elements.phone.value);
+      if (!phone) { say('Please enter a valid Ghana phone number, for example 0551234567.', 'error'); return; }
+      button.disabled = true;
+      say('Subscribing...');
+      try {
+        const sb = await getSupabaseClient();
+        const name = (form.elements.name.value || '').trim().slice(0, 80) || null;
+        const { error } = await sb.from('sms_subscribers').insert({ name, phone, source: 'website', status: 'active' });
+        if (error && error.code !== '23505') throw error;
+        form.reset();
+        say(error ? 'You are already subscribed. Thank you!' : 'Thank you! You will now receive our announcements by SMS.', 'ok');
+      } catch (_) {
+        say('We could not subscribe you right now. Please try again shortly.', 'error');
+      }
+      button.disabled = false;
+    });
+  }
+
   async function init() {
     initLeadersPagination();
+    initSmsSignup();
     document.querySelectorAll('.event-teaser-card__media img').forEach(fitEventMedia);
     if (document.querySelector('[data-home]')) {
       const cached = readHomeCache();
@@ -674,7 +719,7 @@
     document.querySelectorAll('[data-supabase-events], [data-supabase-sermons], [data-supabase-leaders], [data-supabase-ministries], [data-supabase-announcements]').forEach((mount) => { mount.innerHTML = '<p class="muted">Loading...</p>'; });
     try {
       await loadSupabaseLibrary();
-      const sb = window.CSC_SUPABASE || window.supabase.createClient(SUPABASE_URL, 'sb_publishable_5T68Teyy88wmJUlckVRneA_Yfh0OKZV');
+      const sb = window.CSC_SUPABASE || window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
       window.CSC_SUPABASE = sb;
       await applyPastorPhoto(sb);
       await applyPageSettings(sb);
@@ -720,6 +765,7 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
   document.addEventListener('csc-footer-ready', () => {
+    initSmsSignup();
     if (window.CSC_SUPABASE) applyHomepageContent(window.CSC_SUPABASE);
   });
 })();

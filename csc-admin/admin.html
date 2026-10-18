@@ -359,6 +359,16 @@ const COLLECTIONS = {
       { name: 'image', label: 'Image (optional)', type: 'image' }
     ]
   },
+  smsSubscribers: {
+    table: 'sms_subscribers', label: 'SMS Subscribers', singular: 'SMS subscriber', icon: 'megaphone', titleField: 'phone', meta: ['name', 'status'],
+    noPublish: true, statusField: 'status',
+    hint: 'People who receive announcements by SMS. Visitors can also subscribe from the website footer. Numbers are saved in the 233XXXXXXXXX format automatically.',
+    fields: [
+      { name: 'phone', label: 'Phone number', type: 'text', required: true, half: true, ph: 'e.g. 0551234567' },
+      { name: 'name', label: 'Name (optional)', type: 'text', half: true },
+      { name: 'status', label: 'Status', type: 'select', options: ['active', 'opted_out'], half: true, def: 'active' }
+    ]
+  },
   leaders: {
     label: 'Our Leaders', singular: 'leader', icon: 'user', titleField: 'name', meta: ['role', 'location'], image: 'image',
     hint: 'Add and update the pastors, elders and ministry leaders shown on the leaders page.',
@@ -582,6 +592,17 @@ const Store = {
     await this.ensureSession();
     const { error } = await this.sb.functions.invoke('send-announcement-notification', { body: { announcement_id: id } });
     if (error) throw error;
+  },
+  async sendAnnouncementSms(id) {
+    if (this.mode !== 'supabase' || !id) return null;
+    await this.ensureSession();
+    const { data, error } = await this.sb.functions.invoke('send-sms-announcement', { body: { announcement_id: id } });
+    if (error) {
+      let detail = error.message;
+      try { const body = await error.context.json(); if (body && body.error) detail = body.error; } catch (_) {}
+      throw new Error(detail);
+    }
+    return data;
   },
   async save(col, item) {
     if (this.mode === 'supabase') {
@@ -1363,7 +1384,7 @@ function openForm(key, id) {
   const dlg = $('#formDlg');
   dlg.innerHTML = `<form id="form" autocomplete="off">
     <div class="dh"><h2 id="formTitle">${it ? 'Edit' : 'Add'} ${esc(col.singular)}</h2><button type="button" class="icon" data-act="closeform" aria-label="Close">${icon('x', 22)}</button></div>
-    <div class="db">${col.fields.map(f => fieldHTML(f, it ? it[f.name] : (f.def === 'today' ? today() : f.def || ''), !!it)).join('')}${key === 'announcements' ? fieldHTML({ name: 'sendPush', label: 'Send push notification to subscribers', type: 'checkbox' }, true, !!it) : ''}</div>
+    <div class="db">${col.fields.map(f => fieldHTML(f, it ? it[f.name] : (f.def === 'today' ? today() : f.def || ''), !!it)).join('')}${key === 'announcements' ? fieldHTML({ name: 'sendPush', label: 'Send push notification to subscribers', type: 'checkbox' }, true, !!it) + fieldHTML({ name: 'sendSms', label: 'Also send as SMS to subscribers (uses SMS credits)', type: 'checkbox' }, false, !!it) : ''}</div>
     <div class="df">
       <p class="err" id="formErr" role="alert"></p>
       ${col.noPublish ? '' : `<label class="switch"><input type="checkbox" name="published"${(it ? it.published : true) ? ' checked' : ''}><span></span>Show on website</label>`}
@@ -1497,8 +1518,9 @@ async function saveForm() {
   }
   const data = {};
   const sendPush = key === 'announcements' ? !!(form.elements.sendPush ? form.elements.sendPush.checked : true) : false;
+  const sendSms = key === 'announcements' ? !!(form.elements.sendSms && form.elements.sendSms.checked) : false;
   for (const f of col.fields) {
-    if (f.type === 'image' || f.type === 'file' || f.name === 'sendPush') continue;
+    if (f.type === 'image' || f.type === 'file' || f.name === 'sendPush' || f.name === 'sendSms') continue;
     const el = form.elements[f.name];
     if (f.type === 'checkbox') data[f.name] = !!el.checked;
     else if (f.type === 'json') {
@@ -1544,6 +1566,14 @@ async function saveForm() {
         }
       }
       catch (notificationError) { toast('Announcement saved, but push delivery needs configuration.', 'bad'); }
+      if (sendSms) {
+        for (const o of saved.filter(o => o.published && !item?.published)) {
+          try {
+            const result = await Store.sendAnnouncementSms(o.id);
+            toast(result && result.skipped ? `SMS skipped: ${result.skipped}` : `SMS sent to ${result && result.recipients != null ? result.recipients : 'subscribers'}`);
+          } catch (smsError) { toast(`SMS not sent: ${smsError.message || 'delivery needs configuration.'}`, 'bad'); }
+        }
+      }
     }
     if (item) imgFields.forEach(f => { if (item[f.name] && item[f.name] !== saved[0][f.name]) Store.removeFile(item[f.name]); });
     cache[key] = cache[key] || [];

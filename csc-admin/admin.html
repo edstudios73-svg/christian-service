@@ -593,6 +593,17 @@ const Store = {
     const { error } = await this.sb.functions.invoke('send-announcement-notification', { body: { announcement_id: id } });
     if (error) throw error;
   },
+  async smsCall(body) {
+    if (this.mode !== 'supabase') throw new Error('Connect Supabase to use SMS.');
+    await this.ensureSession();
+    const { data, error } = await this.sb.functions.invoke('send-sms-announcement', { body });
+    if (error) {
+      let detail = error.message;
+      try { const res = await error.context.json(); if (res && res.error) detail = res.error; } catch (_) {}
+      throw new Error(detail);
+    }
+    return data;
+  },
   async sendAnnouncementSms(id) {
     if (this.mode !== 'supabase' || !id) return null;
     await this.ensureSession();
@@ -929,6 +940,7 @@ async function viewCollection(main, key) {
   main.innerHTML = `
     <header class="ph">
       <div><h1>${esc(col.label)}</h1><p>${esc(col.hint)}</p></div>
+      ${key === 'smsSubscribers' ? `<button class="btn" data-act="smsStatus" type="button"><span>SMS status</span></button><button class="btn" data-act="smsTest" type="button"><span>Send test SMS</span></button><button class="btn pri" data-act="importContacts" type="button">${icon('plus', 18)}<span>Import contacts</span></button>` : ''}
       ${key === 'gallery' ? `<label class="btn pri">${icon('image', 18)}<span>Bulk upload 1000+ images</span><input class="vh" type="file" accept="image/*" multiple data-bulk-gallery></label>` : ''}
       <button class="btn pri" data-act="new" type="button">${icon('plus', 18)}<span>Add ${esc(col.singular)}</span></button>
     </header>
@@ -1374,6 +1386,115 @@ function fieldHTML(f, v, isEdit) {
     default: return `<div class="${cls}">${lab}<input id="${id}" name="${f.name}" type="${f.type}" value="${esc(v)}" ${req}${f.ph ? ` placeholder="${esc(f.ph)}"` : ''}></div>`;
   }
 }
+/* ============================================================
+   SMS contacts: bulk import, status, test
+   ============================================================ */
+const normPhone = v => {
+  let d = String(v || '').replace(/\D/g, '');
+  if (d.length === 14 && d.startsWith('00233')) d = d.slice(2);
+  if (/^233\d{9}$/.test(d)) return d;
+  if (/^0\d{9}$/.test(d)) return '233' + d.slice(1);
+  if (/^\d{9}$/.test(d)) return '233' + d;
+  return '';
+};
+const PHONE_RE = /\+?\d[\d\s().-]{6,40}\d/g;
+function parseContacts(text) {
+  const existing = new Set((cache.smsSubscribers || []).map(x => normPhone(x.phone)));
+  const seen = new Set(), rows = [];
+  let invalid = 0, repeated = 0, already = 0;
+  String(text || '').split(/\r?\n/).forEach(raw => {
+    const line = raw.trim();
+    if (!line) return;
+    const found = line.match(PHONE_RE) || [];
+    if (!found.length) { if (!/^(name|names|phone|number|contact|contacts)\b/i.test(line)) invalid++; return; }
+    const name = line.replace(PHONE_RE, ' ').replace(/[,;\t"]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80);
+    const phones = [];
+    found.forEach(m => {
+      const single = normPhone(m);
+      const many = single ? [single] : (m.replace(/\D/g, '').match(/233\d{9}|0\d{9}/g) || []).map(normPhone).filter(Boolean);
+      if (!many.length) invalid++;
+      phones.push(...many);
+    });
+    phones.forEach(phone => {
+      if (seen.has(phone)) { repeated++; return; }
+      seen.add(phone);
+      if (existing.has(phone)) { already++; return; }
+      rows.push({ phone, name: phones.length === 1 ? name : '' });
+    });
+  });
+  return { rows, invalid, repeated, already };
+}
+function previewContactsImport() {
+  const box = $('#importText'), out = $('#importSummary'), btn = $('#importBtn');
+  if (!box || !out || !btn) return;
+  const r = parseContacts(box.value);
+  const bits = [`<b>${r.rows.length}</b> new contact${r.rows.length === 1 ? '' : 's'} ready to import`];
+  if (r.already) bits.push(`${r.already} already in your list`);
+  if (r.repeated) bits.push(`${r.repeated} repeated`);
+  if (r.invalid) bits.push(`${r.invalid} line${r.invalid === 1 ? '' : 's'} skipped (not a valid Ghana number)`);
+  out.innerHTML = box.value.trim() ? bits.join(' · ') : '';
+  btn.disabled = !r.rows.length;
+  btn.textContent = r.rows.length ? `Import ${r.rows.length} contact${r.rows.length === 1 ? '' : 's'}` : 'Import contacts';
+}
+function openContactsImport() {
+  const dlg = $('#formDlg');
+  editing = null;
+  dlg.innerHTML = `<form id="importForm" autocomplete="off">
+    <div class="dh"><h2 id="formTitle">Import SMS contacts</h2><button type="button" class="icon" data-act="closeform" aria-label="Close">${icon('x', 22)}</button></div>
+    <div class="db">
+      <p class="hint" style="margin:0 0 4px;grid-column:1/-1">Paste your contacts, one per line: just a number, or a name and a number, for example <b>Ama Boateng, 0551234567</b>. You can copy two columns straight from Excel or Google Sheets, or load a .csv or .txt file. Numbers like 0551234567, 551234567 and +233 55 123 4567 all work.</p>
+      <label class="btn" style="grid-column:1/-1;justify-self:start">${icon('plus', 18)}<span>Load a file (.csv or .txt)</span><input class="vh" type="file" id="importFile" accept=".csv,.txt,text/csv,text/plain"></label>
+      <textarea id="importText" rows="10" style="grid-column:1/-1" placeholder="Ama Boateng, 0551234567&#10;0244000111&#10;Kofi Mensah  +233 20 123 4567" aria-label="Contacts to import"></textarea>
+      <p id="importSummary" class="hint" style="grid-column:1/-1;margin:0" role="status" aria-live="polite"></p>
+    </div>
+    <div class="df"><p class="err" id="formErr" role="alert"></p><div class="sp"></div>
+      <button class="btn" type="button" data-act="closeform">Cancel</button>
+      <button class="btn pri" type="submit" id="importBtn" disabled>Import contacts</button></div></form>`;
+  dlg.showModal();
+  setTimeout(() => { const t = $('#importText'); if (t) t.focus(); }, 30);
+}
+async function runContactsImport() {
+  const box = $('#importText'), btn = $('#importBtn'), err = $('#formErr');
+  const r = parseContacts(box.value);
+  if (!r.rows.length) return;
+  btn.disabled = true; btn.textContent = 'Importing…'; err.textContent = '';
+  try {
+    if (Store.mode === 'supabase') {
+      await Store.ensureSession();
+      for (let i = 0; i < r.rows.length; i += 200) {
+        const batch = r.rows.slice(i, i + 200).map(c => ({ phone: c.phone, name: c.name || null, status: 'active', source: 'import' }));
+        const { error } = await Store.sb.from('sms_subscribers').upsert(batch, { onConflict: 'phone', ignoreDuplicates: true });
+        if (error) throw error;
+      }
+    } else {
+      for (const c of r.rows) await Store.save('smsSubscribers', { id: uid(), phone: c.phone, name: c.name, status: 'active', createdAt: new Date().toISOString() });
+    }
+    $('#formDlg').close();
+    await load('smsSubscribers', true);
+    drawList('smsSubscribers');
+    toast(`Imported ${r.rows.length} contact${r.rows.length === 1 ? '' : 's'}`);
+  } catch (ex) {
+    err.textContent = ex.message || 'Could not import. Please try again.';
+    btn.disabled = false; previewContactsImport();
+  }
+}
+async function showSmsStatus() {
+  try {
+    const s = await Store.smsCall({ action: 'status' });
+    const sender = s.sender_status === 'approved' ? 'approved' : `${s.sender_status} (live sending works once approved)`;
+    toast(`Mode: ${s.mode} · Sender ${s.sender_id}: ${sender} · Credits: ${s.sms_credits ?? '?'} · Active contacts: ${s.active_subscribers}`);
+  } catch (ex) { toast(`SMS status: ${ex.message}`, 'bad'); }
+}
+async function sendSmsTest() {
+  const number = window.prompt('Send a short test SMS to which phone number?');
+  if (!number) return;
+  if (!normPhone(number)) { toast('Enter a valid Ghana phone number.', 'bad'); return; }
+  try {
+    const r = await Store.smsCall({ action: 'test', phone: number, message: 'Test message from Christian Service Church.' });
+    toast(r.mode === 'sandbox' ? 'Test accepted (sandbox mode: nothing was delivered or charged)' : 'Test SMS sent');
+  } catch (ex) { toast(`Test not sent: ${ex.message}`, 'bad'); }
+}
+
 function openForm(key, id) {
   const col = COLLECTIONS[key];
   const it = id ? (cache[key] || []).find(x => x.id === id) : null;
@@ -1420,6 +1541,12 @@ function compress(file, max = 1000, q = 0.78) {
     r.readAsDataURL(file);
   });
 }
+document.addEventListener('change', e => {
+  if (e.target.id !== 'importFile' || !e.target.files || !e.target.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = () => { const box = $('#importText'); if (box) { box.value = String(reader.result || ''); previewContactsImport(); } };
+  reader.readAsText(e.target.files[0]);
+});
 document.addEventListener('change', async e => {
   const bulkGallery = e.target.closest && e.target.closest('[data-bulk-gallery]');
   if (bulkGallery) {
@@ -1500,6 +1627,7 @@ async function bulkUploadGallery(files) {
 document.addEventListener('submit', e => {
   if (e.target.id === 'form') { e.preventDefault(); saveForm(); }
   if (e.target.id === 'pageContentForm') { e.preventDefault(); saveFullPageEditor(); }
+  if (e.target.id === 'importForm') { e.preventDefault(); runContactsImport(); }
 });
 
 async function saveForm() {
@@ -1660,6 +1788,9 @@ document.addEventListener('click', e => {
   const d = t.dataset;
   switch (d.act) {
     case 'new': openForm(route); break;
+    case 'importContacts': openContactsImport(); break;
+    case 'smsStatus': showSmsStatus(); break;
+    case 'smsTest': sendSmsTest(); break;
     case 'edit': openForm(route, d.id); break;
     case 'page-edit': {
       const page = (cache.pages || []).find(item => item.slug === d.slug);
@@ -1690,6 +1821,7 @@ document.addEventListener('click', e => {
 });
 document.addEventListener('input', e => {
   if (e.target.id === 'q') { ui.q = e.target.value; drawList(route); }
+  if (e.target.id === 'importText') previewContactsImport();
   const homeField = e.target.closest && e.target.closest('[data-home-field]');
   if (homeField && route === 'homepage') {
     try {

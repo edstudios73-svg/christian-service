@@ -3652,3 +3652,52 @@ img { -webkit-user-drag: none; }
   .site-footer__col--sms .site-footer__hint { margin: 0 0 var(--sp-3); }
   .site-footer__col--sms .site-footer__sms { grid-template-columns: 1fr; }
 }
+
+/* ---------- Explore: gradient icon badges ---------- */
+.explore-section .quick-tile {
+  position: relative;
+  overflow: hidden;
+  padding: var(--sp-4) var(--sp-3);
+  border-radius: 20px;
+  background: linear-gradient(180deg, #ffffff 0%, #f5f8ff 100%);
+  border: 1px solid rgba(27,58,139,.10);
+  box-shadow: 0 10px 26px rgba(10,26,63,.08);
+}
+.explore-section .quick-tile::before {
+  content: "";
+  position: absolute;
+  inset: auto -20% -55% -20%;
+  height: 70%;
+  background: radial-gradient(ellipse at center, rgba(201,169,97,.18), transparent 70%);
+  pointer-events: none;
+}
+.explore-section .quick-tile__icon.qt-icon {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  margin: 0 auto var(--sp-3);
+  border-radius: 20px;
+  color: #fff;
+  box-shadow: 0 12px 24px rgba(18,48,138,.30), inset 0 1px 0 rgba(255,255,255,.45), inset 0 -6px 12px rgba(0,0,0,.14);
+}
+.explore-section .quick-tile__icon.qt-icon::after {
+  content: "";
+  position: absolute;
+  inset: 3px 3px 55% 3px;
+  border-radius: 17px 17px 40px 40px;
+  background: linear-gradient(180deg, rgba(255,255,255,.34), rgba(255,255,255,0));
+  pointer-events: none;
+}
+.explore-section .qt-blue { background: linear-gradient(145deg, #3f74ff 0%, #1b3a8b 55%, #0a1a3f 100%); }
+.explore-section .qt-gold {
+  background: linear-gradient(145deg, #f1d684 0%, #c9a961 50%, #a8782a 100%);
+  box-shadow: 0 12px 24px rgba(168,120,42,.34), inset 0 1px 0 rgba(255,255,255,.55), inset 0 -6px 12px rgba(0,0,0,.12);
+}
+.explore-section .qt-svg { position: relative; z-index: 1; width: 34px; height: 34px; filter: drop-shadow(0 2px 3px rgba(0,0,0,.25)); }
+.explore-section .quick-tile__title { position: relative; font-size: var(--fs-sm); letter-spacing: .01em; color: var(--c-secondary); }
+.explore-section .quick-tile:hover { border-color: rgba(201,169,97,.55); box-shadow: 0 16px 34px rgba(10,26,63,.14); }
+.explore-section .quick-tile:hover .quick-tile__icon { transform: none; }
+@media (max-width: 480px) {
+  .explore-section .quick-tile__icon.qt-icon { width: 54px; height: 54px; border-radius: 18px; }
+  .explore-section .qt-svg { width: 30px; height: 30px; }
+}

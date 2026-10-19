@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en-GH">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1b3a8c">
+<meta name="robots" content="noindex, nofollow">
+<title>Ministry Admin | Christian Service Church</title>
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+<style>
+:root{--navy:#0a1a3f;--blue:#1b3a8c;--gold:#d9b45c;--ink:#14213d;--muted:#5b6784;--line:#e3e8f4;--bg:#f1f4fa;--red:#b42318;--green:#13794a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;-webkit-text-size-adjust:100%}
+h1,h2,h3{font-family:Georgia,'Times New Roman',serif}
+button,input,select,textarea{font:inherit}
+.login{min-height:100dvh;display:grid;place-items:center;padding:20px;background:var(--navy);background-image:radial-gradient(circle at 90% 0,rgba(217,180,92,.28),transparent 40%)}
+.lbox{width:100%;max-width:380px;background:#fff;border-radius:22px;padding:26px 22px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.4)}
+.lbox img{width:72px;height:72px;margin:0 auto 10px;border-radius:50%;box-shadow:0 0 0 3px rgba(217,180,92,.6);background:#fff;padding:3px}
+.lbox h1{font-size:24px}.lbox p.s{color:var(--muted);font-size:14px;margin:4px 0 16px}
+.lbox input{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px;background:#f7f9fd}
+.lbox input:focus{outline:none;border-color:var(--blue);background:#fff}
+.btn{border:0;border-radius:12px;padding:13px 18px;font-weight:800;cursor:pointer;background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+.btn.pri{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn.gold{background:linear-gradient(180deg,#e8c971,#c9a961);color:var(--navy);border-color:transparent}
+.btn.sm{padding:8px 12px;font-size:13px;border-radius:10px}
+.btn.danger{color:var(--red)}
+.btn:disabled{opacity:.6}
+.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.err{color:var(--red);font-size:14px;min-height:20px;margin-top:6px;font-weight:600}
+.bar{position:sticky;top:0;z-index:10;background:var(--blue);color:#fff;padding:max(10px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) 10px max(14px,env(safe-area-inset-left));display:flex;align-items:center;gap:10px}
+.bar h1{font-size:18px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar small{display:block;font:600 11px system-ui;color:#c7d3f3}
+.bar a,.bar button{color:#fff;background:rgba(255,255,255,.14);border:0;border-radius:10px;padding:8px 12px;font-weight:700;font-size:13px;text-decoration:none;cursor:pointer}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:12px max(14px,env(safe-area-inset-left));background:#fff;border-bottom:1px solid var(--line);scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:none;border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:9px 16px;font-weight:700;cursor:pointer;color:var(--muted)}
+.tabs button[aria-selected=true]{background:var(--blue);border-color:var(--blue);color:#fff}
+.tabs .badge{background:var(--gold);color:var(--navy);border-radius:99px;padding:1px 8px;font-size:12px;margin-left:6px}
+main{max-width:780px;margin:0 auto;padding:16px max(14px,env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))}
+.head{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap}
+.head h2{font-size:22px}
+.hint{color:var(--muted);font-size:14px;margin:-4px 0 12px}
+.list{display:grid;gap:10px;grid-template-columns:minmax(0,1fr)}
+.list>*{min-width:0}
+.row{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;gap:12px;align-items:center}
+.row .th{width:56px;height:56px;border-radius:10px;background:var(--navy) center/cover;flex:none}
+.row .tx{flex:1;min-width:0;overflow:hidden}
+.row b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row span{font-size:13px;color:var(--muted);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pill{display:inline-block;border-radius:99px;padding:2px 9px;font-size:11px;font-weight:800;background:#e6efff;color:var(--blue);margin-right:6px}
+.pill.draft{background:#fff1d6;color:#8a6a14}
+.acts{display:flex;gap:6px;flex:none}
+@media(max-width:480px){.row{flex-wrap:wrap}.row .acts{width:100%;justify-content:flex-end}}
+.empty{background:#fff;border:1px dashed #c9d2e8;border-radius:14px;padding:22px;text-align:center;color:var(--muted)}
+.grid{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+.tile{position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;background:var(--navy)}
+.tile img{width:100%;height:100%;object-fit:cover}
+.tile button{position:absolute;top:6px;right:6px;border:0;border-radius:99px;background:rgba(255,255,255,.95);width:30px;height:30px;font-weight:800;cursor:pointer;color:var(--red)}
+dialog{border:0;border-radius:20px;width:min(560px,calc(100% - 24px));max-height:92dvh;padding:0;overflow:auto}
+dialog::backdrop{background:rgba(5,12,34,.6)}
+dialog form{padding:18px;display:grid;gap:12px}
+dialog h3{font-size:21px}
+label.l{display:block;font-weight:700;font-size:13px;margin-bottom:5px}
+dialog input[type=text],dialog input[type=date],dialog input[type=tel],dialog input[type=email],dialog input[type=number],dialog select,dialog textarea{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px;background:#f7f9fd}
+dialog textarea{min-height:110px;resize:vertical}
+.two{display:grid;gap:12px;grid-template-columns:1fr 1fr}
+@media(max-width:480px){.two{grid-template-columns:1fr}}
+.prev{width:100%;max-height:180px;object-fit:contain;border-radius:12px;background:var(--navy);margin-top:8px}
+.sw{display:flex;gap:10px;align-items:center;font-weight:700}
+.df{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--navy);color:#fff;border-radius:12px;padding:12px 16px;font-weight:700;z-index:99;max-width:calc(100% - 28px);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.toast.bad{background:var(--red)}
+[hidden]{display:none!important}
+select.picker{background:rgba(255,255,255,.14);color:#fff;border:0;border-radius:10px;padding:8px;font-weight:700;max-width:46vw}
+select.picker option{color:#000}
+</style>
+</head>
+<body>
+
+<div class="login" id="login">
+  <form class="lbox" id="loginForm">
+    <img src="/assets/church-logo.png" alt="">
+    <h1>Ministry Admin</h1>
+    <p class="s">Sign in with the email and password the church gave you.</p>
+    <input id="em" type="email" placeholder="Email" autocomplete="username" required>
+    <input id="pw" type="password" placeholder="Password" autocomplete="current-password" required>
+    <button class="btn gold" type="submit" style="width:100%" id="loginBtn">Sign in</button>
+    <p class="err" id="loginErr" role="alert"></p>
+  </form>
+</div>
+
+<div id="app" hidden>
+  <div class="bar"><div style="flex:1;min-width:0"><h1 id="mName">Ministry</h1><small id="mWho"></small></div>
+    <select class="picker" id="picker" aria-label="Choose ministry" hidden></select>
+    <a id="viewSite" href="#" target="_blank" rel="noopener">View site</a><button type="button" id="out">Sign out</button></div>
+  <div class="tabs" role="tablist" id="tabs">
+    <button role="tab" data-t="posts">Updates</button><button role="tab" data-t="gallery">Gallery</button><button role="tab" data-t="team">Team</button>
+    <button role="tab" data-t="joins">Join requests<span class="badge" id="newBadge" hidden>0</span></button><button role="tab" data-t="site">Page details</button>
+  </div>
+  <main id="main"></main>
+</div>
+
+<dialog id="dlg"></dialog>
+<div class="toast" id="toast" hidden role="status"></div>
+
+<script src="/js/vendor/supabase.js"></script>
+<script>
+(function () {
+  'use strict';
+  var sb = supabase.createClient('https://uysfgupzlxfhplwqcttp.supabase.co', 'sb_publishable_5T68Teyy88wmJUlckVRneA_Yfh0OKZV');
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  var uid = function () { return (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2)); };
+  var state = { user: null, isChurch: false, sites: [], slug: '', tab: 'posts', data: {} };
+
+  function toast(msg, bad) { var t = $('toast'); t.textContent = msg; t.className = 'toast' + (bad ? ' bad' : ''); t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { t.hidden = true; }, 3200); }
+  function slugFromLocation() { var m = location.pathname.match(/^\/m\/([a-z0-9]+)/i); if (m) return m[1].toLowerCase(); var h = location.hostname.toLowerCase(); if (/\.christianservicechurch\.org$/.test(h) && !/^www\./.test(h)) return h.split('.')[0]; return (new URLSearchParams(location.search).get('m') || '').toLowerCase(); }
+  function publicUrl(slug) { return /\.christianservicechurch\.org$/.test(location.hostname) && !/^www\./.test(location.hostname) ? '/' : '/m/' + slug; }
+  function normPhone(v) { var d = String(v || '').replace(/\D/g, ''); if (d.length === 14 && d.indexOf('00233') === 0) d = d.slice(2); if (/^233\d{9}$/.test(d)) return d; if (/^0\d{9}$/.test(d)) return '233' + d.slice(1); if (/^\d{9}$/.test(d)) return '233' + d; return ''; }
+  function niceDate(v) { if (!v) return ''; var d = new Date(v + 'T12:00:00'); return isNaN(d) ? '' : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }); }
+  function compress(file, max, q) {
+    return new Promise(function (res, rej) {
+      var r = new FileReader(); r.onerror = rej;
+      r.onload = function () { var img = new Image(); img.onerror = rej; img.onload = function () {
+        var s = Math.min(1, max / Math.max(img.width, img.height)), w = Math.max(1, Math.round(img.width * s)), h = Math.max(1, Math.round(img.height * s));
+        var c = document.createElement('canvas'); c.width = w; c.height = h; var x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.drawImage(img, 0, 0, w, h);
+        c.toBlob(function (b) { b ? res(b) : rej(new Error('Could not read that photo.')); }, 'image/jpeg', q); }; img.src = r.result; };
+      r.readAsDataURL(file);
+    });
+  }
+  function upload(file) {
+    return compress(file, 1400, 0.8).then(function (blob) {
+      var path = 'ministries/' + state.slug + '/' + uid() + '.jpg';
+      return sb.storage.from('media').upload(path, blob, { contentType: 'image/jpeg', cacheControl: '31536000' }).then(function (r) {
+        if (r.error) throw r.error;
+        return sb.storage.from('media').getPublicUrl(path).data.publicUrl;
+      });
+    });
+  }
+  function why(e) { return (e && (e.message || e.error_description)) || 'Something went wrong. Please try again.'; }
+
+  /* ---------- sign in ---------- */
+  $('loginForm').addEventListener('submit', function (e) {
+    e.preventDefault(); $('loginErr').textContent = ''; $('loginBtn').disabled = true;
+    sb.auth.signInWithPassword({ email: $('em').value.trim(), password: $('pw').value }).then(function (r) {
+      $('loginBtn').disabled = false;
+      if (r.error) { $('loginErr').textContent = /invalid/i.test(r.error.message) ? 'That email or password is not right.' : why(r.error); return; }
+      start();
+    });
+  });
+  $('out').addEventListener('click', function () { sb.auth.signOut().then(function () { location.reload(); }); });
+
+  function start() {
+    sb.auth.getUser().then(function (r) {
+      if (!r.data || !r.data.user) { $('login').hidden = false; $('app').hidden = true; return; }
+      state.user = r.data.user;
+      return Promise.all([
+        sb.from('users').select('role').eq('id', state.user.id).maybeSingle(),
+        sb.from('ministry_admins').select('slug').eq('user_id', state.user.id),
+        sb.from('ministry_sites').select('*').order('name')
+      ]).then(function (x) {
+        state.isChurch = !!(x[0].data && x[0].data.role === 'admin');
+        var mine = (x[1].data || []).map(function (a) { return a.slug; });
+        state.sites = (x[2].data || []).filter(function (s) { return state.isChurch || mine.indexOf(s.slug) >= 0; });
+        if (!state.sites.length) { sb.auth.signOut(); $('login').hidden = false; $('app').hidden = true; $('loginErr').textContent = 'This login is not linked to a ministry yet. Please ask the church office.'; return; }
+        var want = slugFromLocation();
+        state.slug = state.sites.some(function (s) { return s.slug === want; }) ? want : state.sites[0].slug;
+        $('login').hidden = true; $('app').hidden = false;
+        $('mWho').textContent = state.isChurch ? 'Church admin' : state.user.email;
+        var pk = $('picker'); pk.hidden = state.sites.length < 2;
+        pk.innerHTML = state.sites.map(function (s) { return '<option value="' + esc(s.slug) + '">' + esc(s.name) + '</option>'; }).join('');
+        pk.value = state.slug; pk.onchange = function () { state.slug = pk.value; load(); };
+        load();
+      });
+    });
+  }
+
+  /* ---------- data ---------- */
+  function site() { return state.sites.filter(function (s) { return s.slug === state.slug; })[0] || {}; }
+  function load() {
+    $('mName').textContent = site().name || 'Ministry'; $('viewSite').href = publicUrl(state.slug);
+    Promise.all([
+      sb.from('ministry_posts').select('*').eq('slug', state.slug).order('created_at', { ascending: false }),
+      sb.from('ministry_gallery').select('*').eq('slug', state.slug).order('created_at', { ascending: false }),
+      sb.from('ministry_team').select('*').eq('slug', state.slug).order('sort_order').order('created_at'),
+      sb.from('ministry_join_requests').select('*').eq('slug', state.slug).order('created_at', { ascending: false })
+    ]).then(function (r) {
+      state.data = { posts: r[0].data || [], gallery: r[1].data || [], team: r[2].data || [], joins: r[3].data || [] };
+      var n = state.data.joins.filter(function (j) { return j.status === 'new'; }).length;
+      $('newBadge').hidden = !n; $('newBadge').textContent = n;
+      draw();
+    });
+  }
+  $('tabs').addEventListener('click', function (e) { var b = e.target.closest('button[data-t]'); if (!b) return; state.tab = b.dataset.t; draw(); });
+
+  function draw() {
+    Array.prototype.forEach.call($('tabs').children, function (b) { b.setAttribute('aria-selected', b.dataset.t === state.tab ? 'true' : 'false'); });
+    var d = state.data, m = $('main');
+    if (state.tab === 'posts') {
+      m.innerHTML = '<div class="head"><h2>Updates</h2><button class="btn pri" data-a="newPost">+ New</button></div><p class="hint">Announcements, events and news show on your ministry site right away.</p><div class="list">' +
+        (d.posts.length ? d.posts.map(function (p) { return '<div class="row">' + (p.image ? '<div class="th" style="background-image:url(\'' + esc(p.image) + '\')"></div>' : '') + '<div class="tx"><b>' + esc(p.title) + '</b><span><span class="pill ' + (p.published ? '' : 'draft') + '" style="display:inline-block">' + (p.published ? esc(p.kind) : 'Draft') + '</span>' + esc(niceDate(p.event_date || (p.created_at || '').slice(0, 10))) + '</span></div><div class="acts"><button class="btn sm" data-a="editPost" data-id="' + p.id + '">Edit</button><button class="btn sm danger" data-a="delPost" data-id="' + p.id + '">Delete</button></div></div>'; }).join('') : '<div class="empty">Nothing posted yet. Tap + New to share your first announcement.</div>') + '</div>';
+    } else if (state.tab === 'gallery') {
+      m.innerHTML = '<div class="head"><h2>Photo gallery</h2><label class="btn pri" style="cursor:pointer">+ Add photos<input type="file" id="gfile" accept="image/*" multiple hidden></label></div><p class="hint">Pick as many photos as you like. They appear on your site.</p>' +
+        (d.gallery.length ? '<div class="grid">' + d.gallery.map(function (g) { return '<div class="tile"><img src="' + esc(g.image) + '" alt="" loading="lazy"><button data-a="delPhoto" data-id="' + g.id + '" aria-label="Delete photo">&times;</button></div>'; }).join('') + '</div>' : '<div class="empty">No photos yet.</div>');
+      $('gfile').addEventListener('change', addPhotos);
+    } else if (state.tab === 'team') {
+      m.innerHTML = '<div class="head"><h2>Team and leaders</h2><button class="btn pri" data-a="newPerson">+ Add person</button></div><div class="list">' +
+        (d.team.length ? d.team.map(function (t) { return '<div class="row">' + (t.image ? '<div class="th" style="background-image:url(\'' + esc(t.image) + '\');border-radius:50%"></div>' : '') + '<div class="tx"><b>' + esc(t.name) + '</b><span>' + esc(t.role || '') + '</span></div><div class="acts"><button class="btn sm" data-a="editPerson" data-id="' + t.id + '">Edit</button><button class="btn sm danger" data-a="delPerson" data-id="' + t.id + '">Delete</button></div></div>'; }).join('') : '<div class="empty">Add your head, assistants and members so visitors can see who serves.</div>') + '</div>';
+    } else if (state.tab === 'joins') {
+      m.innerHTML = '<div class="head"><h2>Join requests</h2></div><p class="hint">People who filled in the form on your site. Call or message them, then mark them.</p><div class="list">' +
+        (d.joins.length ? d.joins.map(function (j) { return '<div class="row" style="align-items:flex-start;flex-wrap:wrap"><div class="tx" style="min-width:60%"><b style="white-space:normal">' + esc(j.name) + '</b><span style="white-space:normal">' + esc(j.phone) + (j.message ? ' &middot; ' + esc(j.message) : '') + '</span><span>' + esc(niceDate((j.created_at || '').slice(0, 10))) + '</span></div><div class="acts" style="flex-wrap:wrap"><a class="btn sm" href="tel:+' + esc(String(j.phone).replace(/\D/g, '')) + '" style="text-decoration:none">Call</a><a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/' + esc(String(j.phone).replace(/\D/g, '')) + '" style="text-decoration:none">WhatsApp</a><select data-a="joinStatus" data-id="' + j.id + '" class="btn sm" aria-label="Status"><option value="new"' + (j.status === 'new' ? ' selected' : '') + '>New</option><option value="contacted"' + (j.status === 'contacted' ? ' selected' : '') + '>Contacted</option><option value="joined"' + (j.status === 'joined' ? ' selected' : '') + '>Joined</option></select><button class="btn sm danger" data-a="delJoin" data-id="' + j.id + '">Delete</button></div></div>'; }).join('') : '<div class="empty">No requests yet.</div>') + '</div>';
+    } else {
+      var s = site();
+      m.innerHTML = '<div class="head"><h2>Page details</h2></div><p class="hint">These words and the main picture show at the top of your site.</p><form id="siteForm" class="list" style="gap:12px">' +
+        '<div><label class="l" for="s_tag">Short motto</label><input id="s_tag" type="text" value="' + esc(s.tagline) + '" maxlength="120" style="width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px"></div>' +
+        '<div><label class="l" for="s_about">About us</label><textarea id="s_about" style="width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px;min-height:130px">' + esc(s.about) + '</textarea></div>' +
+        '<div><label class="l" for="s_meet">When we meet</label><input id="s_meet" type="text" value="' + esc(s.meeting_info) + '" placeholder="e.g. Saturdays, 4:00 PM at the church" style="width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px"></div>' +
+        '<div class="two"><div><label class="l" for="s_ph">Phone</label><input id="s_ph" type="tel" value="' + esc(s.contact_phone) + '" style="width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px"></div><div><label class="l" for="s_wa">WhatsApp number</label><input id="s_wa" type="tel" value="' + esc(s.whatsapp) + '" style="width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px"></div></div>' +
+        '<div><label class="l" for="s_em">Email</label><input id="s_em" type="email" value="' + esc(s.contact_email) + '" style="width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px"></div>' +
+        '<div><label class="l">Main picture</label><label class="btn" style="cursor:pointer;display:inline-block">Choose picture<input type="file" id="s_img" accept="image/*" hidden></label>' + (s.hero_image ? '<img class="prev" id="s_prev" src="' + esc(s.hero_image) + '" alt="">' : '<img class="prev" id="s_prev" hidden alt="">') + '<p class="hint" style="margin-top:6px">Leave empty to keep the standard ministry picture.</p></div>' +
+        '<button class="btn gold" type="submit">Save page details</button></form>';
+      $('s_img').addEventListener('change', function (e) { var f = e.target.files[0]; if (!f) return; var u = URL.createObjectURL(f); $('s_prev').src = u; $('s_prev').hidden = false; state.heroFile = f; });
+      $('siteForm').addEventListener('submit', saveSite);
+    }
+  }
+
+  /* ---------- actions ---------- */
+  $('main').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-a]'); if (!b || b.tagName === 'SELECT') return;
+    var a = b.dataset.a, id = b.dataset.id, d = state.data;
+    var find = function (k) { return d[k].filter(function (x) { return x.id === id; })[0]; };
+    if (a === 'newPost') postForm(); else if (a === 'editPost') postForm(find('posts'));
+    else if (a === 'delPost') del('ministry_posts', id, 'Delete this post?');
+    else if (a === 'delPhoto') del('ministry_gallery', id, 'Delete this photo?');
+    else if (a === 'newPerson') personForm(); else if (a === 'editPerson') personForm(find('team'));
+    else if (a === 'delPerson') del('ministry_team', id, 'Remove this person?');
+    else if (a === 'delJoin') del('ministry_join_requests', id, 'Delete this request?');
+  });
+  $('main').addEventListener('change', function (e) {
+    var s = e.target.closest('select[data-a=joinStatus]'); if (!s) return;
+    sb.from('ministry_join_requests').update({ status: s.value }).eq('id', s.dataset.id).then(function (r) { if (r.error) toast(why(r.error), true); else { toast('Saved'); load(); } });
+  });
+  function del(table, id, q) {
+    $('dlg').innerHTML = '<form method="dialog"><h3>' + esc(q) + '</h3><div class="df"><button class="btn" value="no">Keep it</button><button class="btn danger" value="yes">Delete</button></div></form>';
+    $('dlg').onclose = function () { if ($('dlg').returnValue === 'yes') sb.from(table).delete().eq('id', id).then(function (r) { if (r.error) toast(why(r.error), true); else { toast('Deleted'); load(); } }); $('dlg').onclose = null; };
+    $('dlg').returnValue = ''; $('dlg').showModal();
+  }
+  function field(label, inner) { return '<div><label class="l">' + label + '</label>' + inner + '</div>'; }
+  function postForm(p) {
+    p = p || { kind: 'announcement', published: true };
+    $('dlg').innerHTML = '<form id="pf"><h3>' + (p.id ? 'Edit' : 'New') + ' update</h3>' +
+      '<div class="two">' + field('Type', '<select id="p_kind"><option value="announcement"' + (p.kind === 'announcement' ? ' selected' : '') + '>Announcement</option><option value="event"' + (p.kind === 'event' ? ' selected' : '') + '>Event</option><option value="update"' + (p.kind === 'update' ? ' selected' : '') + '>News update</option></select>') + field('Date (for events)', '<input id="p_date" type="date" value="' + esc(p.event_date || '') + '">') + '</div>' +
+      field('Headline', '<input id="p_title" type="text" required maxlength="160" value="' + esc(p.title || '') + '">') +
+      field('Message', '<textarea id="p_body">' + esc(p.body || '') + '</textarea>') +
+      '<div class="two">' + field('Time', '<input id="p_time" type="text" placeholder="e.g. 4:00 PM" value="' + esc(p.event_time || '') + '">') + field('Place', '<input id="p_loc" type="text" value="' + esc(p.location || '') + '">') + '</div>' +
+      field('Picture (optional)', '<label class="btn" style="cursor:pointer;display:inline-block">Choose picture<input type="file" id="p_img" accept="image/*" hidden></label><img class="prev" id="p_prev" ' + (p.image ? 'src="' + esc(p.image) + '"' : 'hidden') + ' alt="">') +
+      '<label class="sw"><input type="checkbox" id="p_pub"' + (p.published === false ? '' : ' checked') + '> Show on the site</label>' +
+      '<p class="err" id="p_err"></p><div class="df"><button type="button" class="btn" id="p_x">Cancel</button><button class="btn pri" type="submit" id="p_ok">Save</button></div></form>';
+    var file = null;
+    $('p_img').addEventListener('change', function (e) { file = e.target.files[0] || null; if (file) { $('p_prev').src = URL.createObjectURL(file); $('p_prev').hidden = false; } });
+    $('p_x').onclick = function () { $('dlg').close(); };
+    $('pf').onsubmit = function (e) {
+      e.preventDefault(); $('p_ok').disabled = true; $('p_err').textContent = '';
+      (file ? upload(file) : Promise.resolve(p.image || null)).then(function (img) {
+        var row = { slug: state.slug, kind: $('p_kind').value, title: $('p_title').value.trim(), body: $('p_body').value.trim() || null, event_date: $('p_date').value || null, event_time: $('p_time').value.trim() || null, location: $('p_loc').value.trim() || null, image: img, published: $('p_pub').checked, updated_at: new Date().toISOString() };
+        return p.id ? sb.from('ministry_posts').update(row).eq('id', p.id) : sb.from('ministry_posts').insert(row);
+      }).then(function (r) { if (r.error) throw r.error; $('dlg').close(); toast('Saved'); load(); })
+        .catch(function (ex) { $('p_err').textContent = why(ex); $('p_ok').disabled = false; });
+    };
+    $('dlg').showModal();
+  }
+  function personForm(t) {
+    t = t || {};
+    $('dlg').innerHTML = '<form id="tf"><h3>' + (t.id ? 'Edit' : 'Add') + ' person</h3>' + field('Name', '<input id="t_name" type="text" required maxlength="120" value="' + esc(t.name || '') + '">') + field('Role', '<input id="t_role" type="text" placeholder="e.g. Head of Media" value="' + esc(t.role || '') + '">') +
+      field('Order (1 shows first)', '<input id="t_ord" type="number" min="0" value="' + esc(t.sort_order == null ? 10 : t.sort_order) + '">') +
+      field('Photo (optional)', '<label class="btn" style="cursor:pointer;display:inline-block">Choose photo<input type="file" id="t_img" accept="image/*" hidden></label><img class="prev" id="t_prev" ' + (t.image ? 'src="' + esc(t.image) + '"' : 'hidden') + ' alt="">') +
+      '<p class="err" id="t_err"></p><div class="df"><button type="button" class="btn" id="t_x">Cancel</button><button class="btn pri" type="submit" id="t_ok">Save</button></div></form>';
+    var file = null;
+    $('t_img').addEventListener('change', function (e) { file = e.target.files[0] || null; if (file) { $('t_prev').src = URL.createObjectURL(file); $('t_prev').hidden = false; } });
+    $('t_x').onclick = function () { $('dlg').close(); };
+    $('tf').onsubmit = function (e) {
+      e.preventDefault(); $('t_ok').disabled = true; $('t_err').textContent = '';
+      (file ? upload(file) : Promise.resolve(t.image || null)).then(function (img) {
+        var row = { slug: state.slug, name: $('t_name').value.trim(), role: $('t_role').value.trim() || null, sort_order: parseInt($('t_ord').value, 10) || 0, image: img };
+        return t.id ? sb.from('ministry_team').update(row).eq('id', t.id) : sb.from('ministry_team').insert(row);
+      }).then(function (r) { if (r.error) throw r.error; $('dlg').close(); toast('Saved'); load(); })
+        .catch(function (ex) { $('t_err').textContent = why(ex); $('t_ok').disabled = false; });
+    };
+    $('dlg').showModal();
+  }
+  function addPhotos(e) {
+    var files = Array.prototype.slice.call(e.target.files || []); if (!files.length) return;
+    toast('Uploading ' + files.length + ' photo' + (files.length > 1 ? 's' : '') + '...');
+    var done = 0;
+    files.reduce(function (p, f) { return p.then(function () { return upload(f).then(function (url) { return sb.from('ministry_gallery').insert({ slug: state.slug, image: url }); }).then(function (r) { if (r.error) throw r.error; done++; }); }); }, Promise.resolve())
+      .then(function () { toast(done + ' photo' + (done > 1 ? 's' : '') + ' added'); load(); }).catch(function (ex) { toast(why(ex), true); load(); });
+  }
+  function saveSite(e) {
+    e.preventDefault(); var btn = e.target.querySelector('button[type=submit]'); btn.disabled = true;
+    var ph = $('s_ph').value.trim(), wa = $('s_wa').value.trim();
+    (state.heroFile ? upload(state.heroFile) : Promise.resolve(site().hero_image || null)).then(function (img) {
+      var row = { tagline: $('s_tag').value.trim() || null, about: $('s_about').value.trim() || null, meeting_info: $('s_meet').value.trim() || null, contact_phone: ph || null, whatsapp: wa ? (normPhone(wa) || wa) : null, contact_email: $('s_em').value.trim() || null, hero_image: img, updated_at: new Date().toISOString() };
+      return sb.from('ministry_sites').update(row).eq('slug', state.slug).select();
+    }).then(function (r) { if (r.error) throw r.error; if (!r.data || !r.data.length) throw new Error('You are not allowed to change this page.'); state.heroFile = null; state.sites = state.sites.map(function (s) { return s.slug === state.slug ? r.data[0] : s; }); toast('Saved'); btn.disabled = false; })
+      .catch(function (ex) { toast(why(ex), true); btn.disabled = false; });
+  }
+
+  start();
+})();
+</script>
+</body>
+</html>

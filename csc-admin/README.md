@@ -65,3 +65,12 @@ SMS is sent by the Supabase Edge Function `send-sms-announcement`. The SasuSync 
 3. Save the secrets (Dashboard > Edge Functions > Secrets): `SMS_API_KEY` = your SasuSync key and `SMS_SENDER_ID` = `CSC-UPDATES`. Do not set `SMS_MODE` (or set it to `live`). `SMS_MODE=sandbox` is only for testing: nothing is delivered and nothing is charged.
 4. In SasuSync, make sure the sender ID `CSC-UPDATES` is approved and the account has SMS credits (1 credit per message part, per recipient).
 5. In the admin: add numbers under **SMS Subscribers** (visitors can also subscribe from the website footer), then tick **Also send as SMS to subscribers** when publishing an announcement.
+
+## Ministry sites (one site and one admin per ministry)
+
+Each ministry (except Children) has its own page and its own admin login. Works at `www.christianservicechurch.org/m/mediateam` right away, and at `mediateam.christianservicechurch.org` once the subdomain is connected.
+
+1. Supabase > SQL Editor: paste and run `ministry-sites-setup.sql` once. It creates the tables, the security rules and the seven ministry sites (mediateam, youth, prayer, ushers, choir, evangelism, virtuouswomen).
+2. For each team head: Supabase > Authentication > Users > Add user (email, password, auto confirm). Then run the small `insert into public.ministry_admins ...` example at the bottom of the SQL file with their email and ministry.
+3. The head signs in at `.../m/mediateam/admin` (or `mediateam.christianservicechurch.org/admin`) to post announcements and events, add photos, manage the team, see join requests and edit the page details. You (the church admin) can open any ministry's admin with your normal admin login.
+4. Subdomains: in Cloudflare add a CNAME record named `mediateam` pointing to `cname.vercel-dns.com` (DNS only), then add the domain to the Vercel project. Repeat for each ministry.

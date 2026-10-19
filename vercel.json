@@ -55,6 +55,34 @@
   ],
   "rewrites": [
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "(?<slug>(?!www)[a-z0-9]+)\\.christianservicechurch\\.org"
+        }
+      ],
+      "destination": "/ministry.html"
+    },
+    {
+      "source": "/admin",
+      "has": [
+        {
+          "type": "host",
+          "value": "(?<slug>(?!www)[a-z0-9]+)\\.christianservicechurch\\.org"
+        }
+      ],
+      "destination": "/ministry-admin.html"
+    },
+    {
+      "source": "/m/:slug",
+      "destination": "/ministry.html"
+    },
+    {
+      "source": "/m/:slug/admin",
+      "destination": "/ministry-admin.html"
+    },
+    {
       "source": "/subscribe",
       "destination": "/subscribe.html"
     },

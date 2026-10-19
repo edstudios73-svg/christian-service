@@ -1,7 +1,6 @@
 -- Update: the ministry page hero follows the picture chosen in Admin > Ministries.
 -- Paste in Supabase > SQL Editor > Run. Safe to run more than once.
 
-
 create or replace function public.ministry_thumb(p_slug text) returns text
 language sql stable security definer set search_path = public, extensions as $$
   select nullif(trim(m.image), '') from public.ministries m
@@ -15,16 +14,6 @@ language sql stable security definer set search_path = public, extensions as $$
     else false end
   order by m.updated_at desc nulls last, m.created_at desc limit 1
 $$;
-revoke execute on function public.ministry_thumb(text) from public, anon, authenticated;
-
--- 5. What a signed-in member sees --------------------------------------------------------------
-create or replace function public.ministry_list(p_token text) returns jsonb
-language plpgsql stable security definer set search_path = public, extensions as $$
-begin
-  if not public._can_view(p_token) then return jsonb_build_object('ok', false, 'error', 'signin'); end if;
-  return jsonb_build_object('ok', true, 'sites', coalesce((select jsonb_agg(jsonb_build_object('slug', slug, 'name', name, 'tagline', tagline) order by name) from public.ministry_sites), '[]'::jsonb));
-end $$;
-
 revoke execute on function public.ministry_thumb(text) from public, anon, authenticated;
 
 create or replace function public.ministry_home(p_token text, p_slug text) returns jsonb
@@ -70,4 +59,3 @@ revoke execute on function public.ministry_home(text, text), public.mgmt_load(te
 grant execute on function public.ministry_home(text, text), public.mgmt_load(text, text), public.mgmt_save_site(text, text, jsonb) to anon, authenticated;
 
 select 'updated' as status;
-

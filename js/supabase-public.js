@@ -756,8 +756,16 @@
         const name = (form.elements.name.value || '').trim().slice(0, 80) || null;
         const { error } = await sb.from('sms_subscribers').insert({ name, phone, source: 'website', status: 'active' });
         if (error && error.code !== '23505') throw error;
+        if (!error) {
+          fetch(SUPABASE_URL + '/functions/v1/send-sms-welcome', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', apikey: SUPABASE_PUBLISHABLE_KEY },
+            body: JSON.stringify({ phone }),
+            keepalive: true
+          }).catch(() => {});
+        }
         form.reset();
-        say(error ? 'You are already subscribed. Thank you!' : 'Thank you! You will now receive our announcements by SMS.', 'ok');
+        say(error ? 'You are already subscribed. Thank you!' : 'You are in! Watch your phone, a welcome text is on its way.', 'ok');
       } catch (_) {
         say('We could not subscribe you right now. Please try again shortly.', 'error');
       }

@@ -67,11 +67,11 @@
   "rewrites": [
     {
       "source": "/virtuous-women",
-      "destination": "/share-virtuous-women.html"
+      "destination": "/api/share?page=share-virtuous-women"
     },
     {
       "source": "/children",
-      "destination": "/share-children.html"
+      "destination": "/api/share?page=share-children"
     },
     {
       "source": "/admin",
@@ -85,27 +85,27 @@
     },
     {
       "source": "/m/mediateam",
-      "destination": "/ministry-mediateam.html"
+      "destination": "/api/share?page=ministry-mediateam"
     },
     {
       "source": "/m/youth",
-      "destination": "/ministry-youth.html"
+      "destination": "/api/share?page=ministry-youth"
     },
     {
       "source": "/m/prayer",
-      "destination": "/ministry-prayer.html"
+      "destination": "/api/share?page=ministry-prayer"
     },
     {
       "source": "/m/ushers",
-      "destination": "/ministry-ushers.html"
+      "destination": "/api/share?page=ministry-ushers"
     },
     {
       "source": "/m/choir",
-      "destination": "/ministry-choir.html"
+      "destination": "/api/share?page=ministry-choir"
     },
     {
       "source": "/m/evangelism",
-      "destination": "/ministry-evangelism.html"
+      "destination": "/api/share?page=ministry-evangelism"
     },
     {
       "source": "/m/:slug",
@@ -123,5 +123,10 @@
       "source": "/sms",
       "destination": "/subscribe.html"
     }
-  ]
+  ],
+  "functions": {
+    "api/share.js": {
+      "includeFiles": "{ministry-*.html,share-*.html}"
+    }
+  }
 }

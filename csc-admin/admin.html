@@ -931,7 +931,7 @@ async function viewCollection(main, key) {
   main.innerHTML = `
     <header class="ph">
       <div><h1>${esc(col.label)}</h1><p>${esc(col.hint)}</p></div>
-      ${key === 'ministries' ? `<button class="btn" data-act="seedMinistries" type="button"><span>Add the 7 core ministries</span></button>` : ''}${key === 'smsSubscribers' ? `<button class="btn" data-act="smsStatus" type="button"><span>SMS status</span></button><button class="btn" data-act="smsTest" type="button"><span>Send test SMS</span></button><button class="btn pri" data-act="importContacts" type="button">${icon('plus', 18)}<span>Import contacts</span></button>` : ''}
+      ${key === 'ministries' ? `<button class="btn" data-act="seedMinistries" type="button"><span>Add the 8 core ministries</span></button>` : ''}${key === 'smsSubscribers' ? `<button class="btn" data-act="smsStatus" type="button"><span>SMS status</span></button><button class="btn" data-act="smsTest" type="button"><span>Send test SMS</span></button><button class="btn pri" data-act="importContacts" type="button">${icon('plus', 18)}<span>Import contacts</span></button>` : ''}
       ${key === 'gallery' ? `<label class="btn pri">${icon('image', 18)}<span>Bulk upload 1000+ images</span><input class="vh" type="file" accept="image/*" multiple data-bulk-gallery></label>` : ''}
       <button class="btn pri" data-act="new" type="button">${icon('plus', 18)}<span>Add ${esc(col.singular)}</span></button>
     </header>
@@ -1526,7 +1526,7 @@ function applyAnnouncementTemplate(i) {
   toast(`${t.name} message ready. Press Save announcement to send it.`);
 }
 
-/* The seven core ministries, so they can be added to the admin in one tap and then edited (including the thumbnail). */
+/* The eight core ministries, so they can be added to the admin in one tap and then edited (including the thumbnail). */
 const CORE_MINISTRY_SEED = [
   { re: /child/i, title: "Children's Ministry", image: '/assets/ministries/children-art.jpg', body: 'Raising the next generation of believers. Through Bible stories, songs, games and loving mentors, our children discover that Jesus loves them and build a faith that lasts a lifetime.' },
   { re: /youth|vibrant/i, title: 'Vibrant Youth', image: '/assets/ministries/vibrant-youth-art.jpg', body: 'Young, bold and on fire for God. Vibrant Youth brings teens and young adults together for powerful worship, real conversations, purpose and lasting friendships, equipping a generation to stand out for Christ.' },
@@ -1534,14 +1534,15 @@ const CORE_MINISTRY_SEED = [
   { re: /usher|protocol/i, title: 'Ushers and Protocol', image: '/assets/ministries/ushers-and-protocol-art.jpg', body: 'The warm face of our hospitality. Our well-trained team welcomes every guest, keeps every service orderly and makes sure everyone feels at home from the gate to the seat.' },
   { re: /choir|ezekiel/i, title: 'Ezekiel Choir', image: '/assets/ministries/ezekiel-choir-photo.jpg', body: 'Our voices lifted in worship. The Ezekiel Choir ushers the church into the presence of God with anointed songs, rich harmony and excellence every Sunday and at special services.' },
   { re: /media/i, title: 'Media Ministry', image: '/assets/ministries/media-ministry-art.jpg', body: 'Taking the Word further. From cameras and sound to live streaming, photos and graphics, our creative team captures every moment so the message reaches far beyond our walls.' },
-  { re: /evangel/i, title: 'Evangelism Team', image: '/assets/ministries/evangelism-team-art.jpg', body: 'Taking the Gospel to every street. Our evangelists share the Good News through outreach, visits and everyday conversations, leading souls to Christ and welcoming them home.' }
+  { re: /evangel/i, title: 'Evangelism Team', image: '/assets/ministries/evangelism-team-art.jpg', body: 'Taking the Gospel to every street. Our evangelists share the Good News through outreach, visits and everyday conversations, leading souls to Christ and welcoming them home.' },
+  { re: /virtuous|women/i, title: 'Virtuous Women of Destiny', image: '/assets/ministries/virtuous-women-art.jpg', body: "Women of grace, strength and purpose. Virtuous Women of Destiny gathers the women of the church to pray, grow in the Word, encourage one another and walk boldly into everything God has prepared for them." }
 ];
 async function seedCoreMinistries() {
   try {
     await load('ministries', true);
     const have = cache.ministries || [];
     const missing = CORE_MINISTRY_SEED.filter(m => !have.some(x => m.re.test(String(x.title || ''))));
-    if (!missing.length) { toast('All seven ministries are already here. Tap one to edit its picture.'); return; }
+    if (!missing.length) { toast('All eight ministries are already here. Tap one to edit its picture.'); return; }
     for (const m of missing) await Store.save('ministries', { id: uid(), title: m.title, body: m.body, image: m.image, link: '', published: true, createdAt: new Date().toISOString() });
     await load('ministries', true);
     drawList('ministries');

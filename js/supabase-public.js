@@ -437,7 +437,9 @@
     { match: /media/i, title: 'Media Ministry', image: 'assets/ministries/media-ministry-art.jpg',
       body: 'Taking the Word further. From cameras and sound to live streaming, photos and graphics, our creative team captures every moment so the message reaches far beyond our walls.' },
     { match: /evangel/i, title: 'Evangelism Team', image: 'assets/ministries/evangelism-team-art.jpg',
-      body: 'Taking the Gospel to every street. Our evangelists share the Good News through outreach, visits and everyday conversations, leading souls to Christ and welcoming them home.' }
+      body: 'Taking the Gospel to every street. Our evangelists share the Good News through outreach, visits and everyday conversations, leading souls to Christ and welcoming them home.' },
+    { match: /virtuous|women/i, title: 'Virtuous Women of Destiny', image: 'assets/ministries/virtuous-women-art.jpg',
+      body: 'Women of grace, strength and purpose. Virtuous Women of Destiny gathers the women of the church to pray, grow in the Word, encourage one another and walk boldly into everything God has prepared for them.' }
   ];
 
   function orderMinistries(items) {

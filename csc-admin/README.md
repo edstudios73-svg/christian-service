@@ -68,7 +68,7 @@ SMS is sent by the Supabase Edge Function `send-sms-announcement`. The SasuSync 
 
 ## Ministry sites (members only, one admin door)
 
-Each ministry (except Children) has a members-only page at `www.christianservicechurch.org/m/<ministry>` (and at `<ministry>.christianservicechurch.org` once the subdomain is connected). The ministries are `mediateam`, `youth`, `prayer`, `ushers`, `choir`, `evangelism` and `virtuouswomen`.
+Each ministry (except Children) has a members-only page at `www.christianservicechurch.org/m/<ministry>` (and at `<ministry>.christianservicechurch.org` once the subdomain is connected). The ministries are `mediateam`, `youth`, `prayer`, `ushers`, `choir` and `evangelism`.
 
 1. Supabase > SQL Editor: run `ministry-sites-setup.sql` once. It creates the tables, locks them so nothing can be read straight from the browser, and adds the sign-in and management functions.
 2. Members: Admin > Members and logins > Add member or Import list. Each person gets an index number (for example CSC-0001) and a password. They sign in on any ministry page with those.

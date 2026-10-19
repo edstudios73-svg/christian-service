@@ -424,9 +424,9 @@
 
   // ---- Ministries: the church's core ministries always appear (in this order); admin entries with the same name take over ----
   const CORE_MINISTRIES = [
-    { match: /child/i, title: "Children's Ministry", image: 'assets/ministries/children-art.jpg',
+    { match: /child/i, title: "Children's Ministry", image: 'assets/ministries/children-photo.jpg',
       body: 'Where little hearts meet a big God. Through Bible stories, songs, games and loving teachers, our children learn that Jesus is real, that they are loved and that they were made on purpose. We are raising the next generation of believers, one joyful Sunday at a time.' },
-    { match: /youth|vibrant/i, title: 'Vibrant Youth', image: 'assets/ministries/vibrant-youth-art.jpg',
+    { match: /youth|vibrant/i, title: 'Vibrant Youth', image: 'assets/ministries/vibrant-youth-photo.jpg',
       body: 'Loud worship, real talk and friendships that last. Vibrant Youth is where teens and young adults find purpose, ask the hard questions and discover that following Jesus is the boldest adventure there is. Come as you are. Leave on fire.' },
     { match: /prayer/i, title: 'Prayer Department', image: 'assets/ministries/prayer-department-art.jpg',
       body: 'The engine room of the church. Our intercessors stand in the gap for every family, every service and the nation, believing God for breakthroughs, healing and answered prayers. If you need someone to pray with you, this is your family.' },
@@ -434,7 +434,7 @@
       body: 'The first smile you see and the last goodbye you hear. Our ushers welcome every guest, keep every service in order and make sure everyone finds a seat and a home. Serving with excellence is how we say, you are welcome here.' },
     { match: /choir|ezekiel/i, title: 'Ezekiel Choir', image: 'assets/ministries/ezekiel-choir-photo.jpg',
       body: 'Voices lifted, hearts surrendered. The Ezekiel Choir leads the church into the presence of God with rich harmony, anointed songs and excellence, every Sunday and at every special service. Worship is not a performance here. It is an offering.' },
-    { match: /media/i, title: 'Media Ministry', image: 'assets/ministries/media-ministry-art.jpg',
+    { match: /media/i, title: 'Media Ministry', image: 'assets/ministries/media-ministry-photo.jpg',
       body: 'We carry the message further than these walls. From cameras and sound to live streaming, photos and graphics, our creative team captures every moment so that someone watching from anywhere can feel at home. Behind every screen is someone serving with a smile.' },
     { match: /evangel/i, title: 'Evangelism Team', image: 'assets/ministries/evangelism-team-art.jpg',
       body: 'Taking the Gospel to every street. Our evangelists share the Good News through outreach, home visits and everyday conversations, leading souls to Christ and walking with them until they feel at home in God\'s family. Souls are the heartbeat of this church.' },
@@ -457,7 +457,7 @@
   const MINISTRY_SITES = [[/media/i, 'mediateam'], [/youth|vibrant/i, 'youth'], [/prayer/i, 'prayer'], [/usher|protocol/i, 'ushers'], [/choir|ezekiel/i, 'choir'], [/evangel/i, 'evangelism']];
   const ministrySite = (title) => { const hit = MINISTRY_SITES.find(([re]) => re.test(String(title || ''))); return hit ? hit[1] : ''; };
 
-  const ministryKey = (title) => /virtuous|women/i.test(title) ? 'virtuous-women' : String(title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  const ministryKey = (title) => /virtuous|women/i.test(title) ? 'virtuous-women' : /child/i.test(title) ? 'children' : String(title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
   function renderMinistries(rawItems) {
     const mount = document.querySelector('[data-supabase-ministries]');

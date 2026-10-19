@@ -4,11 +4,11 @@
 -- Paste the whole file in Supabase > SQL Editor > Run.
 
 insert into public.ministries (title, body, image, published, created_at)
-select 'Children''s Ministry', 'Where little hearts meet a big God. Through Bible stories, songs, games and loving teachers, our children learn that Jesus is real, that they are loved and that they were made on purpose. We are raising the next generation of believers, one joyful Sunday at a time.', 'assets/ministries/children-art.jpg', true, now() + interval '0 seconds'
+select 'Children''s Ministry', 'Where little hearts meet a big God. Through Bible stories, songs, games and loving teachers, our children learn that Jesus is real, that they are loved and that they were made on purpose. We are raising the next generation of believers, one joyful Sunday at a time.', 'assets/ministries/children-photo.jpg', true, now() + interval '0 seconds'
 where not exists (select 1 from public.ministries where title ilike '%child%');
 
 insert into public.ministries (title, body, image, published, created_at)
-select 'Vibrant Youth', 'Loud worship, real talk and friendships that last. Vibrant Youth is where teens and young adults find purpose, ask the hard questions and discover that following Jesus is the boldest adventure there is. Come as you are. Leave on fire.', 'assets/ministries/vibrant-youth-art.jpg', true, now() + interval '1 seconds'
+select 'Vibrant Youth', 'Loud worship, real talk and friendships that last. Vibrant Youth is where teens and young adults find purpose, ask the hard questions and discover that following Jesus is the boldest adventure there is. Come as you are. Leave on fire.', 'assets/ministries/vibrant-youth-photo.jpg', true, now() + interval '1 seconds'
 where not exists (select 1 from public.ministries where title ilike '%youth%');
 
 insert into public.ministries (title, body, image, published, created_at)
@@ -24,7 +24,7 @@ select 'Ezekiel Choir', 'Voices lifted, hearts surrendered. The Ezekiel Choir le
 where not exists (select 1 from public.ministries where title ilike '%choir%');
 
 insert into public.ministries (title, body, image, published, created_at)
-select 'Media Ministry', 'We carry the message further than these walls. From cameras and sound to live streaming, photos and graphics, our creative team captures every moment so that someone watching from anywhere can feel at home. Behind every screen is someone serving with a smile.', 'assets/ministries/media-ministry-art.jpg', true, now() + interval '5 seconds'
+select 'Media Ministry', 'We carry the message further than these walls. From cameras and sound to live streaming, photos and graphics, our creative team captures every moment so that someone watching from anywhere can feel at home. Behind every screen is someone serving with a smile.', 'assets/ministries/media-ministry-photo.jpg', true, now() + interval '5 seconds'
 where not exists (select 1 from public.ministries where title ilike '%media%');
 
 insert into public.ministries (title, body, image, published, created_at)

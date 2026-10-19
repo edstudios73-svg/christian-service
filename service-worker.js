@@ -1,4 +1,4 @@
-const CACHE_NAME = 'csc-app-shell-v19';
+const CACHE_NAME = 'csc-app-shell-v20';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(self.skipWaiting());

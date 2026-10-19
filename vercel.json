@@ -70,6 +70,10 @@
       "destination": "/share-virtuous-women.html"
     },
     {
+      "source": "/children",
+      "destination": "/share-children.html"
+    },
+    {
       "source": "/admin",
       "has": [
         {

@@ -40,6 +40,7 @@ for m in json.load(open('scripts/ministries.json', encoding='utf-8')):
 mins = open('ministries.html', encoding='utf-8').read()
 share = [
     ('virtuous-women', 'Virtuous Women of Destiny', 'Women of grace, strength and purpose. Join the women of Christian Service Church to pray, learn the Word and step boldly into what God has prepared for you.', 'virtuouswomen'),
+    ('children', "Children's Ministry", 'Where little hearts meet a big God. Bible stories, songs and games for the children of Christian Service Church.', 'children'),
 ]
 for focus, name, desc, preview in share:
     url = f'https://www.christianservicechurch.org/{focus}'

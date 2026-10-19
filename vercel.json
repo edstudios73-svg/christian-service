@@ -4,6 +4,17 @@
       "source": "/index.html",
       "destination": "/",
       "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "(?<slug>mediateam|youth|prayer|ushers|choir|evangelism)\\.christianservicechurch\\.org"
+        }
+      ],
+      "destination": "/m/:slug",
+      "permanent": false
     }
   ],
   "headers": [
@@ -54,16 +65,6 @@
     }
   ],
   "rewrites": [
-    {
-      "source": "/",
-      "has": [
-        {
-          "type": "host",
-          "value": "(?<slug>mediateam|youth|prayer|ushers|choir|evangelism)\\.christianservicechurch\\.org"
-        }
-      ],
-      "destination": "/ministry.html"
-    },
     {
       "source": "/admin",
       "has": [

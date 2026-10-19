@@ -112,3 +112,10 @@ export async function sendBatch(
   }
   return { ok: false, recipients: 0, credits: 0, jobIds: [], error: lastError };
 }
+
+/** Welcome text sent once to a new website subscriber (GSM-safe, two SMS parts at most). */
+export function buildWelcomeSms(name: unknown): string {
+  const first = toGsmText(name).split(' ')[0].slice(0, 20);
+  const hello = first ? `Welcome to the CSC family, ${first}!` : 'Welcome to the CSC family!';
+  return `${hello} You're in. Service reminders, prayer nights and good news are coming your way. You belong here. God bless you!\nChristian Service Church\n${SITE_URL}`;
+}

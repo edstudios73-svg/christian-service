@@ -79,3 +79,7 @@ Each ministry (except Children) has a members-only page at `www.christianservice
 - Each ministry has its own link preview (picture, name and motto) so a shared address looks right on WhatsApp and Facebook. The pages are built from `ministry.html` by `python3 scripts/build-ministry-pages.py`, and the pictures by `python3 scripts/make-ministry-previews.py`. Run the first one again after changing `ministry.html`.
 - The main picture at the top of a ministry's page is the picture chosen for that ministry in Admin > Ministries. Change it there and the ministry page follows right away (run `ministry-sites-update-hero.sql` once if you set up before this existed). The link-preview picture does not change.
 - Virtuous Women of Destiny has no site of its own. `www.christianservicechurch.org/virtuous-women` opens the Ministries page at its card, with its own link preview picture. The Ministries page descriptions can be refreshed in the database with `ministries-update-text.sql`.
+
+## Join now requests
+
+The Join now button on each ministry card opens a short form (name, phone, ministry, why). Run `ministry-join-update.sql` once in the Supabase SQL Editor. Requests appear in that ministry head's admin (Join requests tab) and for you in Admin > Members and logins > Ministry join requests.

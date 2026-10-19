@@ -1596,6 +1596,7 @@ async function viewMembers(main) {
   if (Store.mode !== 'supabase') { main.innerHTML = '<header class="ph"><div><h1>Members and logins</h1><p>Connect Supabase to manage member logins.</p></div></header>'; return; }
   main.innerHTML = `<header class="ph"><div><h1>Members and logins</h1><p>Members sign in to ministry pages with an index number and a password. Ministry heads sign in on this page with a ministry code.</p></div>
     <div class="btnrow" style="margin:0"><button class="btn" type="button" data-act="memImport">${icon('plus', 18)}<span>Import list</span></button><button class="btn pri" type="button" data-act="memAdd">${icon('plus', 18)}<span>Add member</span></button></div></header>
+    <section class="card"><div class="cardh"><h3>Ministry join requests</h3><span id="joinCount" class="pill info"></span></div><p class="hint">People who tapped Join now on the Ministries page. Each ministry head also sees their own requests.</p><div id="joins" class="loading">Loading…</div></section>
     <section class="card"><div class="cardh"><h3>Ministry head logins</h3></div><p class="hint">One login for each ministry. Give the code and password to the head. Set a new password any time.</p><div id="heads" class="loading">Loading…</div></section>
     <section class="card"><div class="cardh"><h3>Members</h3><span id="memCount" class="pill info"></span></div>
       <div class="search" style="margin-bottom:12px"><input id="memQ" type="search" placeholder="Search by name, index number or phone" aria-label="Search members" style="width:100%"></div><div id="mems" class="loading">Loading…</div></section>`;
@@ -1605,7 +1606,16 @@ async function viewMembers(main) {
     $('#heads').className = '';
     $('#heads').innerHTML = `<div class="rows">${(h.heads || []).map(x => `<div class="row"><div class="info"><div class="t">${esc(x.name)}</div><div class="m"><span>Code: <b>${esc(x.username || 'not set yet')}</b></span></div></div><div class="acts"><button class="btn sm" type="button" data-act="headSet" data-slug="${esc(x.slug)}" data-user="${esc(x.username || '')}">${x.has_password ? 'New password' : 'Create login'}</button></div></div>`).join('')}</div>`;
     drawMembers();
+    drawJoins(await memRpc('admin_join_list').catch(() => ({ joins: [] })));
   } catch (ex) { $('#heads').className = ''; $('#heads').innerHTML = `<p class="err">${esc(ex.message)}</p>`; $('#mems').innerHTML = ''; }
+}
+function drawJoins(r) {
+  const el = $('#joins'); if (!el) return;
+  const list = (r && r.joins) || [];
+  el.className = '';
+  $('#joinCount').textContent = `${list.filter(x => x.status === 'new').length} new`;
+  const label = { new: 'New', contacted: 'Contacted', joined: 'Joined' };
+  el.innerHTML = list.length ? `<div class="rows">${list.map(x => `<div class="row"><div class="info"><div class="t">${esc(x.name)} <span class="pill ${x.status === 'new' ? 'info' : ''}">${label[x.status] || x.status}</span></div><div class="m"><span>${esc(x.ministry_title || x.slug)}</span>${x.phone ? `<span><a href="tel:+${esc(x.phone)}">+${esc(x.phone)}</a></span>` : ''}<span>${esc(fmtDate(String(x.created_at).slice(0, 10)))}</span></div>${x.message ? `<div class="m"><span>${esc(x.message)}</span></div>` : ''}</div><div class="acts">${x.status !== 'contacted' ? `<button class="btn sm" type="button" data-act="joinSet" data-id="${esc(x.id)}" data-st="contacted">Contacted</button>` : ''}${x.status !== 'joined' ? `<button class="btn sm" type="button" data-act="joinSet" data-id="${esc(x.id)}" data-st="joined">Joined</button>` : ''}<button class="icon bad" type="button" data-act="joinSet" data-id="${esc(x.id)}" data-st="delete" aria-label="Delete request">${icon('trash')}</button></div></div>`).join('')}</div>` : '<div class="empty"><h3>No requests yet</h3><p>When someone joins a ministry from the website, it shows here.</p></div>';
 }
 function drawMembers() {
   const el = $('#mems'); if (!el) return;
@@ -1670,7 +1680,11 @@ async function memAction(d) {
     if (d.act === 'memAdd') memForm();
     else if (d.act === 'memImport') memImportForm();
     else if (d.act === 'memEdit') memForm(MEM.list.find(x => x.index === d.index));
-    else if (d.act === 'memDel') {
+    else if (d.act === 'joinSet') {
+      if (d.st === 'delete' && !window.confirm('Delete this request?')) return;
+      await memRpc('admin_join_status', { p_id: d.id, p_status: d.st });
+      drawJoins(await memRpc('admin_join_list'));
+    } else if (d.act === 'memDel') {
       if (!window.confirm('Delete this member? They will no longer be able to sign in.')) return;
       await memRpc('admin_delete_member', { p_index: d.index }); toast('Deleted'); viewMembers($('#main'));
     } else if (d.act === 'headSet') {
@@ -2008,7 +2022,7 @@ document.addEventListener('click', e => {
     case 'home-remove-row': homepageEditor.draft.serviceTimes.rows.splice(+d.homeRowIndex, 1); renderHomeRepeater('serviceTimes.rows'); refreshHomepagePreview(); break;
     case 'home-move-row': { const index = +d.homeRowIndex, next = d.homeDirection === 'up' ? index - 1 : index + 1; const rows = homepageEditor.draft.serviceTimes.rows; if (next >= 0 && next < rows.length) [rows[index], rows[next]] = [rows[next], rows[index]]; renderHomeRepeater('serviceTimes.rows'); refreshHomepagePreview(); break; }
     case 'copy': copyText(d.t); break;
-    case 'memAdd': case 'memImport': case 'memEdit': case 'memDel': case 'headSet': memAction(d); break;
+    case 'memAdd': case 'memImport': case 'memEdit': case 'memDel': case 'headSet': case 'joinSet': memAction(d); break;
     case 'export': exportAll(); break;
     case 'reset':
       KEYS.forEach(k => lsDel(LS + k)); cache = {}; toast('Demo data reset'); go(); KEYS.forEach(k => load(k)); break;

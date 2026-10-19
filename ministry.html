@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en-GH">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a1a3f">
+<title>Ministry | Christian Service Church</title>
+<meta name="description" content="A ministry of Christian Service Church, East Legon, Accra. Updates, announcements, events and ways to join.">
+<meta property="og:site_name" content="Christian Service Church">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Ministry | Christian Service Church">
+<meta property="og:description" content="Updates, announcements, events and ways to join, from a ministry of Christian Service Church.">
+<meta property="og:image" content="https://www.christianservicechurch.org/assets/og-card.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/assets/icons/icon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+<style>
+:root{--navy:#0a1a3f;--blue:#1b3a8c;--gold:#d9b45c;--gold-d:#b98f2e;--ink:#14213d;--muted:#5b6784;--line:#e3e8f4;--bg:#f4f6fb;--card:#fff}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:70px}
+body{font-family:Georgia,'Times New Roman',serif;color:var(--ink);background:var(--bg);line-height:1.6;padding-bottom:env(safe-area-inset-bottom)}
+img{max-width:100%;display:block}
+a{color:inherit}
+.wrap{max-width:1040px;margin:0 auto;padding-left:max(18px,env(safe-area-inset-left));padding-right:max(18px,env(safe-area-inset-right))}
+.top{position:sticky;top:0;z-index:20;background:var(--navy);color:#fff;border-bottom:1px solid rgba(217,180,92,.4);padding-top:env(safe-area-inset-top)}
+.top .wrap{display:flex;align-items:center;gap:12px;height:62px}
+.brand{display:flex;align-items:center;gap:11px;text-decoration:none;min-width:0;flex:1}
+.brand img{width:40px;height:40px;border-radius:50%;background:#fff;padding:2px;flex:none}
+.brand b{display:block;font-size:17px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand span{min-width:0}
+.brand small{display:block;font:700 10px/1.2 Arial,sans-serif;letter-spacing:.1em;color:var(--gold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav{display:flex;gap:4px}
+.nav a{font:700 13px Arial,sans-serif;text-decoration:none;color:#dbe3f6;padding:8px 10px;border-radius:8px}
+.nav a:hover{color:#fff;background:rgba(255,255,255,.1)}
+@media(max-width:700px){.nav a.opt{display:none}}
+.hero{background:var(--navy);color:#fff;position:relative;overflow:hidden;background-image:radial-gradient(circle at 90% 0,rgba(217,180,92,.28),transparent 42%),radial-gradient(circle at 0 100%,rgba(36,70,143,.9),transparent 55%)}
+.hero .wrap{display:grid;gap:22px;padding-top:34px;padding-bottom:40px;align-items:center}
+@media(min-width:820px){.hero .wrap{grid-template-columns:1.1fr .9fr;padding-top:56px;padding-bottom:60px}}
+.eyebrow{font:700 11px/1.4 Arial,sans-serif;letter-spacing:.2em;color:var(--gold)}
+h1{font-size:clamp(34px,8vw,56px);line-height:1.05;margin:12px 0 10px;text-wrap:balance}
+.tag{font-size:clamp(18px,3vw,22px);color:#dbe3f6;font-style:italic;max-width:30ch}
+.cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.btn{display:inline-block;text-decoration:none;font:800 15px Arial,sans-serif;border-radius:12px;padding:14px 22px;cursor:pointer;border:0}
+.btn.gold{background:linear-gradient(180deg,#e8c971,#c9a961);color:var(--navy)}
+.btn.line{border:1.5px solid rgba(255,255,255,.5);color:#fff;background:transparent}
+.hero figure{border-radius:20px;overflow:hidden;border:1px solid rgba(217,180,92,.5);background:#fff;aspect-ratio:3/2;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+.hero figure img{width:100%;height:100%;object-fit:cover}
+section{padding:44px 0 6px}
+h2{font-size:clamp(26px,5vw,34px);line-height:1.15;margin:8px 0 14px}
+.sub{font:700 11px/1 Arial,sans-serif;letter-spacing:.26em;color:var(--gold-d)}
+.about p{font-size:19px;color:#2a3558;max-width:62ch}
+.meet{display:inline-flex;gap:8px;align-items:center;margin-top:14px;font:700 15px Arial,sans-serif;background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 14px}
+.cards{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+.card .pic{aspect-ratio:16/10;background:linear-gradient(135deg,var(--navy),var(--blue))}
+.card .pic img{width:100%;height:100%;object-fit:contain}
+.card .in{padding:16px;display:flex;flex-direction:column;gap:8px;flex:1}
+.tagpill{align-self:flex-start;font:800 10px Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;border-radius:99px;padding:5px 11px;background:rgba(201,169,97,.25);color:#8a6a14}
+.tagpill.event{background:#e6efff;color:var(--blue)}
+.card h3{font-size:20px;line-height:1.25}
+.card p{font-size:16px;color:var(--muted);white-space:pre-line;overflow-wrap:anywhere}
+.card .when{font:700 13px Arial,sans-serif;color:var(--muted);margin-top:auto;padding-top:4px}
+.empty{background:#fff;border:1px dashed #c9d2e8;border-radius:16px;padding:22px;color:var(--muted);text-align:center}
+.team{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.person{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;text-align:center}
+.person .av{width:84px;height:84px;border-radius:50%;margin:0 auto 10px;overflow:hidden;background:linear-gradient(135deg,var(--navy),var(--blue));display:grid;place-items:center;color:#fff;font-size:26px}
+.person .av img{width:100%;height:100%;object-fit:cover}
+.person b{display:block;font-size:17px;line-height:1.2}
+.person span{font:13px Arial,sans-serif;color:var(--muted)}
+.gal{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(min(46%,170px),1fr))}
+.gal button{border:0;padding:0;border-radius:12px;overflow:hidden;aspect-ratio:1;cursor:pointer;background:var(--navy)}
+.gal img{width:100%;height:100%;object-fit:cover}
+.join{background:var(--navy);color:#fff;border-radius:22px;padding:26px 20px;margin-top:10px;background-image:radial-gradient(circle at 100% 0,rgba(217,180,92,.28),transparent 45%)}
+.join h2{margin-top:6px}
+.join p.lead{color:#dbe3f6;margin-bottom:16px;max-width:52ch}
+form.f{display:grid;gap:10px;max-width:460px}
+form.f input,form.f textarea{width:100%;font:17px Arial,sans-serif;color:var(--ink);background:#fff;border:2px solid transparent;border-radius:12px;padding:14px;outline:none}
+form.f input:focus,form.f textarea:focus{border-color:var(--gold)}
+.note{font:14px/1.4 Arial,sans-serif;color:#aebbdd;min-height:20px}
+.note.ok{color:#8be3b3;font-weight:700}.note.err{color:#ffb4a9;font-weight:700}
+.contact{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 0}
+.contact a{font:700 14px Arial,sans-serif;text-decoration:none;background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:11px 14px}
+footer{margin-top:44px;background:var(--navy);color:#aebbdd;text-align:center;font:13px/1.7 Arial,sans-serif;padding:26px 18px calc(26px + env(safe-area-inset-bottom))}
+footer a{color:var(--gold)}
+.lb{position:fixed;inset:0;background:rgba(5,12,34,.94);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.lb.on{display:flex}.lb img{max-height:88vh;max-width:100%;object-fit:contain;border-radius:8px}
+.lb button{position:absolute;top:max(12px,env(safe-area-inset-top));right:14px;border:0;background:#fff;border-radius:99px;width:42px;height:42px;font-size:20px;cursor:pointer}
+.state{padding:90px 20px;text-align:center;color:var(--muted)}
+[hidden]{display:none!important}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="https://www.christianservicechurch.org/"><img src="/assets/church-logo.png" alt="" width="40" height="40"><span><b id="hdName">Our Ministry</b><small>CHRISTIAN SERVICE CHURCH</small></span></a>
+  <nav class="nav" aria-label="Sections"><a href="#updates">Updates</a><a class="opt" href="#team">Team</a><a class="opt" href="#gallery">Gallery</a><a href="#join">Join</a></nav>
+</div></header>
+
+<div id="state" class="state">Loading...</div>
+
+<main id="site" hidden>
+  <div class="hero"><div class="wrap">
+    <div>
+      <div class="eyebrow">A MINISTRY OF CHRISTIAN SERVICE CHURCH</div>
+      <h1 id="name"></h1>
+      <p class="tag" id="tagline"></p>
+      <div class="cta"><a class="btn gold" href="#join">Join us</a><a class="btn line" href="#updates">Latest updates</a></div>
+    </div>
+    <figure><img id="heroImg" alt="" width="900" height="600"></figure>
+  </div></div>
+
+  <div class="wrap">
+    <section class="about" id="about"><div class="sub">ABOUT US</div><h2>Who we are</h2><p id="about-text"></p><div class="meet" id="meet" hidden></div></section>
+    <section id="updates"><div class="sub">STAY UPDATED</div><h2>Announcements and events</h2><div class="cards" id="posts"></div></section>
+    <section id="team" hidden><div class="sub">OUR TEAM</div><h2>The people who serve</h2><div class="team" id="people"></div></section>
+    <section id="gallery" hidden><div class="sub">MOMENTS</div><h2>From our gallery</h2><div class="gal" id="photos"></div></section>
+    <section id="join">
+      <div class="join">
+        <div class="sub" style="color:var(--gold)">BE PART OF IT</div>
+        <h2>Come and serve with us</h2>
+        <p class="lead">Leave your name and number and someone from the team will reach out to you. There is a place for you here.</p>
+        <form class="f" id="joinForm" novalidate>
+          <label for="jn" class="sr" style="position:absolute;left:-9999px">Your name</label><input id="jn" name="name" type="text" placeholder="Your name" autocomplete="name" maxlength="120" required>
+          <label for="jp" class="sr" style="position:absolute;left:-9999px">Phone number</label><input id="jp" name="phone" type="tel" placeholder="Phone number, e.g. 0551234567" autocomplete="tel" inputmode="tel" maxlength="20" required>
+          <label for="jm" class="sr" style="position:absolute;left:-9999px">Message</label><textarea id="jm" name="message" rows="2" placeholder="Anything you want us to know (optional)" maxlength="400"></textarea>
+          <button class="btn gold" type="submit">Send my details</button>
+          <p class="note" id="joinNote" role="status" aria-live="polite"></p>
+        </form>
+        <div class="contact" id="contact"></div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <b style="color:#fff" id="ftName">Christian Service Church</b><br>
+  Part of <a href="https://www.christianservicechurch.org/">Christian Service Church</a> &middot; Jungle Avenue Road, East Legon, Accra<br>
+  Sunday Service 9:00 AM &middot; <a href="https://www.christianservicechurch.org/subscribe">Get church SMS updates</a>
+</footer>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Photo"><button type="button" id="lbx" aria-label="Close photo">&times;</button><img id="lbi" alt=""></div>
+
+<script src="/js/vendor/supabase.js"></script>
+<script>
+(function () {
+  'use strict';
+  var URL_ = 'https://uysfgupzlxfhplwqcttp.supabase.co', KEY = 'sb_publishable_5T68Teyy88wmJUlckVRneA_Yfh0OKZV';
+  var ART = { mediateam: '/assets/ministries/media-ministry-art.jpg', youth: '/assets/ministries/vibrant-youth-art.jpg', prayer: '/assets/ministries/prayer-department-art.jpg', ushers: '/assets/ministries/ushers-and-protocol-art.jpg', choir: '/assets/ministries/ezekiel-choir-photo.jpg', evangelism: '/assets/ministries/evangelism-team-art.jpg', virtuouswomen: '/assets/ministries/virtuous-women-art.jpg' };
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  function slugFromLocation() {
+    var m = location.pathname.match(/^\/m\/([a-z0-9]+)/i);
+    if (m) return m[1].toLowerCase();
+    var host = location.hostname.toLowerCase();
+    if (/\.christianservicechurch\.org$/.test(host) && !/^www\./.test(host)) return host.split('.')[0];
+    return (new URLSearchParams(location.search).get('m') || '').toLowerCase();
+  }
+  var slug = slugFromLocation();
+  function fail(msg) { $('state').textContent = msg; $('state').hidden = false; $('site').hidden = true; }
+  function date(v) { if (!v) return ''; var d = new Date(v + 'T12:00:00'); return isNaN(d) ? '' : d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }); }
+  function phoneDigits(p) { var d = String(p || '').replace(/\D/g, ''); if (/^0\d{9}$/.test(d)) d = '233' + d.slice(1); return d; }
+  function normPhone(v) { var d = String(v || '').replace(/\D/g, ''); if (d.length === 14 && d.indexOf('00233') === 0) d = d.slice(2); if (/^233\d{9}$/.test(d)) return d; if (/^0\d{9}$/.test(d)) return '233' + d.slice(1); if (/^\d{9}$/.test(d)) return '233' + d; return ''; }
+
+  if (!slug) { fail('This ministry page could not be found.'); return; }
+  var sb = supabase.createClient(URL_, KEY);
+
+  Promise.all([
+    sb.from('ministry_sites').select('*').eq('slug', slug).maybeSingle(),
+    sb.from('ministry_posts').select('*').eq('slug', slug).eq('published', true).order('created_at', { ascending: false }).limit(30),
+    sb.from('ministry_team').select('*').eq('slug', slug).order('sort_order').order('created_at'),
+    sb.from('ministry_gallery').select('*').eq('slug', slug).order('created_at', { ascending: false }).limit(60)
+  ]).then(function (r) {
+    var site = r[0].data;
+    if (r[0].error || !site) { fail('This ministry page could not be found.'); return; }
+    document.title = site.name + ' | Christian Service Church';
+    $('hdName').textContent = site.name; $('name').textContent = site.name; $('ftName').textContent = site.name;
+    $('tagline').textContent = site.tagline || '';
+    $('heroImg').src = site.hero_image || ART[slug] || '/assets/og-card.jpg'; $('heroImg').alt = site.name;
+    $('about-text').textContent = site.about || '';
+    if (site.meeting_info) { $('meet').hidden = false; $('meet').textContent = 'When we meet: ' + site.meeting_info; }
+    var posts = r[1].data || [];
+    $('posts').innerHTML = posts.length ? posts.map(function (p) {
+      var when = p.kind === 'event' ? [date(p.event_date), p.event_time, p.location].filter(Boolean).join(' · ') : date((p.created_at || '').slice(0, 10));
+      return '<article class="card">' + (p.image ? '<div class="pic"><img src="' + esc(p.image) + '" alt="' + esc(p.title) + '" loading="lazy" decoding="async"></div>' : '') +
+        '<div class="in"><span class="tagpill ' + (p.kind === 'event' ? 'event' : '') + '">' + (p.kind === 'event' ? 'Event' : p.kind === 'update' ? 'Update' : 'Announcement') + '</span><h3>' + esc(p.title) + '</h3>' +
+        (p.body ? '<p>' + esc(p.body) + '</p>' : '') + (when ? '<div class="when">' + esc(when) + '</div>' : '') + '</div></article>';
+    }).join('') : '<div class="empty">No announcements yet. Check back soon, or leave your number below so we can reach you.</div>';
+    var team = r[2].data || [];
+    if (team.length) { $('team').hidden = false; $('people').innerHTML = team.map(function (t) {
+      var ini = String(t.name || '').split(/\s+/).slice(0, 2).map(function (w) { return w[0] || ''; }).join('').toUpperCase();
+      return '<div class="person"><div class="av">' + (t.image ? '<img src="' + esc(t.image) + '" alt="" loading="lazy">' : esc(ini)) + '</div><b>' + esc(t.name) + '</b><span>' + esc(t.role || '') + '</span></div>'; }).join(''); }
+    var pics = r[3].data || [];
+    if (pics.length) { $('gallery').hidden = false; $('photos').innerHTML = pics.map(function (g) { return '<button type="button" data-src="' + esc(g.image) + '" aria-label="Open photo' + (g.caption ? ': ' + esc(g.caption) : '') + '"><img src="' + esc(g.image) + '" alt="' + esc(g.caption || '') + '" loading="lazy" decoding="async"></button>'; }).join(''); }
+    var c = [];
+    if (site.contact_phone) c.push('<a href="tel:' + esc(site.contact_phone) + '">Call ' + esc(site.contact_phone) + '</a>');
+    if (site.whatsapp) c.push('<a href="https://wa.me/' + esc(phoneDigits(site.whatsapp)) + '" target="_blank" rel="noopener">WhatsApp us</a>');
+    if (site.contact_email) c.push('<a href="mailto:' + esc(site.contact_email) + '">' + esc(site.contact_email) + '</a>');
+    $('contact').innerHTML = c.join('');
+    $('state').hidden = true; $('site').hidden = false;
+    if (location.hash) { var el = document.getElementById(location.hash.slice(1)); if (el) el.scrollIntoView(); }
+  }).catch(function () { fail('We could not load this page right now. Please try again shortly.'); });
+
+  $('photos').addEventListener('click', function (e) { var b = e.target.closest('button[data-src]'); if (!b) return; $('lbi').src = b.dataset.src; $('lb').classList.add('on'); });
+  $('lb').addEventListener('click', function () { $('lb').classList.remove('on'); $('lbi').removeAttribute('src'); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') $('lb').classList.remove('on'); });
+
+  $('joinForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var f = e.target, note = $('joinNote'), btn = f.querySelector('button');
+    var name = f.name.value.trim(), phone = normPhone(f.phone.value);
+    note.className = 'note';
+    if (!name) { note.textContent = 'Please tell us your name.'; note.className = 'note err'; return; }
+    if (!phone) { note.textContent = 'Please enter a valid Ghana phone number, for example 0551234567.'; note.className = 'note err'; return; }
+    btn.disabled = true; note.textContent = 'Sending...';
+    sb.from('ministry_join_requests').insert({ slug: slug, name: name, phone: phone, message: f.message.value.trim() || null }).then(function (res) {
+      btn.disabled = false;
+      if (res.error) { note.textContent = 'We could not send that right now. Please try again shortly.'; note.className = 'note err'; return; }
+      f.reset(); note.textContent = 'Thank you! Someone from the team will reach out to you soon.'; note.className = 'note ok';
+    });
+  });
+})();
+</script>
+</body>
+</html>

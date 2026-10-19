@@ -55,7 +55,8 @@ a{color:inherit}
 .bnav a[aria-current=page]{color:var(--gold)}
 .bnav a[aria-current=page]::before{content:'';position:absolute;top:0;left:28%;right:28%;height:3px;border-radius:0 0 4px 4px;background:var(--gold)}
 .bnav .bd{position:absolute;top:8px;left:calc(50% + 8px);min-width:16px;height:16px;border-radius:99px;background:var(--gold);color:var(--navy);font:800 10px/16px Arial,sans-serif;text-align:center;padding:0 4px}
-#app{padding-bottom:calc(62px + env(safe-area-inset-bottom))}
+#app{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+#views{flex:1}
 @media(min-width:900px){.bnav .in{max-width:640px}}
 .wrap{max-width:1040px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-right)) 0 max(16px,env(safe-area-inset-left))}
 .view{padding:26px 0 40px}
@@ -100,17 +101,13 @@ a{color:inherit}
 .gal{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(min(46%,170px),1fr))}
 .gal button{border:0;padding:0;border-radius:12px;overflow:hidden;aspect-ratio:1;background:var(--navy)}
 .gal img{width:100%;height:100%;object-fit:cover}
-.join{background:var(--navy);color:#fff;border-radius:22px;padding:26px 20px;background-image:radial-gradient(circle at 100% 0,rgba(217,180,92,.28),transparent 45%)}
-.join h3{font-size:26px;margin:6px 0}.join p{color:#dbe3f6;margin-bottom:14px;max-width:50ch}
-.join textarea{width:100%;font:17px Arial,sans-serif;color:var(--ink);border:2px solid transparent;border-radius:12px;padding:14px;outline:none;max-width:460px;display:block;margin-bottom:10px}
-.join textarea:focus{border-color:var(--gold)}
 .btn{display:inline-block;text-decoration:none;font:800 15px Arial,sans-serif;border-radius:12px;padding:14px 22px;border:0;background:linear-gradient(180deg,#e8c971,#c9a961);color:var(--navy)}
 .btn:disabled{opacity:.6}
 .btn.line{background:transparent;border:1.5px solid rgba(255,255,255,.5);color:#fff}
 .note{font:14px/1.4 Arial,sans-serif;color:#aebbdd;min-height:20px;margin-top:10px}.note.ok{color:#8be3b3;font-weight:700}.note.err{color:#ffb4a9;font-weight:700}
 .contact{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
 .contact a{font:700 14px Arial,sans-serif;text-decoration:none;background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:11px 14px}
-footer{background:var(--navy);color:#aebbdd;text-align:center;font:13px/1.7 Arial,sans-serif;padding:24px 18px calc(24px + env(safe-area-inset-bottom))}
+footer{background:var(--navy);color:#aebbdd;text-align:center;font:13px/1.7 Arial,sans-serif;padding:24px 18px calc(86px + env(safe-area-inset-bottom))}
 footer a{color:var(--gold)}
 .lb{position:fixed;inset:0;background:rgba(5,12,34,.94);display:none;align-items:center;justify-content:center;z-index:60;padding:16px}
 .lb.on{display:flex}.lb img{max-height:88vh;max-width:100%;object-fit:contain;border-radius:8px}
@@ -127,6 +124,15 @@ footer a{color:var(--gold)}
 .signed{margin-top:26px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;font:15px Arial,sans-serif;color:var(--muted)}
 .signed b{color:var(--ink)}
 .signed button{background:var(--navy);color:#fff;border:0;border-radius:10px;padding:11px 16px;font:700 14px Arial,sans-serif}
+.verse{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px 20px 18px;border-left:4px solid var(--gold)}
+.verse blockquote{font-size:clamp(20px,4.6vw,24px);line-height:1.4;font-style:italic;color:#1f2b52;margin:10px 0 8px;text-wrap:pretty}
+.verse cite{font:700 13px Arial,sans-serif;color:var(--gold-d);font-style:normal;letter-spacing:.06em}
+.more{font:800 15px Arial,sans-serif;color:var(--blue);text-decoration:none}
+.story{font-size:20px;line-height:1.65;color:#2a3558;max-width:60ch}
+.meetcard{margin-top:18px;background:var(--navy);color:#fff;border-radius:16px;padding:16px 18px;display:grid;gap:4px;border-left:4px solid var(--gold)}
+.meetcard span{font:700 11px Arial,sans-serif;letter-spacing:.22em;color:var(--gold)}
+.meetcard b{font-size:20px;line-height:1.3}
+.empty b{font-size:18px;color:var(--ink)}
 </style>
 </head>
 <body>
@@ -253,11 +259,21 @@ footer a{color:var(--gold)}
 
   function whoName() { return me && me.name ? me.name : (me && me.kind === 'admin' ? 'Church admin' : ''); }
 
-  var VIEWS = [['home', 'Home', 'home'], ['updates', 'Updates', 'news'], ['team', 'Team', 'team'], ['gallery', 'Gallery', 'photo'], ['join', 'Join', 'join']];
+  var VIEWS = [['home', 'Home', 'home'], ['updates', 'Updates', 'news'], ['team', 'Team', 'team'], ['gallery', 'Gallery', 'photo'], ['about', 'About', 'about']];
   var filter = 'all';
+  var VERSES = [
+    ['This is the day the Lord has made; let us rejoice and be glad in it.', 'Psalm 118:24'],
+    ['Whatever you do, work at it with all your heart, as working for the Lord.', 'Colossians 3:23'],
+    ['Let us not become weary in doing good, for at the proper time we will reap a harvest if we do not give up.', 'Galatians 6:9'],
+    ['Two are better than one, because they have a good return for their labor.', 'Ecclesiastes 4:9'],
+    ['Let us consider how we may spur one another on toward love and good deeds.', 'Hebrews 10:24'],
+    ['I can do all this through him who gives me strength.', 'Philippians 4:13'],
+    ['How good and pleasant it is when God’s people live together in unity!', 'Psalm 133:1']
+  ];
+  function greeting() { var h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'; }
 
   function postCard(p) {
-    var when = p.kind === 'event' ? [date(p.event_date), p.event_time, p.location].filter(Boolean).join(' \u00b7 ') : date((p.created_at || '').slice(0, 10));
+    var when = p.kind === 'event' ? [date(p.event_date), p.event_time, p.location].filter(Boolean).join(' · ') : date((p.created_at || '').slice(0, 10));
     return '<article class="card" data-kind="' + (p.kind === 'event' ? 'event' : 'news') + '">' + (p.image ? '<div class="pic"><img src="' + esc(p.image) + '" alt="' + esc(p.title) + '" loading="lazy" decoding="async"></div>' : '') +
       '<div class="tx"><span class="pill ' + (p.kind === 'event' ? 'event' : '') + '">' + (p.kind === 'event' ? 'Event' : p.kind === 'update' ? 'Update' : 'Announcement') + '</span><h3>' + esc(p.title) + '</h3>' +
       (p.body ? '<p>' + esc(p.body) + '</p>' : '') + (when ? '<div class="when">' + esc(when) + '</div>' : '') + '</div></article>';
@@ -268,48 +284,43 @@ footer a{color:var(--gold)}
     var ann = posts.filter(function (p) { return p.kind !== 'event'; }), evs = posts.filter(function (p) { return p.kind === 'event'; });
     var today = new Date().toISOString().slice(0, 10);
     var upcoming = evs.filter(function (p) { return !p.event_date || p.event_date >= today; }).sort(function (a, b) { return String(a.event_date || '9').localeCompare(String(b.event_date || '9')); });
+    var verse = VERSES[new Date().getDay()];
+    var fn = first(whoName());
     document.title = s.name + ' | Christian Service Church';
     $('barName').textContent = s.name; $('ftName').textContent = s.name;
-    $('hiName').textContent = whoName() ? 'Hi, ' + first(whoName()) : '';
+    $('hiName').textContent = whoName() ? 'Hi, ' + fn : '';
     $('bnav').innerHTML = VIEWS.map(function (v) { return '<a href="#' + v[0] + '" data-v="' + v[0] + '">' + svg(v[2]) + '<span>' + v[1] + '</span></a>'; }).join('');
 
-    var tile = function (v, t, d, ic) { return '<a class="tile" href="#' + v + '">' + svg(ic) + '<b>' + t + '</b><span>' + d + '</span></a>'; };
     var contact = [];
     if (s.contact_phone) contact.push('<a href="tel:' + esc(s.contact_phone) + '">Call ' + esc(s.contact_phone) + '</a>');
     if (s.whatsapp) contact.push('<a href="https://wa.me/' + esc(phoneDigits(s.whatsapp)) + '" target="_blank" rel="noopener">WhatsApp us</a>');
     if (s.contact_email) contact.push('<a href="mailto:' + esc(s.contact_email) + '">' + esc(s.contact_email) + '</a>');
     var others = sites.filter(function (x) { return x.slug !== slug; });
+    var nothing = function (t, d) { return '<div class="empty"><b>' + t + '</b><br>' + d + '</div>'; };
 
     var v = '';
     v += '<section class="view" data-view="home" style="padding:0">' +
-      '<div class="hero"><div class="wrap"><div><div class="hi">WELCOME, ' + esc(first(whoName()).toUpperCase()) + '</div><h2>' + esc(s.name) + '</h2><p class="tag">' + esc(s.tagline || '') + '</p></div>' +
+      '<div class="hero"><div class="wrap"><div><div class="hi">' + esc(greeting().toUpperCase()) + ', ' + esc(fn.toUpperCase()) + '</div><h2>' + esc(s.name) + '</h2><p class="tag">' + esc(s.tagline || '') + '</p></div>' +
       '<figure><img src="' + esc(s.hero_image || ART[slug] || '/assets/og-card.jpg') + '" alt="' + esc(s.name) + '" width="900" height="600"></figure></div></div>' +
-      '<div class="wrap" style="padding-top:22px;padding-bottom:30px"><div class="sub">EXPLORE</div>' +
-      '<div class="tiles">' + tile('updates', 'Updates', posts.length ? posts.length + ' to read' : 'Latest news', 'news') + tile('team', 'Our team', 'Who serves here', 'team') + tile('gallery', 'Gallery', 'Photos and moments', 'photo') + tile('join', 'Join us', 'Serve with us', 'join') + '</div>' +
-      (ann[0] ? '<div class="feature"><div class="sub" style="margin:18px 0 8px">LATEST ANNOUNCEMENT</div>' + postCard(ann[0]) + '</div>' : '') +
-      (upcoming[0] ? '<div class="feature"><div class="sub" style="margin:18px 0 8px">NEXT EVENT</div>' + postCard(upcoming[0]) + '</div>' : '') +
-      '<div class="sect about"><div class="sub">ABOUT US</div><h3>Who we are</h3><p>' + esc(s.about || '') + '</p>' + (s.meeting_info ? '<div class="meet">When we meet: ' + esc(s.meeting_info) + '</div>' : '') + '</div>' +
-      (others.length ? '<div class="sect"><div class="sub">MORE FROM THE CHURCH</div><h3>Other ministries</h3><div class="others">' + others.map(function (x) { return '<a href="' + esc(siteUrl(x.slug)) + '">' + svg('church').replace('<svg ', '<svg width="26" height="26" style="color:var(--blue);flex:none" ') + '<div>' + esc(x.name) + '<span>' + esc(x.tagline || '') + '</span></div></a>'; }).join('') + '</div></div>' : '') +
-      '<div class="signed"><div>Signed in as <b>' + esc(whoName()) + '</b></div><button type="button" id="signout">Sign out</button></div>' +
+      '<div class="wrap" style="padding-top:26px;padding-bottom:34px">' +
+      '<div class="verse"><div class="sub">VERSE FOR TODAY</div><blockquote>“' + esc(verse[0]) + '”</blockquote><cite>' + esc(verse[1]) + '</cite></div>' +
+      '<div class="sect"><div class="sub">WHAT IS NEW</div><h3>The latest from your team</h3>' +
+      (ann[0] ? postCard(ann[0]) : nothing('Nothing new just yet.', 'When your leaders share an announcement, you will see it here first.')) + '</div>' +
+      '<div class="sect"><div class="sub">COMING UP</div><h3>Next on the calendar</h3>' +
+      (upcoming[0] ? postCard(upcoming[0]) : nothing('No events on the calendar yet.', 'We will put the next one here as soon as it is planned.')) +
+      (posts.length > 2 ? '<p style="margin-top:14px"><a class="more" href="#updates">See everything in Updates &rarr;</a></p>' : '') + '</div>' +
       '</div></section>';
-    v += '<section class="view wrap" data-view="updates"><div class="sub">STAY UPDATED</div><h2>Announcements and events</h2><div class="chips" id="chips"><button type="button" class="chip" data-f="all" aria-pressed="true">All</button><button type="button" class="chip" data-f="news" aria-pressed="false">Announcements</button><button type="button" class="chip" data-f="event" aria-pressed="false">Events</button></div><div class="cards" id="postList">' + (posts.length ? posts.map(postCard).join('') : '<div class="empty">Nothing yet. Please check back soon.</div>') + '</div></section>';
-    v += '<section class="view wrap" data-view="team"><div class="sub">OUR TEAM</div><h2>The people who serve</h2><div class="team">' + ((data.team || []).length ? data.team.map(function (t) {
+    v += '<section class="view wrap" data-view="updates"><div class="sub">STAY IN THE LOOP</div><h2>Updates</h2><p class="lead">Announcements and events from the ' + esc(s.name) + ', newest first.</p><div class="chips" id="chips"><button type="button" class="chip" data-f="all" aria-pressed="true">All</button><button type="button" class="chip" data-f="news" aria-pressed="false">Announcements</button><button type="button" class="chip" data-f="event" aria-pressed="false">Events</button></div><div class="cards" id="postList">' + (posts.length ? posts.map(postCard).join('') : nothing('All quiet for now.', 'When your leaders post something, it will show up right here.')) + '</div></section>';
+    v += '<section class="view wrap" data-view="team"><div class="sub">THE FAMILY</div><h2>Meet the team</h2><p class="lead">The people who serve, so you know who to call on.</p><div class="team">' + ((data.team || []).length ? data.team.map(function (t) {
       var ini = String(t.name || '').split(/\s+/).slice(0, 2).map(function (w) { return w[0] || ''; }).join('').toUpperCase();
-      return '<div class="person"><div class="av">' + (t.image ? '<img src="' + esc(t.image) + '" alt="" loading="lazy">' : esc(ini)) + '</div><b>' + esc(t.name) + '</b><span>' + esc(t.role || '') + '</span></div>'; }).join('') : '<div class="empty" style="grid-column:1/-1">The team list is coming soon.</div>') + '</div></section>';
-    v += '<section class="view wrap" data-view="gallery"><div class="sub">MOMENTS</div><h2>Gallery</h2>' + ((data.gallery || []).length ? '<div class="gal">' + data.gallery.map(function (g) { return '<button type="button" data-src="' + esc(g.image) + '" aria-label="Open photo' + (g.caption ? ': ' + esc(g.caption) : '') + '"><img src="' + esc(g.image) + '" alt="' + esc(g.caption || '') + '" loading="lazy" decoding="async"></button>'; }).join('') + '</div>' : '<div class="empty">No photos yet.</div>') + '</section>';
-    v += '<section class="view wrap" data-view="join"><div class="sub">BE PART OF IT</div><h2>Come and serve with us</h2><div class="join"><h3>There is a place for you here</h3><p>' + (me && me.kind === 'member' ? 'Tap the button and the team will reach out to you on the number the church has for you, ' + esc(first(whoName())) + '.' : 'Members can send a request to join from here.') + '</p>' +
-      (me && me.kind === 'member' ? '<label class="sr" for="jm">Message</label><textarea id="jm" rows="2" placeholder="Anything you would like them to know (optional)" maxlength="400"></textarea><button class="btn" id="jbtn" type="button">I want to join</button><p class="note" id="jnote" role="status" aria-live="polite"></p>' : '') + '</div>' +
-      (contact.length ? '<div class="contact">' + contact.join('') + '</div>' : '') + '</section>';
+      return '<div class="person"><div class="av">' + (t.image ? '<img src="' + esc(t.image) + '" alt="" loading="lazy">' : esc(ini)) + '</div><b>' + esc(t.name) + '</b><span>' + esc(t.role || '') + '</span></div>'; }).join('') : '<div style="grid-column:1/-1">' + nothing('We are still adding faces.', 'Your leaders will list the team here soon.') + '</div>') + '</div></section>';
+    v += '<section class="view wrap" data-view="gallery"><div class="sub">REMEMBER THE GOOD TIMES</div><h2>Gallery</h2><p class="lead">Moments from the ' + esc(s.name) + '. Tap a photo to see it bigger.</p>' + ((data.gallery || []).length ? '<div class="gal">' + data.gallery.map(function (g) { return '<button type="button" data-src="' + esc(g.image) + '" aria-label="Open photo' + (g.caption ? ': ' + esc(g.caption) : '') + '"><img src="' + esc(g.image) + '" alt="' + esc(g.caption || '') + '" loading="lazy" decoding="async"></button>'; }).join('') + '</div>' : nothing('No photos yet.', 'Pictures from your events and meetings will appear here.')) + '</section>';
+    v += '<section class="view wrap about" data-view="about"><div class="sub">GOOD TO KNOW</div><h2>About the ' + esc(s.name) + '</h2><p class="story">' + esc(s.about || '') + '</p>' +
+      (s.meeting_info ? '<div class="meetcard"><span>WHEN WE MEET</span><b>' + esc(s.meeting_info) + '</b></div>' : '') +
+      (contact.length ? '<div class="sect"><div class="sub">GET IN TOUCH</div><h3>We would love to hear from you</h3><div class="contact" style="margin-top:6px">' + contact.join('') + '</div></div>' : '') +
+      (others.length ? '<div class="sect"><div class="sub">THE WIDER FAMILY</div><h3>Other ministries</h3><div class="others">' + others.map(function (x) { return '<a href="' + esc(siteUrl(x.slug)) + '">' + svg('church').replace('<svg ', '<svg width="26" height="26" style="color:var(--blue);flex:none" ') + '<div>' + esc(x.name) + '<span>' + esc(x.tagline || '') + '</span></div></a>'; }).join('') + '</div></div>' : '') +
+      '<div class="signed"><div>Signed in as <b>' + esc(whoName()) + '</b></div><button type="button" id="signout">Sign out</button></div></section>';
     $('views').innerHTML = v;
-    var jb = $('jbtn');
-    if (jb) jb.addEventListener('click', function () {
-      jb.disabled = true; $('jnote').className = 'note'; $('jnote').textContent = 'Sending...';
-      sb.rpc('ministry_join', { p_token: token, p_slug: slug, p_message: $('jm').value }).then(function (r) {
-        jb.disabled = false;
-        if (r.error || !(r.data && r.data.ok)) { $('jnote').textContent = (r.data && r.data.error) || 'We could not send that right now. Please try again shortly.'; $('jnote').className = 'note err'; return; }
-        $('jm').value = ''; $('jnote').textContent = 'Thank you! Someone from the team will reach out to you soon.'; $('jnote').className = 'note ok';
-      });
-    });
     var so = $('signout'); if (so) so.addEventListener('click', function () { var t = token; token = ''; setToken(''); sb.rpc('session_logout', { p_token: t }).then(function () { location.hash = ''; boot(); }); });
     var ch = $('chips'); if (ch) ch.addEventListener('click', function (e) {
       var b = e.target.closest('.chip'); if (!b) return; filter = b.dataset.f;

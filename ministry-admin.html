@@ -93,7 +93,7 @@ select.picker option{color:#000}
     <a id="viewSite" href="#" target="_blank" rel="noopener">View page</a><button type="button" id="out">Sign out</button></div>
   <div class="tabs" role="tablist" id="tabs">
     <button role="tab" data-t="posts">Updates</button><button role="tab" data-t="gallery">Gallery</button><button role="tab" data-t="team">Team</button>
-    <button role="tab" data-t="joins">Join requests<span class="badge" id="newBadge" hidden>0</span></button><button role="tab" data-t="site">Page details</button>
+    <button role="tab" data-t="site">Page details</button>
   </div>
   <main id="main"></main>
 </div>
@@ -184,8 +184,6 @@ select.picker option{color:#000}
       state.site = r.site || {};
       state.data = { posts: r.posts || [], gallery: r.gallery || [], team: r.team || [], joins: r.joins || [] };
       $('mName').textContent = state.site.name || 'Ministry'; $('viewSite').href = '/m/' + state.slug;
-      var n = state.data.joins.filter(function (j) { return j.status === 'new'; }).length;
-      $('newBadge').hidden = !n; $('newBadge').textContent = n;
       draw();
     }).catch(function (e) { toast(why(e), true); });
   }
@@ -204,9 +202,6 @@ select.picker option{color:#000}
     } else if (state.tab === 'team') {
       m.innerHTML = '<div class="head"><h2>Team and leaders</h2><button class="btn pri" data-a="newPerson">+ Add person</button></div><div class="list">' +
         (d.team.length ? d.team.map(function (t) { return '<div class="row">' + (t.image ? '<div class="th" style="background-image:url(\'' + esc(t.image) + '\');border-radius:50%"></div>' : '') + '<div class="tx"><b>' + esc(t.name) + '</b><span>' + esc(t.role || '') + '</span></div><div class="acts"><button class="btn sm" data-a="editPerson" data-id="' + t.id + '">Edit</button><button class="btn sm danger" data-a="delPerson" data-id="' + t.id + '">Delete</button></div></div>'; }).join('') : '<div class="empty">Add your head, assistants and members so everyone can see who serves.</div>') + '</div>';
-    } else if (state.tab === 'joins') {
-      m.innerHTML = '<div class="head"><h2>Join requests</h2></div><p class="hint">Members who asked to join your ministry. Call or message them, then mark them.</p><div class="list">' +
-        (d.joins.length ? d.joins.map(function (j) { var dg = String(j.phone || '').replace(/\D/g, ''); return '<div class="row" style="align-items:flex-start;flex-wrap:wrap"><div class="tx" style="min-width:60%"><b style="white-space:normal">' + esc(j.name) + '</b><span style="white-space:normal">' + esc(j.phone || '') + (j.message ? ' &middot; ' + esc(j.message) : '') + '</span><span>' + esc(niceDate((j.created_at || '').slice(0, 10))) + '</span></div><div class="acts" style="flex-wrap:wrap">' + (dg ? '<a class="btn sm" href="tel:+' + esc(dg) + '" style="text-decoration:none">Call</a><a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/' + esc(dg) + '" style="text-decoration:none">WhatsApp</a>' : '') + '<select data-a="joinStatus" data-id="' + j.id + '" class="btn sm" aria-label="Status"><option value="new"' + (j.status === 'new' ? ' selected' : '') + '>New</option><option value="contacted"' + (j.status === 'contacted' ? ' selected' : '') + '>Contacted</option><option value="joined"' + (j.status === 'joined' ? ' selected' : '') + '>Joined</option></select><button class="btn sm danger" data-a="delJoin" data-id="' + j.id + '">Delete</button></div></div>'; }).join('') : '<div class="empty">No requests yet.</div>') + '</div>';
     } else {
       var s = state.site, inp = 'width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px';
       m.innerHTML = '<div class="head"><h2>Page details</h2></div><p class="hint">These words and the main picture show at the top of your ministry page.</p><form id="siteForm" class="list" style="gap:12px">' +
@@ -231,11 +226,6 @@ select.picker option{color:#000}
     else if (a === 'delPhoto') del('photo', id, 'Delete this photo?');
     else if (a === 'newPerson') personForm(); else if (a === 'editPerson') personForm(find('team'));
     else if (a === 'delPerson') del('person', id, 'Remove this person?');
-    else if (a === 'delJoin') del('join', id, 'Delete this request?');
-  });
-  $('main').addEventListener('change', function (e) {
-    var s = e.target.closest('select[data-a=joinStatus]'); if (!s) return;
-    call('mgmt_join_status', { p_slug: state.slug, p_id: s.dataset.id, p_status: s.value }).then(function () { toast('Saved'); load(); }).catch(function (ex) { toast(why(ex), true); });
   });
   function del(what, id, q) {
     $('dlg').innerHTML = '<form method="dialog"><h3>' + esc(q) + '</h3><div class="df"><button class="btn" value="no">Keep it</button><button class="btn danger" value="yes">Delete</button></div></form>';

@@ -16,7 +16,7 @@ select 'Prayer Department', 'The engine room of the church. Our intercessors sta
 where not exists (select 1 from public.ministries where title ilike '%prayer%');
 
 insert into public.ministries (title, body, image, published, created_at)
-select 'Ushers and Protocol', 'The first smile you see and the last goodbye you hear. Our ushers welcome every guest, keep every service in order and make sure everyone finds a seat and a home. Serving with excellence is how we say, you are welcome here.', 'assets/ministries/ushers-and-protocol-art.jpg', true, now() + interval '3 seconds'
+select 'Ushers and Protocol', 'The first smile you see and the last goodbye you hear. Our ushers welcome every guest, keep every service in order and make sure everyone finds a seat and a home. Serving with excellence is how we say, you are welcome here.', 'assets/ministries/ushers-photo.jpg', true, now() + interval '3 seconds'
 where not exists (select 1 from public.ministries where title ilike '%usher%');
 
 insert into public.ministries (title, body, image, published, created_at)
@@ -28,7 +28,7 @@ select 'Media Ministry', 'We carry the message further than these walls. From ca
 where not exists (select 1 from public.ministries where title ilike '%media%');
 
 insert into public.ministries (title, body, image, published, created_at)
-select 'Evangelism Team', 'Taking the Gospel to every street. Our evangelists share the Good News through outreach, home visits and everyday conversations, leading souls to Christ and walking with them until they feel at home in God''s family. Souls are the heartbeat of this church.', 'assets/ministries/evangelism-team-art.jpg', true, now() + interval '6 seconds'
+select 'Evangelism Team', 'Taking the Gospel to every street. Our evangelists share the Good News through outreach, home visits and everyday conversations, leading souls to Christ and walking with them until they feel at home in God''s family. Souls are the heartbeat of this church.', 'assets/ministries/evangelism-photo.jpg', true, now() + interval '6 seconds'
 where not exists (select 1 from public.ministries where title ilike '%evangel%');
 
 insert into public.ministries (title, body, image, published, created_at, updated_at)

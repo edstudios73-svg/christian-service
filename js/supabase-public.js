@@ -430,13 +430,13 @@
       body: 'Loud worship, real talk and friendships that last. Vibrant Youth is where teens and young adults find purpose, ask the hard questions and discover that following Jesus is the boldest adventure there is. Come as you are. Leave on fire.' },
     { match: /prayer/i, title: 'Prayer Department', image: 'assets/ministries/prayer-department-art.jpg',
       body: 'The engine room of the church. Our intercessors stand in the gap for every family, every service and the nation, believing God for breakthroughs, healing and answered prayers. If you need someone to pray with you, this is your family.' },
-    { match: /usher|protocol/i, title: 'Ushers and Protocol', image: 'assets/ministries/ushers-and-protocol-art.jpg',
+    { match: /usher|protocol/i, title: 'Ushers and Protocol', image: 'assets/ministries/ushers-photo.jpg',
       body: 'The first smile you see and the last goodbye you hear. Our ushers welcome every guest, keep every service in order and make sure everyone finds a seat and a home. Serving with excellence is how we say, you are welcome here.' },
     { match: /choir|ezekiel/i, title: 'Ezekiel Choir', image: 'assets/ministries/ezekiel-choir-photo.jpg',
       body: 'Voices lifted, hearts surrendered. The Ezekiel Choir leads the church into the presence of God with rich harmony, anointed songs and excellence, every Sunday and at every special service. Worship is not a performance here. It is an offering.' },
     { match: /media/i, title: 'Media Ministry', image: 'assets/ministries/media-ministry-photo.jpg',
       body: 'We carry the message further than these walls. From cameras and sound to live streaming, photos and graphics, our creative team captures every moment so that someone watching from anywhere can feel at home. Behind every screen is someone serving with a smile.' },
-    { match: /evangel/i, title: 'Evangelism Team', image: 'assets/ministries/evangelism-team-art.jpg',
+    { match: /evangel/i, title: 'Evangelism Team', image: 'assets/ministries/evangelism-photo.jpg',
       body: 'Taking the Gospel to every street. Our evangelists share the Good News through outreach, home visits and everyday conversations, leading souls to Christ and walking with them until they feel at home in God\'s family. Souls are the heartbeat of this church.' },
     { match: /virtuous|women/i, title: 'Virtuous Women of Destiny', image: 'assets/ministries/virtuous-women-photo.jpg',
       body: 'Women of grace, strength and purpose. Virtuous Women of Destiny gathers the women of the church to pray, learn the Word, encourage one another and step boldly into everything God has prepared for them. Come and be refreshed, restored and sent.' }
@@ -459,6 +459,9 @@
 
   const ministryKey = (title) => /virtuous|women/i.test(title) ? 'virtuous-women' : /child/i.test(title) ? 'children' : String(title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
+  // A link typed as https://contact.html is really the church's own contact page
+  const cleanLink = (link) => String(link || '').trim().replace(/^https?:\/\/(www\.)?(contact\.html)$/i, '$2');
+
   function renderMinistries(rawItems) {
     const mount = document.querySelector('[data-supabase-ministries]');
     if (!mount) return;
@@ -471,7 +474,7 @@
       return `
       <article class="ministry-card${art ? ' ministry-card--art' : ''} reveal" data-delay="${(index % 2) + 1}" id="ministry-${esc(ministryKey(item.title))}">
         <div class="ministry-card__media"${media}></div>
-        <div class="ministry-card__body"><h3 class="ministry-card__title">${esc(item.title)}</h3><p class="ministry-card__desc">${esc(item.body || '')}</p>${ministrySite(item.title) ? `<a href="https://${ministrySite(item.title)}.christianservicechurch.org/" class="ministry-card__link">Learn more</a>` : (item.link ? `<a href="${esc(item.link)}" class="ministry-card__link">Learn More</a>` : '')}</div>
+        <div class="ministry-card__body"><h3 class="ministry-card__title">${esc(item.title)}</h3><p class="ministry-card__desc">${esc(item.body || '')}</p>${ministrySite(item.title) ? `<a href="https://${ministrySite(item.title)}.christianservicechurch.org/" class="ministry-card__link">Learn more</a>` : (cleanLink(item.link) ? `<a href="${esc(cleanLink(item.link))}" class="ministry-card__link">Learn more</a>` : '')}</div>
       </article>`;
     }).join('');
     const focus = document.body && document.body.dataset.focus;

@@ -30,3 +30,7 @@ where not exists (select 1 from public.ministries where title ilike '%media%');
 insert into public.ministries (title, body, image, published, created_at)
 select 'Evangelism Team', 'Taking the Gospel to every street. Our evangelists share the Good News through outreach, visits and everyday conversations, leading souls to Christ and welcoming them home.', 'assets/ministries/evangelism-team-art.jpg', true, now() + interval '6 seconds'
 where not exists (select 1 from public.ministries where title ilike '%evangel%');
+
+insert into public.ministries (title, body, image, published, created_at, updated_at)
+select 'Virtuous Women of Destiny', 'Women of grace, strength and purpose. Virtuous Women of Destiny gathers the women of the church to pray, grow in the Word, encourage one another and walk boldly into everything God has prepared for them.', 'assets/ministries/virtuous-women-art.jpg', true, now() + interval '7 seconds', now()
+where not exists (select 1 from public.ministries where title ilike '%virtuous%' or title ilike '%women%');

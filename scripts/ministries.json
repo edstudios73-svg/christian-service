@@ -21,7 +21,7 @@
     "slug": "ushers",
     "name": "Ushers and Protocol",
     "tagline": "The warm face of our hospitality.",
-    "art": "assets/ministries/ushers-and-protocol-art.jpg"
+    "art": "assets/ministries/ushers-photo.jpg"
   },
   {
     "slug": "choir",
@@ -33,7 +33,7 @@
     "slug": "evangelism",
     "name": "Evangelism Team",
     "tagline": "Taking the Gospel to every street.",
-    "art": "assets/ministries/evangelism-team-art.jpg"
+    "art": "assets/ministries/evangelism-photo.jpg"
   },
   {
     "slug": "virtuouswomen",

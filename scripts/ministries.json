@@ -1,0 +1,8 @@
+[
+  {"slug": "mediateam", "name": "Media Team", "tagline": "Taking the Word further.", "art": "assets/ministries/media-ministry-art.jpg"},
+  {"slug": "youth", "name": "Vibrant Youth", "tagline": "Young, bold and on fire for God.", "art": "assets/ministries/vibrant-youth-art.jpg"},
+  {"slug": "prayer", "name": "Prayer Department", "tagline": "The engine room of the church.", "art": "assets/ministries/prayer-department-art.jpg"},
+  {"slug": "ushers", "name": "Ushers and Protocol", "tagline": "The warm face of our hospitality.", "art": "assets/ministries/ushers-and-protocol-art.jpg"},
+  {"slug": "choir", "name": "Ezekiel Choir", "tagline": "Our voices lifted in worship.", "art": "assets/ministries/ezekiel-choir-photo.jpg"},
+  {"slug": "evangelism", "name": "Evangelism Team", "tagline": "Taking the Gospel to every street.", "art": "assets/ministries/evangelism-team-art.jpg"}
+]

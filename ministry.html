@@ -270,6 +270,7 @@ footer a{color:var(--gold)}
     ['I can do all this through him who gives me strength.', 'Philippians 4:13'],
     ['How good and pleasant it is when God’s people live together in unity!', 'Psalm 133:1']
   ];
+  function heroSrc(s) { var h = String(s.hero_image || '').trim(); if (!h) return ART[slug] || '/assets/og-card.jpg'; return /^(https?:|\/)/.test(h) ? h : '/' + h; }
   function greeting() { var h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'; }
 
   function postCard(p) {
@@ -301,7 +302,7 @@ footer a{color:var(--gold)}
     var v = '';
     v += '<section class="view" data-view="home" style="padding:0">' +
       '<div class="hero"><div class="wrap"><div><div class="hi">' + esc(greeting().toUpperCase()) + ', ' + esc(fn.toUpperCase()) + '</div><h2>' + esc(s.name) + '</h2><p class="tag">' + esc(s.tagline || '') + '</p></div>' +
-      '<figure><img src="' + esc(s.hero_image || ART[slug] || '/assets/og-card.jpg') + '" alt="' + esc(s.name) + '" width="900" height="600"></figure></div></div>' +
+      '<figure><img src="' + esc(heroSrc(s)) + '" alt="' + esc(s.name) + '" width="900" height="600"></figure></div></div>' +
       '<div class="wrap" style="padding-top:26px;padding-bottom:34px">' +
       '<div class="verse"><div class="sub">VERSE FOR TODAY</div><blockquote>“' + esc(verse[0]) + '”</blockquote><cite>' + esc(verse[1]) + '</cite></div>' +
       '<div class="sect"><div class="sub">WHAT IS NEW</div><h3>The latest from your team</h3>' +

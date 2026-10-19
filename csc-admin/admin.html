@@ -433,12 +433,12 @@ const COLLECTIONS = {
   },
   ministries: {
     label: 'Ministries', singular: 'ministry', icon: 'heart', titleField: 'title', meta: [], image: 'image',
-    hint: 'Add and publish the ministries shown on the Ministries page.',
+    hint: 'Add and publish the ministries shown on the Ministries page. The picture you choose here is also the main picture on that ministry\'s members page.',
     fields: [
       { name: 'title', label: 'Ministry name', type: 'text', required: true },
       { name: 'body', label: 'Description', type: 'textarea', required: true, rows: 5 },
       { name: 'link', label: 'Learn more link', type: 'url', half: true, ph: 'contact.html' },
-      { name: 'image', label: 'Ministry image (optional)', type: 'image' }
+      { name: 'image', label: 'Ministry picture (shows on the Ministries page and on the ministry\'s own page)', type: 'image' }
     ]
   },
   visitMessages: {

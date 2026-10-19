@@ -1,6 +1,7 @@
 -- Christian Service Church: members-only ministry sites
 -- Paste this whole file in Supabase > SQL Editor > Run. Safe to run more than once.
--- Needs the main setup (supabase-setup.sql) to have been run already, because it uses public.is_admin().
+-- Needs the main setup (supabase-setup.sql) to have been run already, because it uses public.is_admin()
+-- and the public.ministries table behind Admin > Ministries.
 --
 -- HOW ACCESS WORKS
 --   * Members sign in to a ministry site with an INDEX NUMBER and a PASSWORD (kept hashed, never in plain text).
@@ -227,6 +228,22 @@ language sql volatile security definer set search_path = public, extensions as $
   delete from public.access_sessions where token_hash = public._sha(coalesce(p_token, ''))
 $$;
 
+-- the picture chosen for this ministry in Admin > Ministries (the thumbnail on the main Ministries page)
+create or replace function public.ministry_thumb(p_slug text) returns text
+language sql stable security definer set search_path = public, extensions as $$
+  select nullif(trim(m.image), '') from public.ministries m
+  where case lower(coalesce(p_slug, ''))
+    when 'mediateam' then m.title ilike '%media%'
+    when 'youth' then m.title ilike '%youth%' or m.title ilike '%vibrant%'
+    when 'prayer' then m.title ilike '%prayer%'
+    when 'ushers' then m.title ilike '%usher%' or m.title ilike '%protocol%'
+    when 'choir' then m.title ilike '%choir%' or m.title ilike '%ezekiel%'
+    when 'evangelism' then m.title ilike '%evangel%'
+    else false end
+  order by m.updated_at desc nulls last, m.created_at desc limit 1
+$$;
+revoke execute on function public.ministry_thumb(text) from public, anon, authenticated;
+
 -- 5. What a signed-in member sees --------------------------------------------------------------
 create or replace function public.ministry_list(p_token text) returns jsonb
 language plpgsql stable security definer set search_path = public, extensions as $$
@@ -243,7 +260,7 @@ begin
   select * into s from public.ministry_sites where slug = lower(coalesce(p_slug, ''));
   if not found then return jsonb_build_object('ok', false, 'error', 'notfound'); end if;
   return jsonb_build_object('ok', true,
-    'site', to_jsonb(s),
+    'site', to_jsonb(s) || jsonb_build_object('hero_image', coalesce(public.ministry_thumb(s.slug), s.hero_image)),
     'posts', coalesce((select jsonb_agg(to_jsonb(x) order by x.created_at desc) from (select id, kind, title, body, event_date, event_time, location, image, created_at from public.ministry_posts where slug = s.slug and published order by created_at desc limit 60) x), '[]'::jsonb),
     'team', coalesce((select jsonb_agg(to_jsonb(x) order by x.sort_order, x.created_at) from (select id, name, role, image, sort_order, created_at from public.ministry_team where slug = s.slug) x), '[]'::jsonb),
     'gallery', coalesce((select jsonb_agg(to_jsonb(x) order by x.created_at desc) from (select id, image, caption, created_at from public.ministry_gallery where slug = s.slug order by created_at desc limit 80) x), '[]'::jsonb));
@@ -271,7 +288,7 @@ begin
   if not public._can_manage(p_token, lower(coalesce(p_slug, ''))) then return jsonb_build_object('ok', false, 'error', 'signin'); end if;
   select * into s from public.ministry_sites where slug = lower(p_slug);
   if not found then return jsonb_build_object('ok', false, 'error', 'notfound'); end if;
-  return jsonb_build_object('ok', true, 'site', to_jsonb(s),
+  return jsonb_build_object('ok', true, 'site', to_jsonb(s) || jsonb_build_object('hero_image', coalesce(public.ministry_thumb(s.slug), s.hero_image)),
     'posts', coalesce((select jsonb_agg(to_jsonb(x) order by x.created_at desc) from public.ministry_posts x where slug = s.slug), '[]'::jsonb),
     'gallery', coalesce((select jsonb_agg(to_jsonb(x) order by x.created_at desc) from public.ministry_gallery x where slug = s.slug), '[]'::jsonb),
     'team', coalesce((select jsonb_agg(to_jsonb(x) order by x.sort_order, x.created_at) from public.ministry_team x where slug = s.slug), '[]'::jsonb),
@@ -335,7 +352,7 @@ begin
   if not public._can_manage(p_token, sl) then return jsonb_build_object('ok', false, 'error', 'signin'); end if;
   update public.ministry_sites set tagline = nullif(p->>'tagline', ''), about = nullif(p->>'about', ''), meeting_info = nullif(p->>'meeting_info', ''),
     contact_phone = nullif(p->>'contact_phone', ''), contact_email = nullif(p->>'contact_email', ''), whatsapp = nullif(p->>'whatsapp', ''),
-    hero_image = nullif(p->>'hero_image', ''), updated_at = now() where slug = sl;
+    hero_image = case when p ? 'hero_image' then nullif(p->>'hero_image', '') else hero_image end, updated_at = now() where slug = sl;
   return jsonb_build_object('ok', true);
 end $$;
 

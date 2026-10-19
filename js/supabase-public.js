@@ -453,6 +453,10 @@
     return core.concat(pool.filter((entry) => !entry.used).map((entry) => entry.item));
   }
 
+  // Ministries that have their own members-only page
+  const MINISTRY_SITES = [[/media/i, 'mediateam'], [/youth|vibrant/i, 'youth'], [/prayer/i, 'prayer'], [/usher|protocol/i, 'ushers'], [/choir|ezekiel/i, 'choir'], [/evangel/i, 'evangelism']];
+  const ministrySite = (title) => { const hit = MINISTRY_SITES.find(([re]) => re.test(String(title || ''))); return hit ? hit[1] : ''; };
+
   function renderMinistries(rawItems) {
     const mount = document.querySelector('[data-supabase-ministries]');
     if (!mount) return;
@@ -465,7 +469,7 @@
       return `
       <article class="ministry-card${art ? ' ministry-card--art' : ''} reveal" data-delay="${(index % 2) + 1}">
         <div class="ministry-card__media"${media}></div>
-        <div class="ministry-card__body"><h3 class="ministry-card__title">${esc(item.title)}</h3><p class="ministry-card__desc">${esc(item.body || '')}</p>${item.link ? `<a href="${esc(item.link)}" class="ministry-card__link">Learn More</a>` : ''}</div>
+        <div class="ministry-card__body"><h3 class="ministry-card__title">${esc(item.title)}</h3><p class="ministry-card__desc">${esc(item.body || '')}</p>${ministrySite(item.title) ? `<a href="https://${ministrySite(item.title)}.christianservicechurch.org/" class="ministry-card__link">Members area</a>` : (item.link ? `<a href="${esc(item.link)}" class="ministry-card__link">Learn More</a>` : '')}</div>
       </article>`;
     }).join('');
   }

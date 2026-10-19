@@ -66,6 +66,10 @@
   ],
   "rewrites": [
     {
+      "source": "/virtuous-women",
+      "destination": "/share-virtuous-women.html"
+    },
+    {
       "source": "/admin",
       "has": [
         {

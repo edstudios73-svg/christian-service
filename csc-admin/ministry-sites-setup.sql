@@ -453,16 +453,17 @@ drop policy if exists "ministry photos can be added" on storage.objects;
 create policy "ministry photos can be added" on storage.objects for insert to anon, authenticated
   with check (bucket_id = 'ministry-media' and name ~ '^ministries/[a-z0-9]+/[0-9a-f-]{36}\.jpg$');
 
--- 10. The seven ministry sites (no site for the Children's Ministry) ------------------------------
+-- 10. The six ministry sites (no site for the Children's Ministry or Virtuous Women of Destiny) ------------------------------
 insert into public.ministry_sites (slug, name, tagline, about) values
   ('mediateam', 'Media Team', 'Taking the Word further.', 'From cameras and sound to live streaming, photos and graphics, our creative team captures every moment so the message reaches far beyond our walls.'),
   ('youth', 'Vibrant Youth', 'Young, bold and on fire for God.', 'Vibrant Youth brings teens and young adults together for powerful worship, real conversations, purpose and lasting friendships.'),
   ('prayer', 'Prayer Department', 'The engine room of the church.', 'Our intercessors stand in the gap for the church, the city and the nation, believing God for breakthroughs, healing and answered prayers.'),
   ('ushers', 'Ushers and Protocol', 'The warm face of our hospitality.', 'Our well-trained team welcomes every guest, keeps every service orderly and makes sure everyone feels at home from the gate to the seat.'),
   ('choir', 'Ezekiel Choir', 'Our voices lifted in worship.', 'The Ezekiel Choir ushers the church into the presence of God with anointed songs, rich harmony and excellence every Sunday and at special services.'),
-  ('evangelism', 'Evangelism Team', 'Taking the Gospel to every street.', 'Our evangelists share the Good News through outreach, visits and everyday conversations, leading souls to Christ and welcoming them home.'),
-  ('virtuouswomen', 'Virtuous Women of Destiny', 'Women of grace, strength and purpose.', 'Virtuous Women of Destiny gathers the women of the church to pray, grow in the Word, encourage one another and walk boldly into everything God has prepared for them.')
+  ('evangelism', 'Evangelism Team', 'Taking the Gospel to every street.', 'Our evangelists share the Good News through outreach, visits and everyday conversations, leading souls to Christ and welcoming them home.')
 on conflict (slug) do nothing;
 
--- Health check: should show 7 sites and the functions
+delete from public.ministry_sites where slug = 'virtuouswomen';
+
+-- Health check: should show 6 sites and the functions
 select (select count(*) from public.ministry_sites) as sites, (select count(*) from pg_proc where proname in ('member_login', 'head_login', 'ministry_home', 'mgmt_load')) as functions;

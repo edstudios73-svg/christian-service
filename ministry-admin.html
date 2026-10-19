@@ -78,22 +78,19 @@ select.picker option{color:#000}
 </head>
 <body>
 
-<div class="login" id="login">
-  <form class="lbox" id="loginForm">
+<div class="login" id="login" hidden>
+  <div class="lbox">
     <img src="/assets/church-logo.png" alt="">
     <h1>Ministry Admin</h1>
-    <p class="s">Sign in with the email and password the church gave you.</p>
-    <input id="em" type="email" placeholder="Email" autocomplete="username" required>
-    <input id="pw" type="password" placeholder="Password" autocomplete="current-password" required>
-    <button class="btn gold" type="submit" style="width:100%" id="loginBtn">Sign in</button>
-    <p class="err" id="loginErr" role="alert"></p>
-  </form>
+    <p class="s" id="loginMsg">Please sign in through the church admin page with your ministry code.</p>
+    <a class="btn gold" style="display:block;text-decoration:none" href="/csc-admin/admin.html?ministry=1">Go to admin sign-in</a>
+  </div>
 </div>
 
 <div id="app" hidden>
   <div class="bar"><div style="flex:1;min-width:0"><h1 id="mName">Ministry</h1><small id="mWho"></small></div>
     <select class="picker" id="picker" aria-label="Choose ministry" hidden></select>
-    <a id="viewSite" href="#" target="_blank" rel="noopener">View site</a><button type="button" id="out">Sign out</button></div>
+    <a id="viewSite" href="#" target="_blank" rel="noopener">View page</a><button type="button" id="out">Sign out</button></div>
   <div class="tabs" role="tablist" id="tabs">
     <button role="tab" data-t="posts">Updates</button><button role="tab" data-t="gallery">Gallery</button><button role="tab" data-t="team">Team</button>
     <button role="tab" data-t="joins">Join requests<span class="badge" id="newBadge" hidden>0</span></button><button role="tab" data-t="site">Page details</button>
@@ -111,12 +108,11 @@ select.picker option{color:#000}
   var sb = supabase.createClient('https://uysfgupzlxfhplwqcttp.supabase.co', 'sb_publishable_5T68Teyy88wmJUlckVRneA_Yfh0OKZV');
   var $ = function (id) { return document.getElementById(id); };
   var esc = function (v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
-  var uid = function () { return (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2)); };
-  var state = { user: null, isChurch: false, sites: [], slug: '', tab: 'posts', data: {} };
+  var uid = function () { return (crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) { var r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); })); };
+  var state = { token: null, kind: '', sites: [], slug: '', tab: 'posts', data: {}, site: {} };
 
   function toast(msg, bad) { var t = $('toast'); t.textContent = msg; t.className = 'toast' + (bad ? ' bad' : ''); t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(function () { t.hidden = true; }, 3200); }
   function slugFromLocation() { var m = location.pathname.match(/^\/m\/([a-z0-9]+)/i); if (m) return m[1].toLowerCase(); var h = location.hostname.toLowerCase(); if (/\.christianservicechurch\.org$/.test(h) && !/^www\./.test(h)) return h.split('.')[0]; return (new URLSearchParams(location.search).get('m') || '').toLowerCase(); }
-  function publicUrl(slug) { return /\.christianservicechurch\.org$/.test(location.hostname) && !/^www\./.test(location.hostname) ? '/' : '/m/' + slug; }
   function normPhone(v) { var d = String(v || '').replace(/\D/g, ''); if (d.length === 14 && d.indexOf('00233') === 0) d = d.slice(2); if (/^233\d{9}$/.test(d)) return d; if (/^0\d{9}$/.test(d)) return '233' + d.slice(1); if (/^\d{9}$/.test(d)) return '233' + d; return ''; }
   function niceDate(v) { if (!v) return ''; var d = new Date(v + 'T12:00:00'); return isNaN(d) ? '' : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }); }
   function compress(file, max, q) {
@@ -132,65 +128,66 @@ select.picker option{color:#000}
   function upload(file) {
     return compress(file, 1400, 0.8).then(function (blob) {
       var path = 'ministries/' + state.slug + '/' + uid() + '.jpg';
-      return sb.storage.from('media').upload(path, blob, { contentType: 'image/jpeg', cacheControl: '31536000' }).then(function (r) {
+      return sb.storage.from('ministry-media').upload(path, blob, { contentType: 'image/jpeg', cacheControl: '31536000' }).then(function (r) {
         if (r.error) throw r.error;
-        return sb.storage.from('media').getPublicUrl(path).data.publicUrl;
+        return sb.storage.from('ministry-media').getPublicUrl(path).data.publicUrl;
       });
     });
   }
-  function why(e) { return (e && (e.message || e.error_description)) || 'Something went wrong. Please try again.'; }
-
-  /* ---------- sign in ---------- */
-  $('loginForm').addEventListener('submit', function (e) {
-    e.preventDefault(); $('loginErr').textContent = ''; $('loginBtn').disabled = true;
-    sb.auth.signInWithPassword({ email: $('em').value.trim(), password: $('pw').value }).then(function (r) {
-      $('loginBtn').disabled = false;
-      if (r.error) { $('loginErr').textContent = /invalid/i.test(r.error.message) ? 'That email or password is not right.' : why(r.error); return; }
-      start();
+  function why(e) { return (e && (e.message || e.error)) || 'Something went wrong. Please try again.'; }
+  /* every change goes through a function in the database that checks who you are */
+  function call(fn, args) {
+    args = args || {}; args.p_token = state.token;
+    return sb.rpc(fn, args).then(function (r) {
+      if (r.error) throw r.error;
+      if (r.data && r.data.ok === false) { if (r.data.error === 'signin') { expired(); } throw new Error(r.data.error === 'signin' ? 'Your sign-in has expired. Please sign in again.' : r.data.error || 'Not allowed.'); }
+      return r.data;
     });
+  }
+  function expired() { try { localStorage.removeItem('csc-head'); } catch (e) {} $('app').hidden = true; $('login').hidden = false; $('loginMsg').textContent = 'Your sign-in has expired. Please sign in again.'; }
+  function readHead() { try { var h = JSON.parse(localStorage.getItem('csc-head') || 'null'); return h && h.token ? h : null; } catch (e) { return null; } }
+
+  $('out').addEventListener('click', function () {
+    var done = function () { try { localStorage.removeItem('csc-head'); } catch (e) {} location.href = state.kind === 'admin' ? '/csc-admin/admin.html' : '/csc-admin/admin.html?ministry=1'; };
+    if (state.kind === 'head') sb.rpc('session_logout', { p_token: state.token }).then(done, done); else done();
   });
-  $('out').addEventListener('click', function () { sb.auth.signOut().then(function () { location.reload(); }); });
 
   function start() {
-    sb.auth.getUser().then(function (r) {
-      if (!r.data || !r.data.user) { $('login').hidden = false; $('app').hidden = true; return; }
-      state.user = r.data.user;
-      return Promise.all([
-        sb.from('users').select('role').eq('id', state.user.id).maybeSingle(),
-        sb.from('ministry_admins').select('slug').eq('user_id', state.user.id),
-        sb.from('ministry_sites').select('*').order('name')
-      ]).then(function (x) {
-        state.isChurch = !!(x[0].data && x[0].data.role === 'admin');
-        var mine = (x[1].data || []).map(function (a) { return a.slug; });
-        state.sites = (x[2].data || []).filter(function (s) { return state.isChurch || mine.indexOf(s.slug) >= 0; });
-        if (!state.sites.length) { sb.auth.signOut(); $('login').hidden = false; $('app').hidden = true; $('loginErr').textContent = 'This login is not linked to a ministry yet. Please ask the church office.'; return; }
-        var want = slugFromLocation();
-        state.slug = state.sites.some(function (s) { return s.slug === want; }) ? want : state.sites[0].slug;
-        $('login').hidden = true; $('app').hidden = false;
-        $('mWho').textContent = state.isChurch ? 'Church admin' : state.user.email;
-        var pk = $('picker'); pk.hidden = state.sites.length < 2;
-        pk.innerHTML = state.sites.map(function (s) { return '<option value="' + esc(s.slug) + '">' + esc(s.name) + '</option>'; }).join('');
-        pk.value = state.slug; pk.onchange = function () { state.slug = pk.value; load(); };
-        load();
+    if (/\.christianservicechurch\.org$/i.test(location.hostname) && !/^www\./i.test(location.hostname)) { location.replace('https://www.christianservicechurch.org/m/' + slugFromLocation() + '/admin'); return; }
+    var head = readHead();
+    var ready = head ? sb.rpc('session_info', { p_token: head.token }).then(function (r) { return r.data && r.data.ok && r.data.kind === 'head' ? { kind: 'head', token: head.token, slug: r.data.slug, name: r.data.name } : null; })
+                     : Promise.resolve(null);
+    ready.then(function (h) {
+      if (h) { state.kind = 'head'; state.token = h.token; state.sites = [{ slug: h.slug, name: h.name }]; state.slug = h.slug; return true; }
+      return sb.auth.getSession().then(function (s) {
+        if (!s.data || !s.data.session) return false;
+        return sb.rpc('mgmt_all_sites', { p_token: null }).then(function (r) {
+          if (!r.data || !r.data.ok) return false;
+          state.kind = 'admin'; state.token = null; state.sites = r.data.sites || [];
+          var want = slugFromLocation(); state.slug = state.sites.some(function (x) { return x.slug === want; }) ? want : (state.sites[0] || {}).slug;
+          return !!state.slug;
+        });
       });
+    }).then(function (ok) {
+      if (!ok) { $('login').hidden = false; $('app').hidden = true; return; }
+      $('login').hidden = true; $('app').hidden = false;
+      $('mWho').textContent = state.kind === 'admin' ? 'Church admin' : 'Ministry head';
+      var pk = $('picker'); pk.hidden = state.sites.length < 2;
+      pk.innerHTML = state.sites.map(function (s) { return '<option value="' + esc(s.slug) + '">' + esc(s.name) + '</option>'; }).join('');
+      pk.value = state.slug; pk.onchange = function () { state.slug = pk.value; load(); };
+      load();
     });
   }
 
-  /* ---------- data ---------- */
-  function site() { return state.sites.filter(function (s) { return s.slug === state.slug; })[0] || {}; }
   function load() {
-    $('mName').textContent = site().name || 'Ministry'; $('viewSite').href = publicUrl(state.slug);
-    Promise.all([
-      sb.from('ministry_posts').select('*').eq('slug', state.slug).order('created_at', { ascending: false }),
-      sb.from('ministry_gallery').select('*').eq('slug', state.slug).order('created_at', { ascending: false }),
-      sb.from('ministry_team').select('*').eq('slug', state.slug).order('sort_order').order('created_at'),
-      sb.from('ministry_join_requests').select('*').eq('slug', state.slug).order('created_at', { ascending: false })
-    ]).then(function (r) {
-      state.data = { posts: r[0].data || [], gallery: r[1].data || [], team: r[2].data || [], joins: r[3].data || [] };
+    return call('mgmt_load', { p_slug: state.slug }).then(function (r) {
+      state.site = r.site || {};
+      state.data = { posts: r.posts || [], gallery: r.gallery || [], team: r.team || [], joins: r.joins || [] };
+      $('mName').textContent = state.site.name || 'Ministry'; $('viewSite').href = '/m/' + state.slug;
       var n = state.data.joins.filter(function (j) { return j.status === 'new'; }).length;
       $('newBadge').hidden = !n; $('newBadge').textContent = n;
       draw();
-    });
+    }).catch(function (e) { toast(why(e), true); });
   }
   $('tabs').addEventListener('click', function (e) { var b = e.target.closest('button[data-t]'); if (!b) return; state.tab = b.dataset.t; draw(); });
 
@@ -198,52 +195,51 @@ select.picker option{color:#000}
     Array.prototype.forEach.call($('tabs').children, function (b) { b.setAttribute('aria-selected', b.dataset.t === state.tab ? 'true' : 'false'); });
     var d = state.data, m = $('main');
     if (state.tab === 'posts') {
-      m.innerHTML = '<div class="head"><h2>Updates</h2><button class="btn pri" data-a="newPost">+ New</button></div><p class="hint">Announcements, events and news show on your ministry site right away.</p><div class="list">' +
+      m.innerHTML = '<div class="head"><h2>Updates</h2><button class="btn pri" data-a="newPost">+ New</button></div><p class="hint">Announcements, events and news show to members right away.</p><div class="list">' +
         (d.posts.length ? d.posts.map(function (p) { return '<div class="row">' + (p.image ? '<div class="th" style="background-image:url(\'' + esc(p.image) + '\')"></div>' : '') + '<div class="tx"><b>' + esc(p.title) + '</b><span><span class="pill ' + (p.published ? '' : 'draft') + '" style="display:inline-block">' + (p.published ? esc(p.kind) : 'Draft') + '</span>' + esc(niceDate(p.event_date || (p.created_at || '').slice(0, 10))) + '</span></div><div class="acts"><button class="btn sm" data-a="editPost" data-id="' + p.id + '">Edit</button><button class="btn sm danger" data-a="delPost" data-id="' + p.id + '">Delete</button></div></div>'; }).join('') : '<div class="empty">Nothing posted yet. Tap + New to share your first announcement.</div>') + '</div>';
     } else if (state.tab === 'gallery') {
-      m.innerHTML = '<div class="head"><h2>Photo gallery</h2><label class="btn pri" style="cursor:pointer">+ Add photos<input type="file" id="gfile" accept="image/*" multiple hidden></label></div><p class="hint">Pick as many photos as you like. They appear on your site.</p>' +
+      m.innerHTML = '<div class="head"><h2>Photo gallery</h2><label class="btn pri" style="cursor:pointer">+ Add photos<input type="file" id="gfile" accept="image/*" multiple hidden></label></div><p class="hint">Pick as many photos as you like. They appear in your gallery.</p>' +
         (d.gallery.length ? '<div class="grid">' + d.gallery.map(function (g) { return '<div class="tile"><img src="' + esc(g.image) + '" alt="" loading="lazy"><button data-a="delPhoto" data-id="' + g.id + '" aria-label="Delete photo">&times;</button></div>'; }).join('') + '</div>' : '<div class="empty">No photos yet.</div>');
       $('gfile').addEventListener('change', addPhotos);
     } else if (state.tab === 'team') {
       m.innerHTML = '<div class="head"><h2>Team and leaders</h2><button class="btn pri" data-a="newPerson">+ Add person</button></div><div class="list">' +
-        (d.team.length ? d.team.map(function (t) { return '<div class="row">' + (t.image ? '<div class="th" style="background-image:url(\'' + esc(t.image) + '\');border-radius:50%"></div>' : '') + '<div class="tx"><b>' + esc(t.name) + '</b><span>' + esc(t.role || '') + '</span></div><div class="acts"><button class="btn sm" data-a="editPerson" data-id="' + t.id + '">Edit</button><button class="btn sm danger" data-a="delPerson" data-id="' + t.id + '">Delete</button></div></div>'; }).join('') : '<div class="empty">Add your head, assistants and members so visitors can see who serves.</div>') + '</div>';
+        (d.team.length ? d.team.map(function (t) { return '<div class="row">' + (t.image ? '<div class="th" style="background-image:url(\'' + esc(t.image) + '\');border-radius:50%"></div>' : '') + '<div class="tx"><b>' + esc(t.name) + '</b><span>' + esc(t.role || '') + '</span></div><div class="acts"><button class="btn sm" data-a="editPerson" data-id="' + t.id + '">Edit</button><button class="btn sm danger" data-a="delPerson" data-id="' + t.id + '">Delete</button></div></div>'; }).join('') : '<div class="empty">Add your head, assistants and members so everyone can see who serves.</div>') + '</div>';
     } else if (state.tab === 'joins') {
-      m.innerHTML = '<div class="head"><h2>Join requests</h2></div><p class="hint">People who filled in the form on your site. Call or message them, then mark them.</p><div class="list">' +
-        (d.joins.length ? d.joins.map(function (j) { return '<div class="row" style="align-items:flex-start;flex-wrap:wrap"><div class="tx" style="min-width:60%"><b style="white-space:normal">' + esc(j.name) + '</b><span style="white-space:normal">' + esc(j.phone) + (j.message ? ' &middot; ' + esc(j.message) : '') + '</span><span>' + esc(niceDate((j.created_at || '').slice(0, 10))) + '</span></div><div class="acts" style="flex-wrap:wrap"><a class="btn sm" href="tel:+' + esc(String(j.phone).replace(/\D/g, '')) + '" style="text-decoration:none">Call</a><a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/' + esc(String(j.phone).replace(/\D/g, '')) + '" style="text-decoration:none">WhatsApp</a><select data-a="joinStatus" data-id="' + j.id + '" class="btn sm" aria-label="Status"><option value="new"' + (j.status === 'new' ? ' selected' : '') + '>New</option><option value="contacted"' + (j.status === 'contacted' ? ' selected' : '') + '>Contacted</option><option value="joined"' + (j.status === 'joined' ? ' selected' : '') + '>Joined</option></select><button class="btn sm danger" data-a="delJoin" data-id="' + j.id + '">Delete</button></div></div>'; }).join('') : '<div class="empty">No requests yet.</div>') + '</div>';
+      m.innerHTML = '<div class="head"><h2>Join requests</h2></div><p class="hint">Members who asked to join your ministry. Call or message them, then mark them.</p><div class="list">' +
+        (d.joins.length ? d.joins.map(function (j) { var dg = String(j.phone || '').replace(/\D/g, ''); return '<div class="row" style="align-items:flex-start;flex-wrap:wrap"><div class="tx" style="min-width:60%"><b style="white-space:normal">' + esc(j.name) + '</b><span style="white-space:normal">' + esc(j.phone || '') + (j.message ? ' &middot; ' + esc(j.message) : '') + '</span><span>' + esc(niceDate((j.created_at || '').slice(0, 10))) + '</span></div><div class="acts" style="flex-wrap:wrap">' + (dg ? '<a class="btn sm" href="tel:+' + esc(dg) + '" style="text-decoration:none">Call</a><a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/' + esc(dg) + '" style="text-decoration:none">WhatsApp</a>' : '') + '<select data-a="joinStatus" data-id="' + j.id + '" class="btn sm" aria-label="Status"><option value="new"' + (j.status === 'new' ? ' selected' : '') + '>New</option><option value="contacted"' + (j.status === 'contacted' ? ' selected' : '') + '>Contacted</option><option value="joined"' + (j.status === 'joined' ? ' selected' : '') + '>Joined</option></select><button class="btn sm danger" data-a="delJoin" data-id="' + j.id + '">Delete</button></div></div>'; }).join('') : '<div class="empty">No requests yet.</div>') + '</div>';
     } else {
-      var s = site();
-      m.innerHTML = '<div class="head"><h2>Page details</h2></div><p class="hint">These words and the main picture show at the top of your site.</p><form id="siteForm" class="list" style="gap:12px">' +
-        '<div><label class="l" for="s_tag">Short motto</label><input id="s_tag" type="text" value="' + esc(s.tagline) + '" maxlength="120" style="width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px"></div>' +
-        '<div><label class="l" for="s_about">About us</label><textarea id="s_about" style="width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px;min-height:130px">' + esc(s.about) + '</textarea></div>' +
-        '<div><label class="l" for="s_meet">When we meet</label><input id="s_meet" type="text" value="' + esc(s.meeting_info) + '" placeholder="e.g. Saturdays, 4:00 PM at the church" style="width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px"></div>' +
-        '<div class="two"><div><label class="l" for="s_ph">Phone</label><input id="s_ph" type="tel" value="' + esc(s.contact_phone) + '" style="width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px"></div><div><label class="l" for="s_wa">WhatsApp number</label><input id="s_wa" type="tel" value="' + esc(s.whatsapp) + '" style="width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px"></div></div>' +
-        '<div><label class="l" for="s_em">Email</label><input id="s_em" type="email" value="' + esc(s.contact_email) + '" style="width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px"></div>' +
+      var s = state.site, inp = 'width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px';
+      m.innerHTML = '<div class="head"><h2>Page details</h2></div><p class="hint">These words and the main picture show at the top of your ministry page.</p><form id="siteForm" class="list" style="gap:12px">' +
+        '<div><label class="l" for="s_tag">Short motto</label><input id="s_tag" type="text" value="' + esc(s.tagline) + '" maxlength="120" style="' + inp + '"></div>' +
+        '<div><label class="l" for="s_about">About us</label><textarea id="s_about" style="' + inp + ';min-height:130px">' + esc(s.about) + '</textarea></div>' +
+        '<div><label class="l" for="s_meet">When we meet</label><input id="s_meet" type="text" value="' + esc(s.meeting_info) + '" placeholder="e.g. Saturdays, 4:00 PM at the church" style="' + inp + '"></div>' +
+        '<div class="two"><div><label class="l" for="s_ph">Phone</label><input id="s_ph" type="tel" value="' + esc(s.contact_phone) + '" style="' + inp + '"></div><div><label class="l" for="s_wa">WhatsApp number</label><input id="s_wa" type="tel" value="' + esc(s.whatsapp) + '" style="' + inp + '"></div></div>' +
+        '<div><label class="l" for="s_em">Email</label><input id="s_em" type="email" value="' + esc(s.contact_email) + '" style="' + inp + '"></div>' +
         '<div><label class="l">Main picture</label><label class="btn" style="cursor:pointer;display:inline-block">Choose picture<input type="file" id="s_img" accept="image/*" hidden></label>' + (s.hero_image ? '<img class="prev" id="s_prev" src="' + esc(s.hero_image) + '" alt="">' : '<img class="prev" id="s_prev" hidden alt="">') + '<p class="hint" style="margin-top:6px">Leave empty to keep the standard ministry picture.</p></div>' +
         '<button class="btn gold" type="submit">Save page details</button></form>';
-      $('s_img').addEventListener('change', function (e) { var f = e.target.files[0]; if (!f) return; var u = URL.createObjectURL(f); $('s_prev').src = u; $('s_prev').hidden = false; state.heroFile = f; });
+      $('s_img').addEventListener('change', function (e) { var f = e.target.files[0]; if (!f) return; $('s_prev').src = URL.createObjectURL(f); $('s_prev').hidden = false; state.heroFile = f; });
       $('siteForm').addEventListener('submit', saveSite);
     }
   }
 
-  /* ---------- actions ---------- */
   $('main').addEventListener('click', function (e) {
     var b = e.target.closest('[data-a]'); if (!b || b.tagName === 'SELECT') return;
     var a = b.dataset.a, id = b.dataset.id, d = state.data;
     var find = function (k) { return d[k].filter(function (x) { return x.id === id; })[0]; };
     if (a === 'newPost') postForm(); else if (a === 'editPost') postForm(find('posts'));
-    else if (a === 'delPost') del('ministry_posts', id, 'Delete this post?');
-    else if (a === 'delPhoto') del('ministry_gallery', id, 'Delete this photo?');
+    else if (a === 'delPost') del('post', id, 'Delete this post?');
+    else if (a === 'delPhoto') del('photo', id, 'Delete this photo?');
     else if (a === 'newPerson') personForm(); else if (a === 'editPerson') personForm(find('team'));
-    else if (a === 'delPerson') del('ministry_team', id, 'Remove this person?');
-    else if (a === 'delJoin') del('ministry_join_requests', id, 'Delete this request?');
+    else if (a === 'delPerson') del('person', id, 'Remove this person?');
+    else if (a === 'delJoin') del('join', id, 'Delete this request?');
   });
   $('main').addEventListener('change', function (e) {
     var s = e.target.closest('select[data-a=joinStatus]'); if (!s) return;
-    sb.from('ministry_join_requests').update({ status: s.value }).eq('id', s.dataset.id).then(function (r) { if (r.error) toast(why(r.error), true); else { toast('Saved'); load(); } });
+    call('mgmt_join_status', { p_slug: state.slug, p_id: s.dataset.id, p_status: s.value }).then(function () { toast('Saved'); load(); }).catch(function (ex) { toast(why(ex), true); });
   });
-  function del(table, id, q) {
+  function del(what, id, q) {
     $('dlg').innerHTML = '<form method="dialog"><h3>' + esc(q) + '</h3><div class="df"><button class="btn" value="no">Keep it</button><button class="btn danger" value="yes">Delete</button></div></form>';
-    $('dlg').onclose = function () { if ($('dlg').returnValue === 'yes') sb.from(table).delete().eq('id', id).then(function (r) { if (r.error) toast(why(r.error), true); else { toast('Deleted'); load(); } }); $('dlg').onclose = null; };
+    $('dlg').onclose = function () { var yes = $('dlg').returnValue === 'yes'; $('dlg').onclose = null; if (yes) call('mgmt_delete', { p_slug: state.slug, p_what: what, p_id: id }).then(function () { toast('Deleted'); load(); }).catch(function (ex) { toast(why(ex), true); }); };
     $('dlg').returnValue = ''; $('dlg').showModal();
   }
   function field(label, inner) { return '<div><label class="l">' + label + '</label>' + inner + '</div>'; }
@@ -255,7 +251,7 @@ select.picker option{color:#000}
       field('Message', '<textarea id="p_body">' + esc(p.body || '') + '</textarea>') +
       '<div class="two">' + field('Time', '<input id="p_time" type="text" placeholder="e.g. 4:00 PM" value="' + esc(p.event_time || '') + '">') + field('Place', '<input id="p_loc" type="text" value="' + esc(p.location || '') + '">') + '</div>' +
       field('Picture (optional)', '<label class="btn" style="cursor:pointer;display:inline-block">Choose picture<input type="file" id="p_img" accept="image/*" hidden></label><img class="prev" id="p_prev" ' + (p.image ? 'src="' + esc(p.image) + '"' : 'hidden') + ' alt="">') +
-      '<label class="sw"><input type="checkbox" id="p_pub"' + (p.published === false ? '' : ' checked') + '> Show on the site</label>' +
+      '<label class="sw"><input type="checkbox" id="p_pub"' + (p.published === false ? '' : ' checked') + '> Show to members</label>' +
       '<p class="err" id="p_err"></p><div class="df"><button type="button" class="btn" id="p_x">Cancel</button><button class="btn pri" type="submit" id="p_ok">Save</button></div></form>';
     var file = null;
     $('p_img').addEventListener('change', function (e) { file = e.target.files[0] || null; if (file) { $('p_prev').src = URL.createObjectURL(file); $('p_prev').hidden = false; } });
@@ -263,10 +259,8 @@ select.picker option{color:#000}
     $('pf').onsubmit = function (e) {
       e.preventDefault(); $('p_ok').disabled = true; $('p_err').textContent = '';
       (file ? upload(file) : Promise.resolve(p.image || null)).then(function (img) {
-        var row = { slug: state.slug, kind: $('p_kind').value, title: $('p_title').value.trim(), body: $('p_body').value.trim() || null, event_date: $('p_date').value || null, event_time: $('p_time').value.trim() || null, location: $('p_loc').value.trim() || null, image: img, published: $('p_pub').checked, updated_at: new Date().toISOString() };
-        return p.id ? sb.from('ministry_posts').update(row).eq('id', p.id) : sb.from('ministry_posts').insert(row);
-      }).then(function (r) { if (r.error) throw r.error; $('dlg').close(); toast('Saved'); load(); })
-        .catch(function (ex) { $('p_err').textContent = why(ex); $('p_ok').disabled = false; });
+        return call('mgmt_save_post', { p_slug: state.slug, p: { id: p.id || null, kind: $('p_kind').value, title: $('p_title').value.trim(), body: $('p_body').value.trim(), event_date: $('p_date').value, event_time: $('p_time').value.trim(), location: $('p_loc').value.trim(), image: img || '', published: $('p_pub').checked } });
+      }).then(function () { $('dlg').close(); toast('Saved'); load(); }).catch(function (ex) { $('p_err').textContent = why(ex); $('p_ok').disabled = false; });
     };
     $('dlg').showModal();
   }
@@ -282,10 +276,8 @@ select.picker option{color:#000}
     $('tf').onsubmit = function (e) {
       e.preventDefault(); $('t_ok').disabled = true; $('t_err').textContent = '';
       (file ? upload(file) : Promise.resolve(t.image || null)).then(function (img) {
-        var row = { slug: state.slug, name: $('t_name').value.trim(), role: $('t_role').value.trim() || null, sort_order: parseInt($('t_ord').value, 10) || 0, image: img };
-        return t.id ? sb.from('ministry_team').update(row).eq('id', t.id) : sb.from('ministry_team').insert(row);
-      }).then(function (r) { if (r.error) throw r.error; $('dlg').close(); toast('Saved'); load(); })
-        .catch(function (ex) { $('t_err').textContent = why(ex); $('t_ok').disabled = false; });
+        return call('mgmt_save_person', { p_slug: state.slug, p: { id: t.id || null, name: $('t_name').value.trim(), role: $('t_role').value.trim(), sort_order: parseInt($('t_ord').value, 10) || 0, image: img || '' } });
+      }).then(function () { $('dlg').close(); toast('Saved'); load(); }).catch(function (ex) { $('t_err').textContent = why(ex); $('t_ok').disabled = false; });
     };
     $('dlg').showModal();
   }
@@ -293,17 +285,15 @@ select.picker option{color:#000}
     var files = Array.prototype.slice.call(e.target.files || []); if (!files.length) return;
     toast('Uploading ' + files.length + ' photo' + (files.length > 1 ? 's' : '') + '...');
     var done = 0;
-    files.reduce(function (p, f) { return p.then(function () { return upload(f).then(function (url) { return sb.from('ministry_gallery').insert({ slug: state.slug, image: url }); }).then(function (r) { if (r.error) throw r.error; done++; }); }); }, Promise.resolve())
+    files.reduce(function (p, f) { return p.then(function () { return upload(f).then(function (url) { return call('mgmt_add_photo', { p_slug: state.slug, p_image: url, p_caption: '' }); }).then(function () { done++; }); }); }, Promise.resolve())
       .then(function () { toast(done + ' photo' + (done > 1 ? 's' : '') + ' added'); load(); }).catch(function (ex) { toast(why(ex), true); load(); });
   }
   function saveSite(e) {
     e.preventDefault(); var btn = e.target.querySelector('button[type=submit]'); btn.disabled = true;
     var ph = $('s_ph').value.trim(), wa = $('s_wa').value.trim();
-    (state.heroFile ? upload(state.heroFile) : Promise.resolve(site().hero_image || null)).then(function (img) {
-      var row = { tagline: $('s_tag').value.trim() || null, about: $('s_about').value.trim() || null, meeting_info: $('s_meet').value.trim() || null, contact_phone: ph || null, whatsapp: wa ? (normPhone(wa) || wa) : null, contact_email: $('s_em').value.trim() || null, hero_image: img, updated_at: new Date().toISOString() };
-      return sb.from('ministry_sites').update(row).eq('slug', state.slug).select();
-    }).then(function (r) { if (r.error) throw r.error; if (!r.data || !r.data.length) throw new Error('You are not allowed to change this page.'); state.heroFile = null; state.sites = state.sites.map(function (s) { return s.slug === state.slug ? r.data[0] : s; }); toast('Saved'); btn.disabled = false; })
-      .catch(function (ex) { toast(why(ex), true); btn.disabled = false; });
+    (state.heroFile ? upload(state.heroFile) : Promise.resolve(state.site.hero_image || null)).then(function (img) {
+      return call('mgmt_save_site', { p_slug: state.slug, p: { tagline: $('s_tag').value.trim(), about: $('s_about').value.trim(), meeting_info: $('s_meet').value.trim(), contact_phone: ph, whatsapp: wa ? (normPhone(wa) || wa) : '', contact_email: $('s_em').value.trim(), hero_image: img || '' } });
+    }).then(function () { state.heroFile = null; toast('Saved'); btn.disabled = false; load(); }).catch(function (ex) { toast(why(ex), true); btn.disabled = false; });
   }
 
   start();

@@ -459,6 +459,59 @@
 
   const ministryKey = (title) => /virtuous|women/i.test(title) ? 'virtuous-women' : /child/i.test(title) ? 'children' : String(title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
+  const JOIN_MINISTRIES = [['mediateam', 'Media Ministry'], ['youth', 'Vibrant Youth'], ['prayer', 'Prayer Team'], ['ushers', 'Ushers & Protocol'], ['choir', 'Ezekiel Choir'], ['evangelism', 'Evangelism'], ['virtuouswomen', 'Virtuous Women of Destiny'], ['children', "Children's Ministry"]];
+  const joinSlug = (title) => ministrySite(title) || (/virtuous|women/i.test(title) ? 'virtuouswomen' : /child/i.test(title) ? 'children' : '');
+
+  function openJoinForm(slug) {
+    let dlg = document.getElementById('joinDlg');
+    if (!dlg) {
+      dlg = document.createElement('dialog');
+      dlg.id = 'joinDlg';
+      dlg.className = 'join-dlg';
+      document.body.appendChild(dlg);
+    }
+    dlg.innerHTML = `<form class="join-form" novalidate>
+      <button type="button" class="join-form__x" data-close aria-label="Close">&times;</button>
+      <h3>Join a ministry</h3>
+      <p class="join-form__sub">Tell us a little about you. The ministry head will reach out to welcome you.</p>
+      <label>Your name<input name="name" type="text" autocomplete="name" maxlength="80" required></label>
+      <label>Phone number<input name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="e.g. 0551234567" maxlength="20" required></label>
+      <label>Ministry you want to join<select name="slug" required>${JOIN_MINISTRIES.map(([v, n]) => `<option value="${v}"${v === slug ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select></label>
+      <label>Why do you want to join?<textarea name="message" rows="3" maxlength="500" placeholder="Share what is on your heart"></textarea></label>
+      <p class="join-form__note" role="status" aria-live="polite"></p>
+      <button type="submit" class="join-form__go">Send my request</button>
+    </form>`;
+    const form = dlg.querySelector('form');
+    const note = form.querySelector('.join-form__note');
+    const go = form.querySelector('.join-form__go');
+    dlg.querySelector('[data-close]').onclick = () => dlg.close();
+    form.onsubmit = async (event) => {
+      event.preventDefault();
+      note.className = 'join-form__note';
+      note.textContent = 'Sending...';
+      go.disabled = true;
+      try {
+        const sb = await getSupabaseClient();
+        const { data, error } = await sb.rpc('ministry_join_public', { p_slug: form.elements.slug.value, p_name: form.elements.name.value, p_phone: form.elements.phone.value, p_message: form.elements.message.value });
+        if (error) throw error;
+        if (data && data.ok === false) { note.className = 'join-form__note is-error'; note.textContent = data.error || 'Please check your details.'; go.disabled = false; return; }
+        form.innerHTML = '<div class="join-form__done"><h3>You are in the queue!</h3><p>Thank you. Your request has gone to the ministry head, who will contact you soon. Welcome to the family.</p><button type="button" class="join-form__go" data-close>Done</button></div>';
+        form.querySelector('[data-close]').onclick = () => dlg.close();
+      } catch (_) {
+        note.className = 'join-form__note is-error';
+        note.textContent = 'We could not send that right now. Please try again shortly.';
+        go.disabled = false;
+      }
+    };
+    dlg.addEventListener('click', (event) => { if (event.target === dlg) dlg.close(); });
+    if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
+  }
+
+  document.addEventListener('click', (event) => {
+    const button = event.target.closest && event.target.closest('[data-join]');
+    if (button) openJoinForm(button.dataset.join);
+  });
+
   // A link typed as https://contact.html is really the church's own contact page
   const cleanLink = (link) => String(link || '').trim().replace(/^https?:\/\/(www\.)?(contact\.html)$/i, '$2');
 
@@ -474,7 +527,7 @@
       return `
       <article class="ministry-card${art ? ' ministry-card--art' : ''} reveal" data-delay="${(index % 2) + 1}" id="ministry-${esc(ministryKey(item.title))}">
         <div class="ministry-card__media"${media}></div>
-        <div class="ministry-card__body"><h3 class="ministry-card__title">${esc(item.title)}</h3><p class="ministry-card__desc">${esc(item.body || '')}</p>${ministrySite(item.title) ? `<a href="https://${ministrySite(item.title)}.christianservicechurch.org/" class="ministry-card__link">Learn more</a>` : (cleanLink(item.link) ? `<a href="${esc(cleanLink(item.link))}" class="ministry-card__link">Learn more</a>` : '')}</div>
+        <div class="ministry-card__body"><h3 class="ministry-card__title">${esc(item.title)}</h3><p class="ministry-card__desc">${esc(item.body || '')}</p><div class="ministry-card__actions"><button type="button" class="ministry-card__btn ministry-card__btn--join" data-join="${esc(joinSlug(item.title))}">Join now</button>${ministrySite(item.title) ? `<a href="https://${ministrySite(item.title)}.christianservicechurch.org/" class="ministry-card__btn ministry-card__btn--access">Membership access</a>` : ''}</div></div>
       </article>`;
     }).join('');
     const focus = document.body && document.body.dataset.focus;

@@ -1638,6 +1638,33 @@ main { position: relative; z-index: 1; }
 }
 .ministry-card__link:hover { gap: var(--sp-3); color: var(--c-accent); }
 
+
+.ministry-card__actions { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.ministry-card__btn {
+  flex: 1 1 auto; text-align: center; font: inherit; font-size: var(--fs-xs); font-weight: 700; line-height: 1.2;
+  padding: 10px 14px; border-radius: 999px; cursor: pointer; text-decoration: none; border: 1.5px solid var(--c-primary);
+  transition: transform .2s, background .2s, color .2s;
+}
+.ministry-card__btn--join { background: var(--c-primary); color: #fff; }
+.ministry-card__btn--access { background: transparent; color: var(--c-primary); }
+.ministry-card__btn:hover { transform: translateY(-1px); }
+.ministry-card__btn--join:hover { background: var(--c-accent); border-color: var(--c-accent); }
+.ministry-card__btn--access:hover { background: rgba(27, 58, 139, .08); }
+.join-dlg { border: 0; border-radius: 20px; padding: 0; width: min(94vw, 440px); max-height: 92vh; box-shadow: 0 24px 60px rgba(10, 26, 63, .35); }
+.join-dlg::backdrop { background: rgba(10, 26, 63, .55); }
+.join-form { position: relative; display: grid; gap: 12px; padding: 24px 22px 22px; }
+.join-form h3 { margin: 0; font-size: 1.25rem; color: var(--c-primary); }
+.join-form__sub { margin: 0; font-size: .9rem; color: var(--c-text-muted); }
+.join-form label { display: grid; gap: 6px; font-size: .82rem; font-weight: 600; }
+.join-form input, .join-form select, .join-form textarea { font: inherit; font-weight: 400; padding: 12px; border: 1.5px solid #d5dbea; border-radius: 12px; width: 100%; box-sizing: border-box; background: #fff; }
+.join-form input:focus, .join-form select:focus, .join-form textarea:focus { outline: 2px solid var(--c-primary); border-color: transparent; }
+.join-form__x { position: absolute; top: 8px; right: 12px; border: 0; background: none; font-size: 1.8rem; line-height: 1; cursor: pointer; color: #667; }
+.join-form__go { font: inherit; font-weight: 700; padding: 14px; border: 0; border-radius: 999px; background: var(--c-primary); color: #fff; cursor: pointer; }
+.join-form__go:disabled { opacity: .6; }
+.join-form__note { margin: 0; min-height: 1.2em; font-size: .85rem; color: var(--c-primary); }
+.join-form__note.is-error { color: #b3261e; }
+.join-form__done { text-align: center; display: grid; gap: 12px; padding: 12px 0; }
+
 /* Sermon cards */
 .sermon-empty-shell {
   background: #fff;

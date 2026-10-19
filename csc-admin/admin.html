@@ -246,8 +246,9 @@ const DEMO_PASSWORD = 'change-this-demo-password';   /* demo mode only. Not real
       <div class="fld" id="lgEmailWrap"><label class="l" for="lgEmail">Email</label><input id="lgEmail" type="email" autocomplete="username" placeholder="you@yourchurch.org"></div>
       <div class="fld"><label class="l" for="lgPass">Password</label><input id="lgPass" type="password" autocomplete="current-password"></div>
       <p class="err" id="lgErr" role="alert"></p>
-      <button class="btn pri" style="width:100%" type="submit">Sign in</button>
+      <button class="btn pri" style="width:100%" type="submit" id="lgBtn">Sign in</button>
     </form>
+    <p style="margin-top:14px;text-align:center"><button type="button" id="lgHead" class="btn sm" style="background:transparent;border:0;text-decoration:underline;color:var(--mute)">Ministry head? Sign in with your ministry code</button></p>
     <p class="note" id="lgNote" hidden></p>
   </div>
 </main>
@@ -308,6 +309,7 @@ const lsDel = k => { try { localStorage.removeItem(k); } catch (e) { delete mem[
 const loadScript = src => new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('Could not load ' + src)); document.head.appendChild(s); });
 
 const ICONS = {
+  members: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M16.5 14.2c2.6.2 4.5 2.4 4.5 5"/>',
   home: '<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/>',
     megaphone: '<rect x="9" y="2" width="6" height="13" rx="3"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3M8 22h8"/>',
   play: '<circle cx="12" cy="12" r="9"/><path d="m10 8.5 5.5 3.5-5.5 3.5z"/>',
@@ -714,11 +716,26 @@ function authError(e) {
   if (m.includes('api key')) return 'The Supabase URL or anon key is invalid. Check the project API settings.';
   return 'Could not sign in: ' + ((e && e.message) || 'check the Supabase project and try again.');
 }
+let headMode = false;
+function setHeadMode(on) {
+  headMode = !!on && Store.mode === 'supabase';
+  const wrap = $('#lgEmailWrap'), lab = wrap.querySelector('label'), inp = $('#lgEmail');
+  lab.textContent = headMode ? 'Ministry code' : 'Email';
+  inp.type = headMode ? 'text' : 'email';
+  inp.placeholder = headMode ? 'e.g. media' : 'you@yourchurch.org';
+  inp.autocomplete = 'username';
+  $('#lgBtn').textContent = headMode ? 'Open my ministry' : 'Sign in';
+  $('#lgHead').textContent = headMode ? 'Church admin? Sign in with your email' : 'Ministry head? Sign in with your ministry code';
+  $('#login h1').textContent = headMode ? 'Ministry admin' : 'Church admin';
+  $('#lgErr').textContent = '';
+}
 function showLogin() {
   $('#app').hidden = true;
   $('#login').hidden = false;
   const live = Store.mode === 'supabase';
   $('#lgEmailWrap').hidden = !live;
+  $('#lgHead').hidden = !live;
+  setHeadMode(headMode || (live && new URLSearchParams(location.search).get('ministry') === '1'));
   const note = $('#lgNote');
   note.hidden = live && !Store.notice;
   note.textContent = live ? Store.notice : (Store.notice ? Store.notice + ' ' : '') + 'Demo mode: changes stay in this browser. The starter password is csc2026.';
@@ -749,12 +766,26 @@ function showApp() {
       .subscribe();
   }
 }
+$('#lgHead').addEventListener('click', () => setHeadMode(!headMode));
 $('#loginForm').addEventListener('submit', async e => {
   e.preventDefault();
   const err = $('#lgErr'); err.textContent = '';
   const pw = $('#lgPass').value;
   const btn = $('button[type=submit]', e.target);
-  if (Store.mode === 'supabase') {
+  if (Store.mode === 'supabase' && headMode) {
+    btn.disabled = true;
+    try {
+      const { data, error } = await Store.sb.rpc('head_login', { p_username: $('#lgEmail').value.trim(), p_password: pw });
+      if (error) err.textContent = 'We could not sign you in right now. Please try again shortly.';
+      else if (!data || !data.ok) err.textContent = (data && data.error) || 'That ministry code or password is not right.';
+      else {
+        localStorage.setItem('csc-head', JSON.stringify({ token: data.token, slug: data.slug, name: data.name }));
+        location.href = '/m/' + data.slug + '/admin';
+        return;
+      }
+    } catch (ex) { err.textContent = 'We could not sign you in right now. Please try again shortly.'; }
+    btn.disabled = false;
+  } else if (Store.mode === 'supabase') {
     btn.disabled = true;
     try {
       const { error } = await Store.sb.auth.signInWithPassword({ email: $('#lgEmail').value.trim(), password: pw });
@@ -779,7 +810,7 @@ function logout() {
    navigation
    ============================================================ */
 function buildNav() {
-  const items = [['dashboard', 'Dashboard', 'home'], ['homepage', 'Homepage Editor', 'home'], ['page-editors', 'Page Editors', 'file'], ...KEYS.map(k => [k, COLLECTIONS[k].label, COLLECTIONS[k].icon]), ['analytics', 'Analytics', 'chart'], ['setup', 'Setup and backup', 'cog']];
+  const items = [['dashboard', 'Dashboard', 'home'], ['homepage', 'Homepage Editor', 'home'], ['page-editors', 'Page Editors', 'file'], ...KEYS.map(k => [k, COLLECTIONS[k].label, COLLECTIONS[k].icon]), ['members', 'Members and logins', 'members'], ['analytics', 'Analytics', 'chart'], ['setup', 'Setup and backup', 'cog']];
   $('#nav').innerHTML = items.map(([k, l, i]) => `<a href="#/${k}" data-r="${k}">${icon(i)}<span>${esc(l)}</span>${COLLECTIONS[k] ? `<em class="badge" data-badge="${k}"></em>` : ''}</a>`).join('');
 }
 function toggleMenu(force) {
@@ -789,10 +820,10 @@ function toggleMenu(force) {
 }
 function go() {
   route = location.hash.replace(/^#\/?/, '') || 'dashboard';
-  if (route !== 'dashboard' && route !== 'homepage' && route !== 'page-editors' && route !== 'setup' && route !== 'analytics' && !COLLECTIONS[route]) { location.hash = '#/dashboard'; return; }
+  if (route !== 'dashboard' && route !== 'homepage' && route !== 'page-editors' && route !== 'setup' && route !== 'analytics' && route !== 'members' && !COLLECTIONS[route]) { location.hash = '#/dashboard'; return; }
   ui = { q: '', f: 'all' };
   $$('#nav a').forEach(a => a.classList.toggle('on', a.dataset.r === route));
-  $('#pageTitle').textContent = route === 'homepage' ? 'Homepage Editor' : route === 'page-editors' ? 'Page Editors' : COLLECTIONS[route] ? COLLECTIONS[route].label : route === 'setup' ? 'Setup and backup' : route === 'analytics' ? 'Analytics' : 'Dashboard';
+  $('#pageTitle').textContent = route === 'homepage' ? 'Homepage Editor' : route === 'page-editors' ? 'Page Editors' : COLLECTIONS[route] ? COLLECTIONS[route].label : route === 'setup' ? 'Setup and backup' : route === 'analytics' ? 'Analytics' : route === 'members' ? 'Members and logins' : 'Dashboard';
   toggleMenu(false);
   window.scrollTo(0, 0);
   const main = $('#main');
@@ -800,6 +831,7 @@ function go() {
   else if (route === 'homepage') viewHomepageEditor(main);
   else if (route === 'page-editors') viewPageEditors(main);
   else if (route === 'setup') viewSetup(main);
+  else if (route === 'members') viewMembers(main);
   else if (route === 'analytics') viewAnalytics(main);
   else viewCollection(main, route);
 }
@@ -1550,6 +1582,106 @@ async function seedCoreMinistries() {
   } catch (ex) { toast(`Could not add ministries: ${ex.message || 'try again'}`, 'bad'); }
 }
 
+/* ============================================================
+   Members (index number + password) and ministry head logins
+   ============================================================ */
+const MEM = { list: [], q: '' };
+const memRpc = async (fn, args) => {
+  const { data, error } = await Store.sb.rpc(fn, args || {});
+  if (error) throw new Error(/function .* does not exist|schema cache/i.test(error.message || '') ? 'The members setup has not been run yet. Run ministry-sites-setup.sql in Supabase first.' : (error.message || 'Something went wrong.'));
+  if (data && data.ok === false) throw new Error(data.error || 'Not allowed.');
+  return data;
+};
+async function viewMembers(main) {
+  if (Store.mode !== 'supabase') { main.innerHTML = '<header class="ph"><div><h1>Members and logins</h1><p>Connect Supabase to manage member logins.</p></div></header>'; return; }
+  main.innerHTML = `<header class="ph"><div><h1>Members and logins</h1><p>Members sign in to ministry pages with an index number and a password. Ministry heads sign in on this page with a ministry code.</p></div>
+    <div class="btnrow" style="margin:0"><button class="btn" type="button" data-act="memImport">${icon('plus', 18)}<span>Import list</span></button><button class="btn pri" type="button" data-act="memAdd">${icon('plus', 18)}<span>Add member</span></button></div></header>
+    <section class="card"><div class="cardh"><h3>Ministry head logins</h3></div><p class="hint">One login for each ministry. Give the code and password to the head. Set a new password any time.</p><div id="heads" class="loading">Loading…</div></section>
+    <section class="card"><div class="cardh"><h3>Members</h3><span id="memCount" class="pill info"></span></div>
+      <div class="search" style="margin-bottom:12px"><input id="memQ" type="search" placeholder="Search by name, index number or phone" aria-label="Search members" style="width:100%"></div><div id="mems" class="loading">Loading…</div></section>`;
+  try {
+    const [h, m] = await Promise.all([memRpc('admin_heads'), memRpc('admin_members')]);
+    MEM.list = m.members || [];
+    $('#heads').className = '';
+    $('#heads').innerHTML = `<div class="rows">${(h.heads || []).map(x => `<div class="row"><div class="info"><div class="t">${esc(x.name)}</div><div class="m"><span>Code: <b>${esc(x.username || 'not set yet')}</b></span></div></div><div class="acts"><button class="btn sm" type="button" data-act="headSet" data-slug="${esc(x.slug)}" data-user="${esc(x.username || '')}">${x.has_password ? 'New password' : 'Create login'}</button></div></div>`).join('')}</div>`;
+    drawMembers();
+  } catch (ex) { $('#heads').className = ''; $('#heads').innerHTML = `<p class="err">${esc(ex.message)}</p>`; $('#mems').innerHTML = ''; }
+}
+function drawMembers() {
+  const el = $('#mems'); if (!el) return;
+  const q = (MEM.q || '').toLowerCase().trim();
+  const items = MEM.list.filter(x => !q || `${x.name} ${x.index} ${x.phone || ''}`.toLowerCase().includes(q));
+  el.className = '';
+  $('#memCount').textContent = `${MEM.list.length} member${MEM.list.length === 1 ? '' : 's'}`;
+  el.innerHTML = items.length ? `<div class="rows">${items.map(x => `<div class="row"><div class="info"><div class="t">${esc(x.name)}</div><div class="m"><span>${esc(x.index)}</span>${x.phone ? `<span>${esc(x.phone)}</span>` : ''}<span>${x.last_login ? 'Last sign-in ' + esc(fmtDate(String(x.last_login).slice(0, 10))) : 'Never signed in'}</span></div></div>${x.active ? '' : '<span class="pill draft">Blocked</span>'}<div class="acts"><button class="icon" type="button" data-act="memEdit" data-index="${esc(x.index)}" aria-label="Edit ${esc(x.name)}">${icon('edit')}</button><button class="icon bad" type="button" data-act="memDel" data-index="${esc(x.index)}" aria-label="Delete ${esc(x.name)}">${icon('trash')}</button></div></div>`).join('')}</div>` : `<div class="empty">${icon('members', 40)}<h3>${MEM.list.length ? 'Nothing matches' : 'No members yet'}</h3><p>${MEM.list.length ? 'Try a different search.' : 'Add a member or import your list. Each person gets an index number and a password.'}</p></div>`;
+}
+function credBox(title, lines) {
+  const dlg = $('#formDlg');
+  dlg.innerHTML = `<form method="dialog"><div class="dh"><h2>${esc(title)}</h2><button type="button" class="icon" data-act="closeform" aria-label="Close">${icon('x', 22)}</button></div>
+    <div class="db"><p class="hint" style="grid-column:1/-1;margin:0">Copy these now and give them to the people. For safety the passwords are not shown again, but you can set a new one any time.</p>
+    <pre id="credTxt" style="grid-column:1/-1;white-space:pre-wrap;user-select:all;background:#f3f5fb;border-radius:10px;padding:12px;font-size:14px">${esc(lines.join('\n'))}</pre></div>
+    <div class="df"><div class="sp"></div><button class="btn" type="button" data-act="copy" data-t="credTxt">Copy</button><button class="btn pri" type="button" data-act="closeform">Done</button></div></form>`;
+  dlg.showModal();
+}
+function memForm(x) {
+  const dlg = $('#formDlg'); x = x || {};
+  dlg.innerHTML = `<form id="memForm" autocomplete="off"><div class="dh"><h2>${x.index ? 'Edit member' : 'Add member'}</h2><button type="button" class="icon" data-act="closeform" aria-label="Close">${icon('x', 22)}</button></div>
+    <div class="db">
+      <div class="fld"><label class="l" for="m_name">Full name <i aria-hidden="true">*</i></label><input id="m_name" type="text" value="${esc(x.name || '')}" required></div>
+      <div class="fld half"><label class="l" for="m_phone">Phone</label><input id="m_phone" type="tel" value="${esc(x.phone || '')}" placeholder="0551234567"></div>
+      <div class="fld half"><label class="l" for="m_index">Index number</label><input id="m_index" type="text" value="${esc(x.index || '')}" placeholder="Leave empty for the next number"${x.index ? ' readonly' : ''}></div>
+      <div class="fld"><label class="l" for="m_pass">${x.index ? 'New password (leave empty to keep the current one)' : 'Password (leave empty to create one)'}</label><input id="m_pass" type="text" autocomplete="off"></div>
+      ${x.index ? `<div class="fld"><label class="switch"><input type="checkbox" id="m_active"${x.active === false ? '' : ' checked'}><span></span>Allowed to sign in</label></div>` : ''}
+    </div>
+    <div class="df"><p class="err" id="formErr" role="alert"></p><div class="sp"></div><button class="btn" type="button" data-act="closeform">Cancel</button><button class="btn pri" type="submit">Save member</button></div></form>`;
+  dlg.showModal();
+  $('#memForm').onsubmit = async e => {
+    e.preventDefault(); const btn = $('button[type=submit]', e.target); btn.disabled = true; $('#formErr').textContent = '';
+    try {
+      const r = await memRpc('admin_save_member', { p_index: $('#m_index').value.trim(), p_name: $('#m_name').value.trim(), p_phone: $('#m_phone').value.trim(), p_password: $('#m_pass').value.trim(), p_active: $('#m_active') ? $('#m_active').checked : true });
+      dlg.close();
+      if (r.password) credBox('Member login', [`${$('#m_name').value.trim()}`, `Index number: ${r.index}`, `Password: ${r.password}`]); else toast('Saved');
+      viewMembers($('#main'));
+    } catch (ex) { $('#formErr').textContent = ex.message; btn.disabled = false; }
+  };
+}
+function memImportForm() {
+  const dlg = $('#formDlg');
+  dlg.innerHTML = `<form id="impForm" autocomplete="off"><div class="dh"><h2>Import members</h2><button type="button" class="icon" data-act="closeform" aria-label="Close">${icon('x', 22)}</button></div>
+    <div class="db"><p class="hint" style="grid-column:1/-1;margin:0">Paste one person per line, like <b>Ama Boateng, 0551234567</b>. Everyone gets the next index number and a new password. You will get a list to copy.</p>
+    <textarea id="impText" rows="9" style="grid-column:1/-1" placeholder="Ama Boateng, 0551234567&#10;Kofi Mensah, 0244000111" aria-label="Members to import"></textarea></div>
+    <div class="df"><p class="err" id="formErr" role="alert"></p><div class="sp"></div><button class="btn" type="button" data-act="closeform">Cancel</button><button class="btn pri" type="submit">Create logins</button></div></form>`;
+  dlg.showModal();
+  $('#impForm').onsubmit = async e => {
+    e.preventDefault(); const btn = $('button[type=submit]', e.target); $('#formErr').textContent = '';
+    const rows = $('#impText').value.split(/\r?\n/).map(l => l.trim()).filter(Boolean).map(l => { const p = l.split(/[,\t;]/).map(v => v.trim()); const phone = p.find((v, i) => i > 0 && /\d{7,}/.test(v)) || (/\d{7,}/.test(p[0]) ? p[0] : ''); const name = p.find(v => v && !/^[+\d\s().-]{7,}$/.test(v)) || ''; return { name, phone }; }).filter(r => r.name);
+    if (!rows.length) { $('#formErr').textContent = 'Add at least one name.'; return; }
+    btn.disabled = true;
+    try {
+      const r = await memRpc('admin_add_members', { p_rows: rows });
+      dlg.close();
+      credBox(`${r.members.length} logins created`, r.members.map(m => `${m.name}${m.phone ? ' (' + m.phone + ')' : ''}  |  Index: ${m.index}  |  Password: ${m.password}`));
+      viewMembers($('#main'));
+    } catch (ex) { $('#formErr').textContent = ex.message; btn.disabled = false; }
+  };
+}
+async function memAction(d) {
+  try {
+    if (d.act === 'memAdd') memForm();
+    else if (d.act === 'memImport') memImportForm();
+    else if (d.act === 'memEdit') memForm(MEM.list.find(x => x.index === d.index));
+    else if (d.act === 'memDel') {
+      if (!window.confirm('Delete this member? They will no longer be able to sign in.')) return;
+      await memRpc('admin_delete_member', { p_index: d.index }); toast('Deleted'); viewMembers($('#main'));
+    } else if (d.act === 'headSet') {
+      if (!window.confirm('Create a new password for this ministry head? The old one stops working.')) return;
+      const r = await memRpc('admin_set_head', { p_slug: d.slug, p_username: d.user || '', p_password: '' });
+      credBox('Ministry head login', [`Sign in at: ${location.origin}/csc-admin/admin.html`, `Choose: "Ministry head? Sign in with your ministry code"`, `Ministry code: ${r.username}`, `Password: ${r.password}`]);
+      viewMembers($('#main'));
+    }
+  } catch (ex) { toast(ex.message, 'bad'); }
+}
+
 function openForm(key, id) {
   const col = COLLECTIONS[key];
   const it = id ? (cache[key] || []).find(x => x.id === id) : null;
@@ -1876,12 +2008,14 @@ document.addEventListener('click', e => {
     case 'home-remove-row': homepageEditor.draft.serviceTimes.rows.splice(+d.homeRowIndex, 1); renderHomeRepeater('serviceTimes.rows'); refreshHomepagePreview(); break;
     case 'home-move-row': { const index = +d.homeRowIndex, next = d.homeDirection === 'up' ? index - 1 : index + 1; const rows = homepageEditor.draft.serviceTimes.rows; if (next >= 0 && next < rows.length) [rows[index], rows[next]] = [rows[next], rows[index]]; renderHomeRepeater('serviceTimes.rows'); refreshHomepagePreview(); break; }
     case 'copy': copyText(d.t); break;
+    case 'memAdd': case 'memImport': case 'memEdit': case 'memDel': case 'headSet': memAction(d); break;
     case 'export': exportAll(); break;
     case 'reset':
       KEYS.forEach(k => lsDel(LS + k)); cache = {}; toast('Demo data reset'); go(); KEYS.forEach(k => load(k)); break;
   }
 });
 document.addEventListener('input', e => {
+  if (e.target.id === 'memQ') { MEM.q = e.target.value; drawMembers(); }
   if (e.target.id === 'q') { ui.q = e.target.value; drawList(route); }
   if (e.target.id === 'importText') previewContactsImport();
   const homeField = e.target.closest && e.target.closest('[data-home-field]');

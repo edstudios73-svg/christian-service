@@ -66,11 +66,11 @@ SMS is sent by the Supabase Edge Function `send-sms-announcement`. The SasuSync 
 4. In SasuSync, make sure the sender ID `CSC-UPDATES` is approved and the account has SMS credits (1 credit per message part, per recipient).
 5. In the admin: add numbers under **SMS Subscribers** (visitors can also subscribe from the website footer), then tick **Also send as SMS to subscribers** when publishing an announcement.
 
-## Ministry sites (one site and one admin per ministry)
+## Ministry sites (members only, one admin door)
 
-Each ministry (except Children) has its own page and its own admin login. Works at `www.christianservicechurch.org/m/mediateam` right away, and at `mediateam.christianservicechurch.org` once the subdomain is connected.
+Each ministry (except Children) has a members-only page at `www.christianservicechurch.org/m/<ministry>` (and at `<ministry>.christianservicechurch.org` once the subdomain is connected). The ministries are `mediateam`, `youth`, `prayer`, `ushers`, `choir`, `evangelism` and `virtuouswomen`.
 
-1. Supabase > SQL Editor: paste and run `ministry-sites-setup.sql` once. It creates the tables, the security rules and the seven ministry sites (mediateam, youth, prayer, ushers, choir, evangelism, virtuouswomen).
-2. For each team head: Supabase > Authentication > Users > Add user (email, password, auto confirm). Then run the small `insert into public.ministry_admins ...` example at the bottom of the SQL file with their email and ministry.
-3. The head signs in at `.../m/mediateam/admin` (or `mediateam.christianservicechurch.org/admin`) to post announcements and events, add photos, manage the team, see join requests and edit the page details. You (the church admin) can open any ministry's admin with your normal admin login.
-4. Subdomains: in Cloudflare add a CNAME record named `mediateam` pointing to `cname.vercel-dns.com` (DNS only), then add the domain to the Vercel project. Repeat for each ministry.
+1. Supabase > SQL Editor: run `ministry-sites-setup.sql` once. It creates the tables, locks them so nothing can be read straight from the browser, and adds the sign-in and management functions.
+2. Members: Admin > Members and logins > Add member or Import list. Each person gets an index number (for example CSC-0001) and a password. They sign in on any ministry page with those.
+3. Ministry heads: Admin > Members and logins > Ministry head logins. Each ministry has one code and password. The head opens the normal admin sign-in page, taps "Ministry head? Sign in with your ministry code", and lands in the admin for their ministry only. The church admin can open every ministry at `/m/<ministry>/admin`.
+4. Subdomains: in Cloudflare add a CNAME record for each ministry name pointing to `cname.vercel-dns.com` (DNS only), then add the domain to the Vercel project.

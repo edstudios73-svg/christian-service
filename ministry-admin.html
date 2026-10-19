@@ -204,15 +204,14 @@ select.picker option{color:#000}
         (d.team.length ? d.team.map(function (t) { return '<div class="row">' + (t.image ? '<div class="th" style="background-image:url(\'' + esc(t.image) + '\');border-radius:50%"></div>' : '') + '<div class="tx"><b>' + esc(t.name) + '</b><span>' + esc(t.role || '') + '</span></div><div class="acts"><button class="btn sm" data-a="editPerson" data-id="' + t.id + '">Edit</button><button class="btn sm danger" data-a="delPerson" data-id="' + t.id + '">Delete</button></div></div>'; }).join('') : '<div class="empty">Add your head, assistants and members so everyone can see who serves.</div>') + '</div>';
     } else {
       var s = state.site, inp = 'width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px';
-      m.innerHTML = '<div class="head"><h2>Page details</h2></div><p class="hint">These words and the main picture show at the top of your ministry page.</p><form id="siteForm" class="list" style="gap:12px">' +
+      m.innerHTML = '<div class="head"><h2>Page details</h2></div><p class="hint">These words show on your ministry page.</p><form id="siteForm" class="list" style="gap:12px">' +
         '<div><label class="l" for="s_tag">Short motto</label><input id="s_tag" type="text" value="' + esc(s.tagline) + '" maxlength="120" style="' + inp + '"></div>' +
         '<div><label class="l" for="s_about">About us</label><textarea id="s_about" style="' + inp + ';min-height:130px">' + esc(s.about) + '</textarea></div>' +
         '<div><label class="l" for="s_meet">When we meet</label><input id="s_meet" type="text" value="' + esc(s.meeting_info) + '" placeholder="e.g. Saturdays, 4:00 PM at the church" style="' + inp + '"></div>' +
         '<div class="two"><div><label class="l" for="s_ph">Phone</label><input id="s_ph" type="tel" value="' + esc(s.contact_phone) + '" style="' + inp + '"></div><div><label class="l" for="s_wa">WhatsApp number</label><input id="s_wa" type="tel" value="' + esc(s.whatsapp) + '" style="' + inp + '"></div></div>' +
         '<div><label class="l" for="s_em">Email</label><input id="s_em" type="email" value="' + esc(s.contact_email) + '" style="' + inp + '"></div>' +
-        '<div><label class="l">Main picture</label><label class="btn" style="cursor:pointer;display:inline-block">Choose picture<input type="file" id="s_img" accept="image/*" hidden></label>' + (s.hero_image ? '<img class="prev" id="s_prev" src="' + esc(s.hero_image) + '" alt="">' : '<img class="prev" id="s_prev" hidden alt="">') + '<p class="hint" style="margin-top:6px">Leave empty to keep the standard ministry picture.</p></div>' +
+        '<p class="hint" style="margin:0">The main picture at the top of your page is set by the church office.</p>' +
         '<button class="btn gold" type="submit">Save page details</button></form>';
-      $('s_img').addEventListener('change', function (e) { var f = e.target.files[0]; if (!f) return; $('s_prev').src = URL.createObjectURL(f); $('s_prev').hidden = false; state.heroFile = f; });
       $('siteForm').addEventListener('submit', saveSite);
     }
   }
@@ -281,9 +280,8 @@ select.picker option{color:#000}
   function saveSite(e) {
     e.preventDefault(); var btn = e.target.querySelector('button[type=submit]'); btn.disabled = true;
     var ph = $('s_ph').value.trim(), wa = $('s_wa').value.trim();
-    (state.heroFile ? upload(state.heroFile) : Promise.resolve(state.site.hero_image || null)).then(function (img) {
-      return call('mgmt_save_site', { p_slug: state.slug, p: { tagline: $('s_tag').value.trim(), about: $('s_about').value.trim(), meeting_info: $('s_meet').value.trim(), contact_phone: ph, whatsapp: wa ? (normPhone(wa) || wa) : '', contact_email: $('s_em').value.trim(), hero_image: img || '' } });
-    }).then(function () { state.heroFile = null; toast('Saved'); btn.disabled = false; load(); }).catch(function (ex) { toast(why(ex), true); btn.disabled = false; });
+    call('mgmt_save_site', { p_slug: state.slug, p: { tagline: $('s_tag').value.trim(), about: $('s_about').value.trim(), meeting_info: $('s_meet').value.trim(), contact_phone: ph, whatsapp: wa ? (normPhone(wa) || wa) : '', contact_email: $('s_em').value.trim() } })
+      .then(function () { toast('Saved'); btn.disabled = false; load(); }).catch(function (ex) { toast(why(ex), true); btn.disabled = false; });
   }
 
   start();

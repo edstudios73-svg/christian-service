@@ -76,6 +76,30 @@
       "destination": "/ministry-admin.html"
     },
     {
+      "source": "/m/mediateam",
+      "destination": "/ministry-mediateam.html"
+    },
+    {
+      "source": "/m/youth",
+      "destination": "/ministry-youth.html"
+    },
+    {
+      "source": "/m/prayer",
+      "destination": "/ministry-prayer.html"
+    },
+    {
+      "source": "/m/ushers",
+      "destination": "/ministry-ushers.html"
+    },
+    {
+      "source": "/m/choir",
+      "destination": "/ministry-choir.html"
+    },
+    {
+      "source": "/m/evangelism",
+      "destination": "/ministry-evangelism.html"
+    },
+    {
       "source": "/m/:slug",
       "destination": "/ministry.html"
     },

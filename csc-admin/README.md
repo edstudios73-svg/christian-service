@@ -74,3 +74,7 @@ Each ministry (except Children) has a members-only page at `www.christianservice
 2. Members: Admin > Members and logins > Add member or Import list. Each person gets an index number (for example CSC-0001) and a password. They sign in on any ministry page with those.
 3. Ministry heads: Admin > Members and logins > Ministry head logins. Each ministry has one code and password. The head opens the normal admin sign-in page, taps "Ministry head? Sign in with your ministry code", and lands in the admin for their ministry only. The church admin can open every ministry at `/m/<ministry>/admin`.
 4. Subdomains: in Cloudflare add a CNAME record for each ministry name pointing to `cname.vercel-dns.com` (DNS only), then add the domain to the Vercel project.
+
+### Link previews and the ministry pictures
+- Each ministry has its own link preview (picture, name and motto) so a shared address looks right on WhatsApp and Facebook. The pages are built from `ministry.html` by `python3 scripts/build-ministry-pages.py`, and the pictures by `python3 scripts/make-ministry-previews.py`. Run the first one again after changing `ministry.html`.
+- The main picture at the top of a ministry's page is the picture chosen for that ministry in Admin > Ministries. Change it there and the ministry page follows right away (run `ministry-sites-update-hero.sql` once if you set up before this existed). The link-preview picture does not change.

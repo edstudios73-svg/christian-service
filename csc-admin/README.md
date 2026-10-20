@@ -83,3 +83,7 @@ Each ministry (except Children) has a members-only page at `www.christianservice
 ## Join now requests
 
 The Join now button on each ministry card opens a short form (name, phone, ministry, why). Run `ministry-join-update.sql` once in the Supabase SQL Editor. Requests appear in that ministry head's admin (Join requests tab) and for you in Admin > Members and logins > Ministry join requests.
+
+## Members belong to ministries
+
+Run `ministry-members-update.sql` once in the Supabase SQL Editor. Then: (1) in Admin > Members and logins you tick the ministry when adding or importing a member, and that member signs in on that ministry's page with their index number and password; (2) each ministry head has a Members tab where they type an index number and a name, and the system makes a password from the name (for example Kofi-48271) to hand to the member. A member only sees the ministry page(s) they belong to.

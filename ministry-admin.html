@@ -92,7 +92,7 @@ select.picker option{color:#000}
     <select class="picker" id="picker" aria-label="Choose ministry" hidden></select>
     <a id="viewSite" href="#" target="_blank" rel="noopener">View page</a><button type="button" id="out">Sign out</button></div>
   <div class="tabs" role="tablist" id="tabs">
-    <button role="tab" data-t="posts">Updates</button><button role="tab" data-t="gallery">Gallery</button><button role="tab" data-t="team">Team</button><button role="tab" data-t="joins">Join requests</button>
+    <button role="tab" data-t="posts">Updates</button><button role="tab" data-t="gallery">Gallery</button><button role="tab" data-t="team">Team</button><button role="tab" data-t="members">Members</button><button role="tab" data-t="joins">Join requests</button>
     <button role="tab" data-t="site">Page details</button>
   </div>
   <main id="main"></main>
@@ -182,9 +182,10 @@ select.picker option{color:#000}
   function load() {
     return call('mgmt_load', { p_slug: state.slug }).then(function (r) {
       state.site = r.site || {};
-      state.data = { posts: r.posts || [], gallery: r.gallery || [], team: r.team || [], joins: r.joins || [] };
+      state.data = { posts: r.posts || [], gallery: r.gallery || [], team: r.team || [], joins: r.joins || [], members: [] };
       $('mName').textContent = state.site.name || 'Ministry'; $('viewSite').href = '/m/' + state.slug;
       draw();
+      return call('mgmt_members', { p_slug: state.slug }).then(function (m) { state.data.members = m.members || []; state.membersReady = true; if (state.tab === 'members') draw(); }).catch(function () { state.membersReady = false; if (state.tab === 'members') draw(); });
     }).catch(function (e) { toast(why(e), true); });
   }
   $('tabs').addEventListener('click', function (e) { var b = e.target.closest('button[data-t]'); if (!b) return; state.tab = b.dataset.t; draw(); });
@@ -202,6 +203,9 @@ select.picker option{color:#000}
     } else if (state.tab === 'team') {
       m.innerHTML = '<div class="head"><h2>Team and leaders</h2><button class="btn pri" data-a="newPerson">+ Add person</button></div><div class="list">' +
         (d.team.length ? d.team.map(function (t) { return '<div class="row">' + (t.image ? '<div class="th" style="background-image:url(\'' + esc(t.image) + '\');border-radius:50%"></div>' : '') + '<div class="tx"><b>' + esc(t.name) + '</b><span>' + esc(t.role || '') + '</span></div><div class="acts"><button class="btn sm" data-a="editPerson" data-id="' + t.id + '">Edit</button><button class="btn sm danger" data-a="delPerson" data-id="' + t.id + '">Delete</button></div></div>'; }).join('') : '<div class="empty">Add your head, assistants and members so everyone can see who serves.</div>') + '</div>';
+    } else if (state.tab === 'members') {
+      m.innerHTML = '<div class="head"><h2>Members</h2><button class="btn pri" data-a="newMember">+ Add member</button></div><p class="hint">Give each member an index number. The system makes a password from their name. Share both with them so they can sign in to this ministry page.</p><div class="list">' +
+        (d.members.length ? d.members.map(function (x) { return '<div class="row"><div class="tx"><b>' + esc(x.name) + '</b><span><span class="pill" style="display:inline-block">' + esc(x.index) + '</span>' + (x.phone ? esc(x.phone) + ' ' : '') + (x.last_login ? 'Last sign-in ' + esc(niceDate(String(x.last_login).slice(0, 10))) : 'Not signed in yet') + '</span></div><div class="acts"><button class="btn sm" data-a="memPw" data-index="' + esc(x.index) + '">New password</button><button class="btn sm danger" data-a="memDel" data-index="' + esc(x.index) + '">Remove</button></div></div>'; }).join('') : '<div class="empty">' + (state.membersReady === false ? 'Members need a one-time setup by the church office (ministry-members-update.sql).' : 'No members yet. Tap + Add member.') + '</div>') + '</div>';
     } else if (state.tab === 'joins') {
       var lab = { 'new': 'New', contacted: 'Contacted', joined: 'Joined' };
       m.innerHTML = '<div class="head"><h2>Join requests</h2></div><p class="hint">People who asked to join your ministry from the church website. Call them, then mark them.</p><div class="list">' +
@@ -229,12 +233,38 @@ select.picker option{color:#000}
     else if (a === 'delPhoto') del('photo', id, 'Delete this photo?');
     else if (a === 'newPerson') personForm(); else if (a === 'editPerson') personForm(find('team'));
     else if (a === 'delPerson') del('person', id, 'Remove this person?');
+    else if (a === 'newMember') memberForm();
+    else if (a === 'memPw') call('mgmt_member_password', { p_slug: state.slug, p_index: b.dataset.index }).then(function (r) { creds('New password', r); }).catch(function (ex) { toast(why(ex), true); });
+    else if (a === 'memDel') { if (window.confirm('Remove this member from ' + (state.site.name || 'the ministry') + '? They will no longer be able to sign in to this page.')) call('mgmt_remove_member', { p_slug: state.slug, p_index: b.dataset.index }).then(function () { toast('Removed'); load(); }).catch(function (ex) { toast(why(ex), true); }); }
     else if (a === 'delJoin') del('join', id, 'Delete this request?');
     else if (a === 'joinSt') call('mgmt_join_status', { p_slug: state.slug, p_id: id, p_status: b.dataset.st }).then(function () { load(); }).catch(function (ex) { toast(why(ex), true); });
   });
   function del(what, id, q) {
     $('dlg').innerHTML = '<form method="dialog"><h3>' + esc(q) + '</h3><div class="df"><button class="btn" value="no">Keep it</button><button class="btn danger" value="yes">Delete</button></div></form>';
     $('dlg').onclose = function () { var yes = $('dlg').returnValue === 'yes'; $('dlg').onclose = null; if (yes) call('mgmt_delete', { p_slug: state.slug, p_what: what, p_id: id }).then(function () { toast('Deleted'); load(); }).catch(function (ex) { toast(why(ex), true); }); };
+    $('dlg').returnValue = ''; $('dlg').showModal();
+  }
+  function memberForm() {
+    $('dlg').innerHTML = '<form id="mf"><h3>Add member</h3><p class="hint" style="margin:0">You choose the index number. The password is made from the name.</p>' +
+      field('Index number', '<input id="mb_idx" type="text" required maxlength="20" placeholder="e.g. CSC-1021" autocapitalize="characters" autocomplete="off">') +
+      field('Full name', '<input id="mb_name" type="text" required maxlength="80" autocomplete="off">') +
+      field('Phone (optional)', '<input id="mb_ph" type="tel" maxlength="20" placeholder="0551234567">') +
+      '<p class="err" id="mb_err"></p><div class="df"><button type="button" class="btn" id="mb_x">Cancel</button><button class="btn pri" type="submit" id="mb_ok">Save member</button></div></form>';
+    $('mb_x').onclick = function () { $('dlg').close(); };
+    $('mf').onsubmit = function (e) {
+      e.preventDefault(); $('mb_ok').disabled = true; $('mb_err').textContent = '';
+      call('mgmt_add_member', { p_slug: state.slug, p_index: $('mb_idx').value.trim(), p_name: $('mb_name').value.trim(), p_phone: $('mb_ph').value.trim() })
+        .then(function (r) { $('dlg').close(); creds('Member saved', r); load(); }).catch(function (ex) { $('mb_err').textContent = why(ex); $('mb_ok').disabled = false; });
+    };
+    $('dlg').showModal();
+  }
+  function creds(title, r) {
+    var link = 'https://' + state.slug + '.christianservicechurch.org';
+    var text = r.name + '\nIndex number: ' + r.index + '\nPassword: ' + r.password + '\nSign in at: ' + link;
+    $('dlg').innerHTML = '<form method="dialog"><h3>' + esc(title) + '</h3><p class="hint" style="margin:0">Copy these and give them to the member. For safety the password is not shown again, but you can make a new one any time.</p>' +
+      '<pre id="credTxt" style="white-space:pre-wrap;user-select:all;background:#f3f5fb;border-radius:10px;padding:12px;font-size:14px;margin:0">' + esc(text) + '</pre>' +
+      '<div class="df"><button type="button" class="btn" id="cr_copy">Copy</button><button class="btn pri" value="ok">Done</button></div></form>';
+    $('cr_copy').onclick = function () { (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(function () { toast('Copied'); }).catch(function () { var r2 = document.createRange(); r2.selectNodeContents($('credTxt')); var sel = getSelection(); sel.removeAllRanges(); sel.addRange(r2); toast('Selected. Tap Copy in your phone menu.'); }); };
     $('dlg').returnValue = ''; $('dlg').showModal();
   }
   function field(label, inner) { return '<div><label class="l">' + label + '</label>' + inner + '</div>'; }

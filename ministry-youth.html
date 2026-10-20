@@ -263,6 +263,7 @@ footer a{color:var(--gold)}
     Promise.all([sb.rpc('session_info', { p_token: token }), sb.rpc('ministry_home', { p_token: token, p_slug: slug }), sb.rpc('ministry_list', { p_token: token })]).then(function (r) {
       var info = r[0].data || {}, home = r[1].data || {};
       if (r[1].error || !info.ok || home.error === 'signin') { setToken(''); token = ''; showGate(info && info.ok === false && r[0].data ? 'Please sign in again.' : ''); return; }
+      if (home.error === 'notmember') { setToken(''); token = ''; showGate('This page is for members of ' + (NAMES[slug] || 'this ministry') + '. Please sign in with the index number your ministry head gave you.'); return; }
       if (!home.ok) { $('state').textContent = 'This ministry page could not be found.'; return; }
       me = info; data = home; sites = (r[2].data && r[2].data.sites) || [];
       render(); route();

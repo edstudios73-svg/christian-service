@@ -1585,7 +1585,10 @@ async function seedCoreMinistries() {
 /* ============================================================
    Members (index number + password) and ministry head logins
    ============================================================ */
-const MEM = { list: [], q: '' };
+const MEM = { list: [], q: '', sites: [] };
+const minNames = (slugs) => (slugs || []).map(sl => (MEM.sites.find(x => x.slug === sl) || {}).name || sl).join(', ');
+const minChecks = (id, picked) => `<div class="fld"><label class="l">Ministry <i aria-hidden="true">*</i></label><div id="${id}" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px">${MEM.sites.map(x => `<label style="display:flex;gap:8px;align-items:center;font-size:14px"><input type="checkbox" value="${esc(x.slug)}"${(picked || []).includes(x.slug) ? ' checked' : ''}> ${esc(x.name)}</label>`).join('')}</div><p class="hint" style="margin:6px 0 0">The member signs in with these details on the page of the ministry you tick.</p></div>`;
+const picked = (id) => [...document.querySelectorAll('#' + id + ' input:checked')].map(i => i.value);
 const memRpc = async (fn, args) => {
   const { data, error } = await Store.sb.rpc(fn, args || {});
   if (error) throw new Error(/function .* does not exist|schema cache/i.test(error.message || '') ? 'The members setup has not been run yet. Run ministry-sites-setup.sql in Supabase first.' : (error.message || 'Something went wrong.'));
@@ -1603,6 +1606,7 @@ async function viewMembers(main) {
   try {
     const [h, m] = await Promise.all([memRpc('admin_heads'), memRpc('admin_members')]);
     MEM.list = m.members || [];
+    MEM.sites = h.heads || [];
     $('#heads').className = '';
     $('#heads').innerHTML = `<div class="rows">${(h.heads || []).map(x => `<div class="row"><div class="info"><div class="t">${esc(x.name)}</div><div class="m"><span>Code: <b>${esc(x.username || 'not set yet')}</b></span></div></div><div class="acts"><button class="btn sm" type="button" data-act="headSet" data-slug="${esc(x.slug)}" data-user="${esc(x.username || '')}">${x.has_password ? 'New password' : 'Create login'}</button></div></div>`).join('')}</div>`;
     drawMembers();
@@ -1623,7 +1627,7 @@ function drawMembers() {
   const items = MEM.list.filter(x => !q || `${x.name} ${x.index} ${x.phone || ''}`.toLowerCase().includes(q));
   el.className = '';
   $('#memCount').textContent = `${MEM.list.length} member${MEM.list.length === 1 ? '' : 's'}`;
-  el.innerHTML = items.length ? `<div class="rows">${items.map(x => `<div class="row"><div class="info"><div class="t">${esc(x.name)}</div><div class="m"><span>${esc(x.index)}</span>${x.phone ? `<span>${esc(x.phone)}</span>` : ''}<span>${x.last_login ? 'Last sign-in ' + esc(fmtDate(String(x.last_login).slice(0, 10))) : 'Never signed in'}</span></div></div>${x.active ? '' : '<span class="pill draft">Blocked</span>'}<div class="acts"><button class="icon" type="button" data-act="memEdit" data-index="${esc(x.index)}" aria-label="Edit ${esc(x.name)}">${icon('edit')}</button><button class="icon bad" type="button" data-act="memDel" data-index="${esc(x.index)}" aria-label="Delete ${esc(x.name)}">${icon('trash')}</button></div></div>`).join('')}</div>` : `<div class="empty">${icon('members', 40)}<h3>${MEM.list.length ? 'Nothing matches' : 'No members yet'}</h3><p>${MEM.list.length ? 'Try a different search.' : 'Add a member or import your list. Each person gets an index number and a password.'}</p></div>`;
+  el.innerHTML = items.length ? `<div class="rows">${items.map(x => `<div class="row"><div class="info"><div class="t">${esc(x.name)}</div><div class="m"><span>${esc(x.index)}</span>${x.phone ? `<span>${esc(x.phone)}</span>` : ''}<span>${(x.ministries || []).length ? esc(minNames(x.ministries)) : '<b>No ministry yet</b>'}</span><span>${x.last_login ? 'Last sign-in ' + esc(fmtDate(String(x.last_login).slice(0, 10))) : 'Never signed in'}</span></div></div>${x.active ? '' : '<span class="pill draft">Blocked</span>'}<div class="acts"><button class="icon" type="button" data-act="memEdit" data-index="${esc(x.index)}" aria-label="Edit ${esc(x.name)}">${icon('edit')}</button><button class="icon bad" type="button" data-act="memDel" data-index="${esc(x.index)}" aria-label="Delete ${esc(x.name)}">${icon('trash')}</button></div></div>`).join('')}</div>` : `<div class="empty">${icon('members', 40)}<h3>${MEM.list.length ? 'Nothing matches' : 'No members yet'}</h3><p>${MEM.list.length ? 'Try a different search.' : 'Add a member or import your list. Each person gets an index number and a password.'}</p></div>`;
 }
 function credBox(title, lines) {
   const dlg = $('#formDlg');
@@ -1640,7 +1644,8 @@ function memForm(x) {
       <div class="fld"><label class="l" for="m_name">Full name <i aria-hidden="true">*</i></label><input id="m_name" type="text" value="${esc(x.name || '')}" required></div>
       <div class="fld half"><label class="l" for="m_phone">Phone</label><input id="m_phone" type="tel" value="${esc(x.phone || '')}" placeholder="0551234567"></div>
       <div class="fld half"><label class="l" for="m_index">Index number</label><input id="m_index" type="text" value="${esc(x.index || '')}" placeholder="Leave empty for the next number"${x.index ? ' readonly' : ''}></div>
-      <div class="fld"><label class="l" for="m_pass">${x.index ? 'New password (leave empty to keep the current one)' : 'Password (leave empty to create one)'}</label><input id="m_pass" type="text" autocomplete="off"></div>
+      <div class="fld"><label class="l" for="m_pass">${x.index ? 'New password (leave empty to keep the current one)' : 'Password (leave empty to create one from the name)'}</label><input id="m_pass" type="text" autocomplete="off"></div>
+      ${minChecks('m_mins', x.ministries)}
       ${x.index ? `<div class="fld"><label class="switch"><input type="checkbox" id="m_active"${x.active === false ? '' : ' checked'}><span></span>Allowed to sign in</label></div>` : ''}
     </div>
     <div class="df"><p class="err" id="formErr" role="alert"></p><div class="sp"></div><button class="btn" type="button" data-act="closeform">Cancel</button><button class="btn pri" type="submit">Save member</button></div></form>`;
@@ -1648,9 +1653,10 @@ function memForm(x) {
   $('#memForm').onsubmit = async e => {
     e.preventDefault(); const btn = $('button[type=submit]', e.target); btn.disabled = true; $('#formErr').textContent = '';
     try {
-      const r = await memRpc('admin_save_member', { p_index: $('#m_index').value.trim(), p_name: $('#m_name').value.trim(), p_phone: $('#m_phone').value.trim(), p_password: $('#m_pass').value.trim(), p_active: $('#m_active') ? $('#m_active').checked : true });
+      if (!picked('m_mins').length) throw new Error('Please tick the ministry this member belongs to.');
+      const r = await memRpc('admin_save_member', { p_ministries: picked('m_mins'), p_index: $('#m_index').value.trim(), p_name: $('#m_name').value.trim(), p_phone: $('#m_phone').value.trim(), p_password: $('#m_pass').value.trim(), p_active: $('#m_active') ? $('#m_active').checked : true });
       dlg.close();
-      if (r.password) credBox('Member login', [`${$('#m_name').value.trim()}`, `Index number: ${r.index}`, `Password: ${r.password}`]); else toast('Saved');
+      if (r.password) credBox('Member login', [`${$('#m_name').value.trim()}`, `Ministry: ${minNames(picked('m_mins'))}`, `Index number: ${r.index}`, `Password: ${r.password}`, `Sign in at the ministry page, for example https://${picked('m_mins')[0]}.christianservicechurch.org`]); else toast('Saved');
       viewMembers($('#main'));
     } catch (ex) { $('#formErr').textContent = ex.message; btn.disabled = false; }
   };
@@ -1659,6 +1665,7 @@ function memImportForm() {
   const dlg = $('#formDlg');
   dlg.innerHTML = `<form id="impForm" autocomplete="off"><div class="dh"><h2>Import members</h2><button type="button" class="icon" data-act="closeform" aria-label="Close">${icon('x', 22)}</button></div>
     <div class="db"><p class="hint" style="grid-column:1/-1;margin:0">Paste one person per line, like <b>Ama Boateng, 0551234567</b>. Everyone gets the next index number and a new password. You will get a list to copy.</p>
+    <div style="grid-column:1/-1">${minChecks('i_mins', [])}</div>
     <textarea id="impText" rows="9" style="grid-column:1/-1" placeholder="Ama Boateng, 0551234567&#10;Kofi Mensah, 0244000111" aria-label="Members to import"></textarea></div>
     <div class="df"><p class="err" id="formErr" role="alert"></p><div class="sp"></div><button class="btn" type="button" data-act="closeform">Cancel</button><button class="btn pri" type="submit">Create logins</button></div></form>`;
   dlg.showModal();
@@ -1666,9 +1673,10 @@ function memImportForm() {
     e.preventDefault(); const btn = $('button[type=submit]', e.target); $('#formErr').textContent = '';
     const rows = $('#impText').value.split(/\r?\n/).map(l => l.trim()).filter(Boolean).map(l => { const p = l.split(/[,\t;]/).map(v => v.trim()); const phone = p.find((v, i) => i > 0 && /\d{7,}/.test(v)) || (/\d{7,}/.test(p[0]) ? p[0] : ''); const name = p.find(v => v && !/^[+\d\s().-]{7,}$/.test(v)) || ''; return { name, phone }; }).filter(r => r.name);
     if (!rows.length) { $('#formErr').textContent = 'Add at least one name.'; return; }
+    if (!picked('i_mins').length) { $('#formErr').textContent = 'Please tick the ministry these members belong to.'; return; }
     btn.disabled = true;
     try {
-      const r = await memRpc('admin_add_members', { p_rows: rows });
+      const r = await memRpc('admin_add_members', { p_rows: rows, p_ministries: picked('i_mins') });
       dlg.close();
       credBox(`${r.members.length} logins created`, r.members.map(m => `${m.name}${m.phone ? ' (' + m.phone + ')' : ''}  |  Index: ${m.index}  |  Password: ${m.password}`));
       viewMembers($('#main'));
